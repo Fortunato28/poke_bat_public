@@ -1,5 +1,4 @@
 # Build
 ```sh
-$ mkdir build && cd build
-$ cmake ../
+$ ./build_all.sh
 ```
