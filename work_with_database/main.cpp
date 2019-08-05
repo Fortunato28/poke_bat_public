@@ -7,7 +7,7 @@ using namespace work_with_datbase;
 
 int main()
 {
-    DBManager db_manager;
+    DBManager db_manager(EXAMPLE_HOST, EXAMPLE_USER, EXAMPLE_PASS, EXAMPLE_DB);
 
     cout << "Worked minimal!" << endl;
 }

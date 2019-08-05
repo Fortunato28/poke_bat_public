@@ -13,19 +13,18 @@ using namespace std;
 
 namespace work_with_datbase {
 
-DBManager::DBManager()
+DBManager::DBManager(const std::string& host, const std::string& user, const std::string& pass, const std::string& db_name):
+    host_(host),
+    user_(user),
+    pass_(pass),
+    db_name_(db_name)
 {
-    string url(EXAMPLE_HOST);
-    const string user(EXAMPLE_USER);
-    const string pass( EXAMPLE_PASS);
-    const string database(EXAMPLE_DB);
-
     try
     {
         sql::Driver * driver = sql::mysql::get_driver_instance();
         /* Using the Driver to create a connection */
-        std::unique_ptr< sql::Connection > con(driver->connect(url, user, pass));
-        con->setSchema(database);
+        std::unique_ptr< sql::Connection > con(driver->connect(host_, user_, pass_));
+        con->setSchema(db_name_);
 
         std::unique_ptr< sql::Statement > stmt(con->createStatement());
         std::unique_ptr< sql::ResultSet > res(stmt->executeQuery("SELECT 'Welcome to Connector/C++' AS _message"));
@@ -63,7 +62,7 @@ void DBManager::AddPokemon(Pokemon& given_pok)
 
 }
 
-Pokemon DBManager::GetPokemon(lvl& level)
+Pokemon DBManager::GetPokemon(size_t level)
 {
 
 }
