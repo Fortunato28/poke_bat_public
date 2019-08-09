@@ -1,16 +1,35 @@
 namespace cpp poke_bat.middleware
 
-// Данил, заполни это - зависит от боевой системы и типов покемонов, которые у нас будут
 enum PokemonType {
+    NORMAL,
     FIRE,
+    WATER,
+    GRASS,
+    ELECTRIC,
     ICE,
-    ELECTRIC
+    FIGHTING,
+    POISON,
+    GROUND,
+    FLYING,
+    PSYCHIC,
+    BUG,
+    ROCK,
+    GHOST,
+    DARK,
+    DRAGON,
+    STEEL,
+    FAIRY
+}
+
+enum SkillType {
+    ATTACK,
+    BUFF,
+    DEBUFF
 }
 
 struct PokemonSkill {
     1: required string name;
-    2: required PokemonType type; // Всегда ли типы скилов покемонов совпадают с типами самих покемонов? Или нужен отдельный enum для этого поля?
-    3: required i64 value; // Что это такое?
+    2: required SkillType type;
     4: required i64 amount;
     5: required string description;
 }
@@ -21,8 +40,8 @@ struct Pokemon {
     3: required i64 HP;
     4: required i64 attack;
     5: required i64 defense;
-    6: optional i64 speed_attack;
-    7: optional i64 speed_defense;
+    6: optional i64 spell_attack;
+    7: optional i64 spell_defense;
     8: optional i64 speed;
     9: required i64 EXP;
     10: required i64 LVL;
@@ -44,7 +63,6 @@ struct Config {
 service PokServer {
     Config getConfig(),
 
-    // Методы ниже относятся непосредственно к битве
     Pokemon startFight(1:i64 complexity, 2:Pokemon clientPokemon)
     RoundResult punch(),
     RoundResult defend(),

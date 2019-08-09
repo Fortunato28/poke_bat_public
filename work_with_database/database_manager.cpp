@@ -54,6 +54,22 @@ DBManager::~DBManager()
 
 void DBManager::CreateDatabase()
 {
+    "CREATE DATABASE poke_bat"
+        "USE poke_bat"
+        "CREATE TABLE pokemons (
+                id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+             name VARCHAR(30),
+             type ENUM('fire', 'fairy', 'ice'),
+             HP BIGINT(1),
+             attack BIGINT(1),
+             defense BIGINT(1),
+             spell_attack BIGINT(1),
+             spell_defense BIGINT(1),
+             speed BIGINT(1),
+             EXP BIGINT(1),
+             LVL BIGINT(1),
+             skill ENUM('attack', 'buff', 'debuff')
+             );"
 
 }
 
