@@ -35,6 +35,8 @@ DBManager::DBManager(const std::string& host, const std::string& user, const std
         }
 
         CreateDatabase();
+        Pokemon test;
+        AddPokemon(test);
 
     }
     catch (sql::SQLException &e)
@@ -57,8 +59,29 @@ void DBManager::CreateDatabase()
 {
     stmt_->execute("CREATE DATABASE IF NOT EXISTS poke_bat");
     stmt_->execute("USE poke_bat");
-    stmt_->execute("CREATE TABLE pokemons (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, name VARCHAR(30),\
-        type ENUM('NORMAL', 'FIRE','WATER','GRASS','ELECTRIC','ICE','FIGHTING','POISON','GROUND','FLYING','PSYCHIC','BUG','ROCK','GHOST','DARK','DRAGON','STEEL','FAIRY'),\
+    stmt_->execute("CREATE TABLE IF NOT EXISTS pokemons\
+        (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,\
+        name VARCHAR(30),\
+        type ENUM(\
+                'NORMAL',\
+                'FIRE',\
+                'WATER',\
+                'GRASS',\
+                'ELECTRIC',\
+                'ICE',\
+                'FIGHTING',\
+                'POISON',\
+                'GROUND',\
+                'FLYING',\
+                'PSYCHIC',\
+                'BUG',\
+                'ROCK',\
+                'GHOST',\
+                'DARK',\
+                'DRAGON',\
+                'STEEL',\
+                'FAIRY'\
+            ),\
             HP BIGINT(1),\
             attack BIGINT(1),\
             defense BIGINT(1),\
@@ -74,7 +97,7 @@ void DBManager::CreateDatabase()
 
 void DBManager::AddPokemon(Pokemon& given_pok)
 {
-
+    stmt_->execute("INSERT INTO pokemons VALUES (NULL, 'ZHOPA', 'FIRE', 20, 20, 10, 5, 5, 15, 0, 1, 'ATTACK');");
 }
 
 Pokemon DBManager::GetPokemon(size_t level)

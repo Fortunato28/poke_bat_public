@@ -13,6 +13,7 @@ namespace work_with_datbase {
 #define EXAMPLE_PASS "1"
 #define EXAMPLE_DB "poke_bat"
 
+// FIXME Предположительно, стоит брать из трифтовых определений
 class Pokemon{};
 
 class DBManager
