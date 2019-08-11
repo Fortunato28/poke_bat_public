@@ -9,6 +9,7 @@
 #include "database_manager.h"
 
 using namespace std;
+using namespace poke_bat::middleware;
 
 namespace work_with_datbase {
 
@@ -26,19 +27,13 @@ DBManager::DBManager(const std::string& host, const std::string& user, const std
         con_->setSchema(db_name_);
 
         stmt_ = unique_ptr<sql::Statement>(con_->createStatement());
-        std::unique_ptr< sql::ResultSet > res(stmt_->executeQuery("SELECT 'Welcome to Connector/C++' AS _message"));
-        cout << "\t... running 'SELECT 'Welcome to Connector/C++' AS _message'" << endl;
-        while (res->next()) {
-          cout << "\t... MySQL replies: " << res->getString("_message") << endl;
-          cout << "\t... say it again, MySQL" << endl;
-          cout << "\t....MySQL replies: " << res->getString(1) << endl;
-        }
 
         CreateDatabase();
         Pokemon test;
         AddPokemon(test);
         test = GetPokemon(1);
-
+        // Тестово удаляет всех покемонов
+        RemovePokemon();
     }
     catch (sql::SQLException &e)
     {
@@ -100,34 +95,39 @@ void DBManager::CreateDatabase()
 
 void DBManager::AddPokemon(Pokemon& given_pok)
 {
+    // TODO Добавить нарезку строки от пришедшего покемона
     stmt_->execute("INSERT INTO pokemons VALUES (NULL, 'ZHOPA', 'FIRE', 20, 20, 10, 5, 5, 15, 0, 1, 'ATTACK', 'isib_wtf{some_flag}');");
 }
 
 Pokemon DBManager::GetPokemon(size_t level)
 {
+    // FIXME Правильно ли я понимаю, что тут возможно инъекция?
     string getPokemonCommand = "SELECT * FROM pokemons WHERE LVL=" + to_string(level) + ";";
         std::unique_ptr<sql::ResultSet> res(stmt_->executeQuery(getPokemonCommand));
 
-            if(res->next())
-            {
-          cout << "\t... MySQL replies: " << res->getString(2) << endl;
-          cout << "\t... MySQL replies: " << res->getString(3) << endl;
-          cout << "\t... MySQL replies: " << res->getInt(4) << endl;
-          cout << "\t... MySQL replies: " << res->getInt(5) << endl;
-          cout << "\t... MySQL replies: " << res->getInt(6) << endl;
-          cout << "\t... MySQL replies: " << res->getInt(7) << endl;
-          cout << "\t... MySQL replies: " << res->getInt(8) << endl;
-          cout << "\t... MySQL replies: " << res->getInt(9) << endl;
-          cout << "\t... MySQL replies: " << res->getInt(10) << endl;
-          cout << "\t... MySQL replies: " << res->getInt(11) << endl;
-          cout << "\t... MySQL replies: " << res->getString(12) << endl;
-          cout << "\t... MySQL replies: " << res->getString(13) << endl;
+        // TODO Вот тут должно быть создание покемона для внутрипрограммного использования
+        if(res->next())
+        {
+            cout << "\t... MySQL replies: " << res->getString(2) << endl;
+            cout << "\t... MySQL replies: " << res->getString(3) << endl;
+            cout << "\t... MySQL replies: " << res->getInt(4) << endl;
+            cout << "\t... MySQL replies: " << res->getInt(5) << endl;
+            cout << "\t... MySQL replies: " << res->getInt(6) << endl;
+            cout << "\t... MySQL replies: " << res->getInt(7) << endl;
+            cout << "\t... MySQL replies: " << res->getInt(8) << endl;
+            cout << "\t... MySQL replies: " << res->getInt(9) << endl;
+            cout << "\t... MySQL replies: " << res->getInt(10) << endl;
+            cout << "\t... MySQL replies: " << res->getInt(11) << endl;
+            cout << "\t... MySQL replies: " << res->getString(12) << endl;
+            cout << "\t... MySQL replies: " << res->getString(13) << endl;
         }
 }
 
 void DBManager::RemovePokemon()
 {
-
+    string deleteCommand = "DELETE FROM pokemons WHERE spell_attack=5;";
+    cout << "ALOE BLYA" << endl;
+    stmt_->execute(deleteCommand);
 }
 
 }
