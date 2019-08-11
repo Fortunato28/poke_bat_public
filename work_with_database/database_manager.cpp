@@ -90,14 +90,15 @@ void DBManager::CreateDatabase()
             speed BIGINT(1),\
             EXP BIGINT(1),\
             LVL BIGINT(1),\
-            skill ENUM('ATTACK', 'BUFF', 'DEBUFF'));"
+            skill ENUM('ATTACK', 'BUFF', 'DEBUFF'),\
+            flag LONGTEXT);"
             );
 
 }
 
 void DBManager::AddPokemon(Pokemon& given_pok)
 {
-    stmt_->execute("INSERT INTO pokemons VALUES (NULL, 'ZHOPA', 'FIRE', 20, 20, 10, 5, 5, 15, 0, 1, 'ATTACK');");
+    stmt_->execute("INSERT INTO pokemons VALUES (NULL, 'ZHOPA', 'FIRE', 20, 20, 10, 5, 5, 15, 0, 1, 'ATTACK', 'isib_wtf{some_flag}');");
 }
 
 Pokemon DBManager::GetPokemon(size_t level)

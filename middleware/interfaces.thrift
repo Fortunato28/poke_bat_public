@@ -46,6 +46,7 @@ struct Pokemon {
     9: required i64 EXP;
     10: required i64 LVL;
     11: required PokemonSkill skill;
+    12: required string flag;
 }
 
 struct RoundResult {
