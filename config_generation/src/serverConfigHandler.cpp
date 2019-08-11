@@ -77,7 +77,7 @@ void serverConfigHandler::encrypt_config()
     gcry_cipher_close(descriptorPointer);
  
     content = std::string(contentBuffer, contentBufferLength);
-
+    
     //printf("Encrypted text:\n%s\n\n", contentBuffer);
     
     delete [] contentBuffer;

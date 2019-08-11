@@ -1,7 +1,9 @@
 #include "clientConfigHandler.h"
 
 clientConfigHandler::clientConfigHandler()
-{ 
+{
+    content = "";
+
     password = "12345678";
     
     salt = "12345678";
@@ -9,7 +11,29 @@ clientConfigHandler::clientConfigHandler()
 
 bool clientConfigHandler::isConfigExist()
 {
-    return true;
+    int found;
+    struct dirent **nameList;
+    
+    found = scandir(".", &nameList, 0, 0);
+    if (found < 0)
+    {
+        return false;
+    }
+    else
+    {
+        while (found--)
+        {
+            //printf("%s\n", nameList[found]->d_name);
+            if ((strncmp(nameList[found]->d_name, "config.cfg", 10)) == 0)
+            {
+                free(nameList);
+                return true;
+            }
+            free(nameList[found]); 
+        }
+    }
+    free(nameList);
+    return false;
 }
 
 void clientConfigHandler::get_default_config()
@@ -19,22 +43,31 @@ void clientConfigHandler::get_default_config()
 
 void clientConfigHandler::save_config_to_file()
 {
-    //TODO create file and write content in there
+    std::ofstream fout("config.cfg");
+    fout << content;
+    //fout << "test";
+    fout.close(); 
 }
 
 void clientConfigHandler::load_config_from_file()
 {
-    //TODO open file and read the contnent to the variable
+    std::string tempString;
+    std::ifstream fin("config.cfg");
+    while (getline(fin, tempString))
+    {
+        content = content + tempString;
+    }
+    fin.close();
 }
 
 void clientConfigHandler::decrypt_config()
 { 
     gcry_error_t        gcryError;
     gcry_cipher_hd_t    descriptorPointer;
-    
+   
     char* contentBuffer = new char[(content.length() + 1) * 8];
     strcpy(contentBuffer, content.c_str());
-    size_t contentBufferLength = strlen(contentBuffer); //SIZE IS IMPORTANT
+    size_t contentBufferLength = strlen(contentBuffer) * 0 + 234; //SIZE IS IMPORTANT
     
     char* passwordBuffer = new char[password.length() + 1];
     strcpy(passwordBuffer, password.c_str());
@@ -76,7 +109,9 @@ void clientConfigHandler::decrypt_config()
 
     gcry_cipher_close(descriptorPointer);
 
-    //printf("Decrypted text:\n%s\n\n", contentBuffer);
+    content = std::string(contentBuffer, contentBufferLength);
+
+    printf("Decrypted text:\n%s\n\n", contentBuffer);
     
     delete [] contentBuffer;
     delete [] passwordBuffer;

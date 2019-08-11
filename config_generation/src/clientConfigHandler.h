@@ -8,6 +8,7 @@
 #include <string>
 #include <stdio.h>
 #include <dirent.h>
+#include <fstream>
 
 class clientConfigHandler
 {
