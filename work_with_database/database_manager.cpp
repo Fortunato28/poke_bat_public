@@ -37,6 +37,7 @@ DBManager::DBManager(const std::string& host, const std::string& user, const std
         CreateDatabase();
         Pokemon test;
         AddPokemon(test);
+        test = GetPokemon(1);
 
     }
     catch (sql::SQLException &e)
@@ -59,6 +60,7 @@ void DBManager::CreateDatabase()
 {
     stmt_->execute("CREATE DATABASE IF NOT EXISTS poke_bat");
     stmt_->execute("USE poke_bat");
+    // TODO Имя pokemons вынести отдельным полем
     stmt_->execute("CREATE TABLE IF NOT EXISTS pokemons\
         (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,\
         name VARCHAR(30),\
@@ -103,7 +105,24 @@ void DBManager::AddPokemon(Pokemon& given_pok)
 
 Pokemon DBManager::GetPokemon(size_t level)
 {
+    string getPokemonCommand = "SELECT * FROM pokemons WHERE LVL=" + to_string(level) + ";";
+        std::unique_ptr<sql::ResultSet> res(stmt_->executeQuery(getPokemonCommand));
 
+            if(res->next())
+            {
+          cout << "\t... MySQL replies: " << res->getString(2) << endl;
+          cout << "\t... MySQL replies: " << res->getString(3) << endl;
+          cout << "\t... MySQL replies: " << res->getInt(4) << endl;
+          cout << "\t... MySQL replies: " << res->getInt(5) << endl;
+          cout << "\t... MySQL replies: " << res->getInt(6) << endl;
+          cout << "\t... MySQL replies: " << res->getInt(7) << endl;
+          cout << "\t... MySQL replies: " << res->getInt(8) << endl;
+          cout << "\t... MySQL replies: " << res->getInt(9) << endl;
+          cout << "\t... MySQL replies: " << res->getInt(10) << endl;
+          cout << "\t... MySQL replies: " << res->getInt(11) << endl;
+          cout << "\t... MySQL replies: " << res->getString(12) << endl;
+          cout << "\t... MySQL replies: " << res->getString(13) << endl;
+        }
 }
 
 void DBManager::RemovePokemon()
