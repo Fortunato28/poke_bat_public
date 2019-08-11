@@ -1,8 +1,9 @@
-#include "configHandler.h"
-#include <iostream>
+#include "clientConfigHandler.h"
+#include "serverConfigHandler.h"
 
 int main()
 {
-    std::cout << "My pikapika will pearce the Heaven!" << std::endl;
+    serverConfigHandler test;
+    test.encrypt_config();
     return 0;
 }
