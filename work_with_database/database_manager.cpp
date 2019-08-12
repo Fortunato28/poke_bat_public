@@ -121,6 +121,8 @@ Pokemon DBManager::GetPokemon(size_t level)
             cout << "\t... MySQL replies: " << res->getString(12) << endl;
             cout << "\t... MySQL replies: " << res->getString(13) << endl;
         }
+
+        return Pokemon();
 }
 
 void DBManager::RemovePokemon()

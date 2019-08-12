@@ -17,8 +17,8 @@ namespace work_with_datbase {
 #define EXAMPLE_DB "poke_bat"
 
 // TODO Пофиксить на нормальный класс покемонов
-//using Pokemon = poke_bat::middleware::Pokemon;
-class Pokemon{};
+using Pokemon = poke_bat::middleware::Pokemon;
+//class Pokemon{};
 
 class DBManager
 {
