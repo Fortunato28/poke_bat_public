@@ -31,7 +31,6 @@ struct PokemonSkill {
     1: required string name;
     2: required SkillType type;
     4: required i64 amount;
-    5: required string description;
 }
 
 struct Pokemon {
