@@ -5,22 +5,18 @@
 */
 #include <libconfig.h++>
 #include <gcrypt.h>
-#include <string>
-#include <stdio.h>
 #include <dirent.h>
 #include <fstream>
 
 class clientConfigHandler
 {
 public:
-    clientConfigHandler();
+    clientConfigHandler() : configContent("") {}
     bool isConfigExist();
     void get_default_config();
     void save_config_to_file();
     void load_config_from_file(); 
     void decrypt_config();
 private:
-    std::string content;
-    std::string password;
-    std::string salt;
+    std::string configContent;
 };

@@ -4,17 +4,15 @@
  * (I will fix this description later during class development.)
 */
 #include <gcrypt.h>
-#include <string>
 #include <stdio.h>
+#include <string>
 
 class serverConfigHandler
 {
 public:
-    serverConfigHandler();
+    serverConfigHandler() : encryptedContent("") {}
     void encrypt_config();
-    void send_default_config(); //???
+    void send_default_config();
 private:
-    std::string content;
-    std::string password;
-    std::string salt;
+    std::string encryptedContent;
 };

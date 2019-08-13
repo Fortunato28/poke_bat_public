@@ -3,7 +3,6 @@
 
 int main()
 {
-    serverConfigHandler test;
-    test.encrypt_config();
+    printf("I hate my life!\n");
     return 0;
 }
