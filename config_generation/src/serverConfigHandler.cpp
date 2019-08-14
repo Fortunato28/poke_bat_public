@@ -29,6 +29,7 @@ void serverConfigHandler::encrypt_config()
     size_t contentLength = strlen(content);
     char* buffer = (char*)malloc(contentLength);
 
+    //crypto-descryptor initialisation
     gcryError = gcry_cipher_open(&descriptorPointer,
                                  GCRY_CIPHER_DES,
                                  GCRY_CIPHER_MODE_CBC,
@@ -39,6 +40,7 @@ void serverConfigHandler::encrypt_config()
         return;
     }
 
+    //set key for the ecryption
     gcryError = gcry_cipher_setkey(descriptorPointer, password, 8);
     if (gcryError) {
         printf("gcry_cipher_setkey failed:  %s/%s\n", 
@@ -46,6 +48,7 @@ void serverConfigHandler::encrypt_config()
         return;
     }
 
+    //set salt for the encryption
     gcryError = gcry_cipher_setiv(descriptorPointer, salt, 8);
     if (gcryError) {
         printf("gcry_cipher_setiv failed:  %s/%s\n", 
@@ -53,6 +56,7 @@ void serverConfigHandler::encrypt_config()
         return;
     }
 
+    //encryption
     gcryError = gcry_cipher_encrypt(descriptorPointer, buffer, 
                                     contentLength, content, contentLength);
     if (gcryError) {
@@ -61,8 +65,10 @@ void serverConfigHandler::encrypt_config()
         return;
     }
 
+    //closing crypto-descryptor
     gcry_cipher_close(descriptorPointer);
     
+    //conversion encrypted data to std::string
     std::string temp(buffer, contentLength);
     encryptedContent = temp;
 

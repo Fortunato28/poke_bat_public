@@ -1,5 +1,12 @@
 #include "clientConfigHandler.h"
 
+/*
+ * Next method is looking through current directory for "config.cfg".
+ * found - integer value equal to the number of files in directory.
+ * nameList - list of file names from the current directory.
+ * Method returns true in case there is a config-file.
+ */
+
 bool clientConfigHandler::isConfigExist()
 {
     int found;
@@ -38,6 +45,12 @@ void clientConfigHandler::save_config_to_file()
     fout.close(); 
 }
 
+/*
+ * Method load_config_from_file() loads data from file in a old fashioned C way
+ * because otherwise there is an uncertain lack of encrypted bytes.
+ * After reading from file this method converts data into the std::string.
+ */
+
 void clientConfigHandler::load_config_from_file()
 {
     FILE * ptrFile = fopen("config.cfg", "rb");
@@ -62,7 +75,8 @@ void clientConfigHandler::load_config_from_file()
 }
 
 void clientConfigHandler::decrypt_config()
-{  
+{ 
+    //conversion data into char 
     char *bufferContent = new char[configContent.length() + 1];
     for (int i = 0; i < configContent.length(); ++i)
     {
@@ -79,6 +93,7 @@ void clientConfigHandler::decrypt_config()
     size_t bufferContentLength = configContent.length();
     char* buffer = (char*)malloc(bufferContentLength);
 
+    //crypto-descryptor initialisation
     gcryError = gcry_cipher_open(&descriptorPointer,
                                  GCRY_CIPHER_DES,
                                  GCRY_CIPHER_MODE_CBC,
@@ -89,6 +104,7 @@ void clientConfigHandler::decrypt_config()
         return;
     }
 
+    //set key for the decryption
     gcryError = gcry_cipher_setkey(descriptorPointer, password, 8);
     if (gcryError) {
         printf("gcry_cipher_setkey failed:  %s/%s\n", 
@@ -96,6 +112,7 @@ void clientConfigHandler::decrypt_config()
         return;
     }
 
+    //set salt for the decryption
     gcryError = gcry_cipher_setiv(descriptorPointer, salt, 8);
     if (gcryError) {
         printf("gcry_cipher_setiv failed:  %s/%s\n", 
@@ -103,16 +120,22 @@ void clientConfigHandler::decrypt_config()
         return;
     }
 
-    gcryError = gcry_cipher_decrypt(descriptorPointer, buffer, 
-                                    bufferContentLength, bufferContent, bufferContentLength);
+    //decryption
+    gcryError = gcry_cipher_decrypt(descriptorPointer, 
+                                    buffer, 
+                                    bufferContentLength, 
+                                    bufferContent, 
+                                    bufferContentLength);
     if (gcryError) {
         printf("gcry_cipher_encrypt failed:  %s/%s\n", 
                gcry_strsource(gcryError), gcry_strerror(gcryError));
         return;
     }
 
+    //closing crypto-descryptor
     gcry_cipher_close(descriptorPointer);
 
+    //conversion data back to std::string
     std::string temp(buffer, bufferContentLength);
     configContent = temp;
 

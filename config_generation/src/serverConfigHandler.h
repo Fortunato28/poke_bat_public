@@ -1,8 +1,8 @@
 /* 
- * This header contain the class which will handle basic config file 
- * with pokemon data on the server side. Nothing special, really ¯\_(ツ)_/¯.
- * (I will fix this description later during class development.)
+ * This header contain the class which will encrypt and send pokemon data 
+ * to the client. Nothing special, really ¯\_(ツ)_/¯.
 */
+
 #include <gcrypt.h>
 #include <stdio.h>
 #include <string>
