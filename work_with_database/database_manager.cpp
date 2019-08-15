@@ -30,9 +30,10 @@ DBManager::DBManager(const std::string& host, const std::string& user, const std
         stmt_ = unique_ptr<sql::Statement>(con_->createStatement());
 
         CreateDatabase();
-        Pokemon test;
-        AddPokemon(test);
-        test = GetPokemon(1);
+        Pokemon testPok;
+        AddPokemon(testPok);
+        testPok = GetPokemon(1);
+        cout << testPok.skill << endl;
         // Тестово удаляет всех покемонов
         RemovePokemon();
     }
@@ -102,9 +103,29 @@ void DBManager::AddPokemon(Pokemon& given_pok)
 
 // TODO если костыль сработает, то вынести отдельно
 // TODO написать парсинг строки в структуру
-PokemonSkill parseStringFromDB(const std::string& skillData)
+PokemonSkill parseStringFromDB(const std::string& str)
 {
-    return PokemonSkill();
+    string skillData = str;
+    auto skillName = skillData.substr(0, skillData.find('_'));
+    skillData.erase(0, skillName.length() + 1);
+
+    auto skillType = skillData.substr(0, skillData.find('_'));
+    skillData.erase(0, skillType.length() + 1);
+    // TODO если костыль сработает, то вынести отдельно
+    std::map<string, SkillType::type> pokSkillTypes
+    {
+        {"ATTACK", SkillType::ATTACK},
+        {"BUFF", SkillType::BUFF},
+        {"DEBUFF", SkillType::DEBUFF},
+    };
+
+    auto skillAmount = skillData;
+
+    PokemonSkill pokemonSkill;
+    pokemonSkill.__set_name(skillName);
+    pokemonSkill.__set_type(pokSkillTypes.find(skillType)->second);
+    pokemonSkill.__set_amount(atoi(skillAmount.c_str()));
+    return pokemonSkill;
 }
 
 Pokemon DBManager::GetPokemon(size_t level)
@@ -136,13 +157,6 @@ Pokemon DBManager::GetPokemon(size_t level)
             {"FAIRY", PokemonType::FAIRY}
         };
 
-        std::map<string, SkillType::type> pokSkillTypes
-        {
-            {"ATTACK", SkillType::ATTACK},
-            {"BUFF", SkillType::BUFF},
-            {"DEBUFF", SkillType::DEBUFF},
-        };
-
         Pokemon gettedPokemon;
         if(res->next())
         {
@@ -156,24 +170,11 @@ Pokemon DBManager::GetPokemon(size_t level)
             gettedPokemon.__set_speed(res->getInt(9));
             gettedPokemon.__set_EXP(res->getInt(10));
             gettedPokemon.__set_LVL(res->getInt(11));
-            PokemonSkill gettedFromDBSkill;
             gettedPokemon.__set_skill(parseStringFromDB(res->getString(12)));
-
-            cout << "\t... MySQL replies: " << res->getString(2) << endl;
-            cout << "\t... MySQL replies: " << res->getString(3) << endl;
-            cout << "\t... MySQL replies: " << res->getInt(4) << endl;
-            cout << "\t... MySQL replies: " << res->getInt(5) << endl;
-            cout << "\t... MySQL replies: " << res->getInt(6) << endl;
-            cout << "\t... MySQL replies: " << res->getInt(7) << endl;
-            cout << "\t... MySQL replies: " << res->getInt(8) << endl;
-            cout << "\t... MySQL replies: " << res->getInt(9) << endl;
-            cout << "\t... MySQL replies: " << res->getInt(10) << endl;
-            cout << "\t... MySQL replies: " << res->getInt(11) << endl;
-            cout << "\t... MySQL replies: " << res->getString(12) << endl;
-            cout << "\t... MySQL replies: " << res->getString(13) << endl;
+            gettedPokemon.__set_flag(res->getString(13));
         }
 
-        return Pokemon();
+        return gettedPokemon;
 }
 
 void DBManager::RemovePokemon()

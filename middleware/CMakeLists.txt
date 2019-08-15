@@ -1,13 +1,25 @@
 cmake_minimum_required(VERSION 3.7) # Проверка версии CMake.
 
+set(THRIFT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/interfaces.thrift")
+
+find_program(CMAKE_CXX_THRIFT NAMES thrift)
+
+if(CMAKE_CXX_THRIFT)
+     set(THRIFT_COMMAND ${CMAKE_CXX_THRIFT} -r --gen cpp ${THRIFT_FILE})
+     execute_process(COMMAND ${THRIFT_COMMAND} WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+     message(STATUS "Thrift files was sucsessfully generated")
+else(CMAKE_CXX_THRIFT)
+     message(FATAL_ERROR "Cannot find thrift in path")
+endif()
+
 include_directories(gen-cpp/)
 
-set(THRIFT_GENERATED 
+set(THRIFT_GENERATED
     gen-cpp/interfaces_constants.cpp
     gen-cpp/interfaces_types.cpp
     gen-cpp/PokServer.cpp
     )
-set(MIDDLEWARE_SOURCES 
+set(MIDDLEWARE_SOURCES
     test.cpp
     gen-cpp/PokServer.cpp
     )
