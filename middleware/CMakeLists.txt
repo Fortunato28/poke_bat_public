@@ -12,16 +12,15 @@ else(CMAKE_CXX_THRIFT)
      message(FATAL_ERROR "Cannot find thrift in path")
 endif()
 
-include_directories(gen-cpp/)
+include_directories(${CMAKE_BINARY_DIR}/gen-cpp/)
 
 set(THRIFT_GENERATED
-    gen-cpp/interfaces_constants.cpp
-    gen-cpp/interfaces_types.cpp
-    gen-cpp/PokServer.cpp
+    ${CMAKE_BINARY_DIR}/gen-cpp/interfaces_constants.cpp
+    ${CMAKE_BINARY_DIR}/gen-cpp/interfaces_types.cpp
+    ${CMAKE_BINARY_DIR}/gen-cpp/PokServer.cpp
     )
 set(MIDDLEWARE_SOURCES
     test.cpp
-    gen-cpp/PokServer.cpp
     )
 
 add_library(middleware ${MIDDLEWARE_SOURCES} ${THRIFT_GENERATED})

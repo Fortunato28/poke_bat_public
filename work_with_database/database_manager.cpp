@@ -8,6 +8,7 @@
 #include <cppconn/resultset.h>
 
 #include "database_manager.h"
+#include "gen-cpp/interfaces_types.h"
 
 using namespace std;
 using namespace poke_bat::middleware;
@@ -102,7 +103,6 @@ void DBManager::AddPokemon(Pokemon& given_pok)
 }
 
 // TODO если костыль сработает, то вынести отдельно
-// TODO написать парсинг строки в структуру
 PokemonSkill parseStringFromDB(const std::string& str)
 {
     string skillData = str;

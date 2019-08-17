@@ -1,10 +1,7 @@
-cmake_minimum_required(VERSION 3.7) # Проверка версии CMake.
-
-include_directories(/usr/local/include /usr/local/include/cppconn)
+include_directories(/usr/local/include /usr/local/include/cppconn ${CMAKE_BINARY_DIR})
 
 set(DB_MANAGER_SOURCES database_manager.cpp)
 
-find_library(MIDDLEWARE_LIB middleware ~/Programming/cpp/poke_bat/middleware/_result)
 add_library(db_manager ${DB_MANAGER_SOURCES})
 target_link_libraries(db_manager mysqlcppconn middleware)
 

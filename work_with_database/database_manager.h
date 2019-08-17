@@ -5,8 +5,7 @@
 
 #include <cppconn/statement.h>
 
-// TODO сделай нормально
-#include "../middleware//gen-cpp/interfaces_types.h"
+#include "gen-cpp/interfaces_types.h"
 
 namespace work_with_datbase {
 
@@ -16,9 +15,7 @@ namespace work_with_datbase {
 #define EXAMPLE_PASS "1"
 #define EXAMPLE_DB "poke_bat"
 
-// TODO Пофиксить на нормальный класс покемонов
 using Pokemon = poke_bat::middleware::Pokemon;
-//class Pokemon{};
 
 class DBManager
 {
