@@ -157,24 +157,24 @@ Pokemon DBManager::GetPokemon(size_t level)
             {"FAIRY", PokemonType::FAIRY}
         };
 
-        Pokemon gettedPokemon;
+        Pokemon gottenPokemon;
         if(res->next())
         {
-            gettedPokemon.__set_name(res->getString(2));
-            gettedPokemon.__set_type(pokTypes.find(res->getString(3))->second);
-            gettedPokemon.__set_HP(res->getInt(4));
-            gettedPokemon.__set_attack(res->getInt(5));
-            gettedPokemon.__set_defense(res->getInt(6));
-            gettedPokemon.__set_spell_attack(res->getInt(7));
-            gettedPokemon.__set_spell_defense(res->getInt(8));
-            gettedPokemon.__set_speed(res->getInt(9));
-            gettedPokemon.__set_EXP(res->getInt(10));
-            gettedPokemon.__set_LVL(res->getInt(11));
-            gettedPokemon.__set_skill(parseStringFromDB(res->getString(12)));
-            gettedPokemon.__set_flag(res->getString(13));
+            gottenPokemon.__set_name(res->getString(2));
+            gottenPokemon.__set_type(pokTypes.find(res->getString(3))->second);
+            gottenPokemon.__set_HP(res->getInt(4));
+            gottenPokemon.__set_attack(res->getInt(5));
+            gottenPokemon.__set_defense(res->getInt(6));
+            gottenPokemon.__set_spell_attack(res->getInt(7));
+            gottenPokemon.__set_spell_defense(res->getInt(8));
+            gottenPokemon.__set_speed(res->getInt(9));
+            gottenPokemon.__set_EXP(res->getInt(10));
+            gottenPokemon.__set_LVL(res->getInt(11));
+            gottenPokemon.__set_skill(parseStringFromDB(res->getString(12)));
+            gottenPokemon.__set_flag(res->getString(13));
         }
 
-        return gettedPokemon;
+        return gottenPokemon;
 }
 
 void DBManager::RemovePokemon()
