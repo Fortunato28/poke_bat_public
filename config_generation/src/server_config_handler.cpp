@@ -1,6 +1,6 @@
-#include "serverConfigHandler.h"
+#include "server_config_handler.h"
 
-void serverConfigHandler::encrypt_config()
+void serverConfigHandler::EncryptConfig()
 {
     char content[] = "pokemon:\n"
         "{\n"
@@ -16,8 +16,7 @@ void serverConfigHandler::encrypt_config()
             "\tLVL = 0;\n"
             "\tskills = ( (\"lightning bow\","
                         "\"atk\","
-                        "4,"
-                        "\"This bow's gonna light your enemy up.\") );\n"
+                        "4) );\n"
         "};";
 
     char password[] = "12345678";
@@ -27,6 +26,8 @@ void serverConfigHandler::encrypt_config()
     gcry_error_t        gcryError;
     gcry_cipher_hd_t    descriptorPointer;
     size_t contentLength = strlen(content);
+    size_t passwordLength = strlen(password);
+    size_t saltLength = strlen(salt);
     char* buffer = (char*)malloc(contentLength);
 
     //crypto-descryptor initialisation
@@ -41,7 +42,7 @@ void serverConfigHandler::encrypt_config()
     }
 
     //set key for the ecryption
-    gcryError = gcry_cipher_setkey(descriptorPointer, password, 8);
+    gcryError = gcry_cipher_setkey(descriptorPointer, password, passwordLength);
     if (gcryError) {
         printf("gcry_cipher_setkey failed:  %s/%s\n", 
                 gcry_strsource(gcryError), gcry_strerror(gcryError));
@@ -49,7 +50,7 @@ void serverConfigHandler::encrypt_config()
     }
 
     //set salt for the encryption
-    gcryError = gcry_cipher_setiv(descriptorPointer, salt, 8);
+    gcryError = gcry_cipher_setiv(descriptorPointer, salt, saltLength);
     if (gcryError) {
         printf("gcry_cipher_setiv failed:  %s/%s\n", 
                gcry_strsource(gcryError), gcry_strerror(gcryError));
@@ -57,8 +58,11 @@ void serverConfigHandler::encrypt_config()
     }
 
     //encryption
-    gcryError = gcry_cipher_encrypt(descriptorPointer, buffer, 
-                                    contentLength, content, contentLength);
+    gcryError = gcry_cipher_encrypt(descriptorPointer, 
+                                    buffer, 
+                                    contentLength, 
+                                    content, 
+                                    contentLength);
     if (gcryError) {
         printf("gcry_cipher_encrypt failed:  %s/%s\n", 
                gcry_strsource(gcryError), gcry_strerror(gcryError));
@@ -71,7 +75,7 @@ void serverConfigHandler::encrypt_config()
     //conversion encrypted data to std::string
     std::string temp(buffer, contentLength);
     encryptedContent = temp;
-
+    
     free(buffer);
 }
 

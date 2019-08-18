@@ -1,44 +1,17 @@
-#include "clientConfigHandler.h"
+#include "client_config_handler.h"
 
-/*
- * Next method is looking through current directory for "config.cfg".
- * found - integer value equal to the number of files in directory.
- * nameList - list of file names from the current directory.
- * Method returns true in case there is a config-file.
- */
-
-bool clientConfigHandler::isConfigExist()
+bool clientConfigHandler::IsConfigExist()
 {
-    int found;
-    struct dirent **nameList;
-    
-    found = scandir(".", &nameList, 0, 0);
-    if (found < 0)
-    {
-        return false;
-    }
-    else
-    {
-        while (found--)
-        {
-            if ((strncmp(nameList[found]->d_name, "config.cfg", 10)) == 0)
-            {
-                free(nameList);
-                return true;
-            }
-            free(nameList[found]); 
-        }
-    }
-    free(nameList);
-    return false;
+    std::ifstream config("config.cfg");
+    return config.good(); 
 }
 
-void clientConfigHandler::get_default_config()
+void clientConfigHandler::GetDefaultConfig()
 {
     //TODO sending a request for the new config, recieving it and saving
 }
 
-void clientConfigHandler::save_config_to_file()
+void clientConfigHandler::SaveConfigToFile()
 {
     std::ofstream fout("config.cfg", std::ios_base::trunc);
     fout << configContent;
@@ -51,7 +24,7 @@ void clientConfigHandler::save_config_to_file()
  * After reading from file this method converts data into the std::string.
  */
 
-void clientConfigHandler::load_config_from_file()
+void clientConfigHandler::LoadConfigFromFile()
 {
     FILE * ptrFile = fopen("config.cfg", "rb");
 
@@ -74,7 +47,7 @@ void clientConfigHandler::load_config_from_file()
     free(buffer);
 }
 
-void clientConfigHandler::decrypt_config()
+void clientConfigHandler::DecryptConfig()
 { 
     //conversion data into char 
     char *bufferContent = new char[configContent.length() + 1];
@@ -91,6 +64,8 @@ void clientConfigHandler::decrypt_config()
     gcry_error_t        gcryError;
     gcry_cipher_hd_t    descriptorPointer;
     size_t bufferContentLength = configContent.length();
+    size_t passwordLength = strlen(password);
+    size_t saltLength = strlen(salt);
     char* buffer = (char*)malloc(bufferContentLength);
 
     //crypto-descryptor initialisation
@@ -105,7 +80,7 @@ void clientConfigHandler::decrypt_config()
     }
 
     //set key for the decryption
-    gcryError = gcry_cipher_setkey(descriptorPointer, password, 8);
+    gcryError = gcry_cipher_setkey(descriptorPointer, password, passwordLength);
     if (gcryError) {
         printf("gcry_cipher_setkey failed:  %s/%s\n", 
                 gcry_strsource(gcryError), gcry_strerror(gcryError));
@@ -113,7 +88,7 @@ void clientConfigHandler::decrypt_config()
     }
 
     //set salt for the decryption
-    gcryError = gcry_cipher_setiv(descriptorPointer, salt, 8);
+    gcryError = gcry_cipher_setiv(descriptorPointer, salt, saltLength);
     if (gcryError) {
         printf("gcry_cipher_setiv failed:  %s/%s\n", 
                gcry_strsource(gcryError), gcry_strerror(gcryError));

@@ -4,20 +4,25 @@ find_library(LibGCrypt
     NAMES libgcrypt.so libgcrypt.a
     PATHS "/usr/lib/x86_64-linux-gnu")
 
-find_library(LibGCrypt 
+find_library(LibConfig 
     NAMES libconfig.so libconfig.a
     PATHS "/usr/lib/x86_64-linux-gnu")
 
-list(APPEND HEADERS "src")
+#list of dirs with headers
+list(APPEND HEADERS_DIRS "src")
 
-list(APPEND SOURCES "src/clientConfigHandler.h")
-list(APPEND SOURCES "src/serverConfigHandler.h")
-list(APPEND SOURCES "src/clientConfigHandler.cpp")
-list(APPEND SOURCES "src/serverConfigHandler.cpp")
+#list of headers
+list(APPEND HEADERS "src/client_config_handler.h")
+list(APPEND HEADERS "src/server_config_handler.h")
+
+#list of sources
+list(APPEND SOURCES "src/client_config_handler.cpp")
+list(APPEND SOURCES "src/server_config_handler.cpp")
 list(APPEND SOURCES "main.cpp")
 
-include_directories(${HEADERS})
+include_directories(${HEADERS_DIRS})
 
-add_executable(test_config_generation ${SOURCES})
+add_executable(test_config_generation ${HEADERS} ${SOURCES})
 
 target_link_libraries(test_config_generation ${LibGCrypt})
+target_link_libraries(test_config_generation ${LibConfig})

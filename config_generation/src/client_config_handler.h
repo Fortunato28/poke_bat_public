@@ -11,12 +11,11 @@
 class clientConfigHandler
 {
 public:
-    clientConfigHandler() : configContent("") {}
-    bool isConfigExist();
-    void get_default_config();
-    void save_config_to_file();
-    void load_config_from_file(); 
-    void decrypt_config();
+    bool IsConfigExist();
+    void GetDefaultConfig();
+    void SaveConfigToFile();
+    void LoadConfigFromFile(); 
+    void DecryptConfig();
 private:
     std::string configContent;
 };

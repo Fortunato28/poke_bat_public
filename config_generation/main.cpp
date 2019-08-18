@@ -1,5 +1,5 @@
-#include "clientConfigHandler.h"
-#include "serverConfigHandler.h"
+#include "client_config_handler.h"
+#include "server_config_handler.h"
 
 int main()
 {
