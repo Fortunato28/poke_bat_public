@@ -1,6 +1,11 @@
 #pragma once
 
+#include <memory>
 #include <cstddef>
+
+#include <cppconn/statement.h>
+
+#include "gen-cpp/interfaces_types.h"
 
 namespace work_with_datbase {
 
@@ -8,9 +13,9 @@ namespace work_with_datbase {
 #define EXAMPLE_HOST "localhost"
 #define EXAMPLE_USER "root"
 #define EXAMPLE_PASS "1"
-#define EXAMPLE_DB "test"
+#define EXAMPLE_DB "poke_bat"
 
-class Pokemon{};
+using Pokemon = poke_bat::middleware::Pokemon;
 
 class DBManager
 {
@@ -27,9 +32,15 @@ private:
 
     // Тестовый метод, по факту при работе сервиса ничего создаваться не должно
     void CreateDatabase();
+
+    // Данные по базе
     const std::string host_;
     const std::string user_;
     const std::string pass_;
     const std::string db_name_;
+
+    // Держалки коннекта к базе
+    std::unique_ptr<sql::Statement> stmt_;
+    std::unique_ptr<sql::Connection> con_;
 };
 } // namespace
