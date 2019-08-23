@@ -117,3 +117,27 @@ void clientConfigHandler::DecryptConfig()
     delete [] bufferContent;
     free(buffer);
 }
+
+#include <iostream>
+void clientConfigHandler::ParseConfig()
+{
+    libconfig::Config cfg;
+    //try
+    //{
+    cfg.readString(configContent);
+    //}
+    //catch (const libconfig::ParseException &pex)
+    //{
+        //std::cerr << "Parse error at " << pex.getFile() << ":" << pex.getLine() << " - " << pex.getError() << std::endl;
+    //}
+    std::string name = cfg.lookup("pokemon.name");
+    std::cout << "Stored name: " << name << std::endl; 
+    int Speed = cfg.lookup("pokemon.Speed");
+    std::cout << "Stored Speed: " << Speed << std::endl;
+
+    const libconfig::Setting& root = cfg.getRoot();
+    const libconfig::Setting& skills = root["pokemon"]["skills"];
+    const libconfig::Setting& skill = skills[0];
+    std::string skill_name = skill[0];
+    std::cout << "Stored skill: " << skill_name << std::endl;
+}

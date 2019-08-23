@@ -16,6 +16,7 @@ public:
     void SaveConfigToFile();
     void LoadConfigFromFile(); 
     void DecryptConfig();
+    void ParseConfig();
 private:
     std::string configContent;
 };
