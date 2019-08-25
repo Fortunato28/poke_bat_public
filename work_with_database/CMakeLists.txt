@@ -1,4 +1,11 @@
-include_directories(/usr/local/include /usr/local/include/cppconn ${CMAKE_BINARY_DIR})
+include_directories(/usr/local/include 
+    /usr/local/include/cppconn
+    ${CMAKE_BINARY_DIR}
+    /usr/include
+    /usr/include/mysql
+    /usr/include/mysqlx
+    /usr/include/jdbc
+    )
 
 set(DB_MANAGER_SOURCES database_manager.cpp)
 
