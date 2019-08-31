@@ -1,6 +1,5 @@
 #include "server_config_handler.h"
 
-#include <fstream>
 void serverConfigHandler::EncryptConfig()
 {
     char content[] = "pokemon:\n"
@@ -76,10 +75,6 @@ void serverConfigHandler::EncryptConfig()
     //conversion encrypted data to std::string
     std::string temp(buffer, contentLength);
     encryptedContent = temp;
-    
-    std::ofstream fout("config.cfg", std::ios_base::trunc);
-    fout << encryptedContent;
-    fout.close(); 
     
     free(buffer);
 }

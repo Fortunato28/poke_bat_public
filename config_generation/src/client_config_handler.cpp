@@ -1,5 +1,7 @@
 #include "client_config_handler.h"
 
+using namespace poke_bat::middleware;
+
 bool clientConfigHandler::IsConfigExist()
 {
     std::ifstream config("config.cfg");
@@ -118,26 +120,67 @@ void clientConfigHandler::DecryptConfig()
     free(buffer);
 }
 
-#include <iostream>
-void clientConfigHandler::ParseConfig()
+Pokemon clientConfigHandler::ParseConfig()
 {
     libconfig::Config cfg;
-    //try
-    //{
+    Pokemon pokemon;
     cfg.readString(configContent);
-    //}
-    //catch (const libconfig::ParseException &pex)
-    //{
-        //std::cerr << "Parse error at " << pex.getFile() << ":" << pex.getLine() << " - " << pex.getError() << std::endl;
-    //}
-    std::string name = cfg.lookup("pokemon.name");
-    std::cout << "Stored name: " << name << std::endl; 
-    int Speed = cfg.lookup("pokemon.Speed");
-    std::cout << "Stored Speed: " << Speed << std::endl;
+    
+    pokemon.__set_name(cfg.lookup("pokemon.name"));
+   
+    std::string type = cfg.lookup("pokemon.type"); 
+    std::map<std::string, PokemonType::type> pokTypes
+    {
+        {"NORMAL", PokemonType::NORMAL},
+        {"FIRE", PokemonType::FIRE},
+        {"WATER", PokemonType::WATER},
+        {"GRASS", PokemonType::GRASS},
+        {"ELECTRIC", PokemonType::ELECTRIC},
+        {"ICE", PokemonType::ICE},
+        {"FIGHTING", PokemonType::FIGHTING},
+        {"POISON", PokemonType::POISON},
+        {"GROUND", PokemonType::GROUND},
+        {"FLYING", PokemonType::FLYING},
+        {"PSYCHIC", PokemonType::PSYCHIC},
+        {"BUG", PokemonType::BUG},
+        {"ROCK", PokemonType::ROCK},
+        {"GHOST", PokemonType::GHOST},
+        {"DARK", PokemonType::DARK},
+        {"DRAGON", PokemonType::DRAGON},
+        {"STEEL", PokemonType::STEEL},
+        {"FAIRY", PokemonType::FAIRY}
+    };
+    pokemon.__set_type(pokTypes.find(type)->second);
 
+    pokemon.__set_HP(cfg.lookup("pokemon.HP"));
+    pokemon.__set_attack(cfg.lookup("pokemon.Attack"));
+    pokemon.__set_defense(cfg.lookup("pokemon.Defense"));
+    pokemon.__set_spell_attack(cfg.lookup("pokemon.Sp_Atk"));
+    pokemon.__set_spell_defense(cfg.lookup("pokemon.Sp_Def"));
+    pokemon.__set_speed(cfg.lookup("pokemon.Speed"));
+    pokemon.__set_EXP(cfg.lookup("pokemon.EXP"));
+    pokemon.__set_LVL(cfg.lookup("pokemon.LVL"));
+   
     const libconfig::Setting& root = cfg.getRoot();
     const libconfig::Setting& skills = root["pokemon"]["skills"];
     const libconfig::Setting& skill = skills[0];
     std::string skill_name = skill[0];
-    std::cout << "Stored skill: " << skill_name << std::endl;
+    std::string skill_type = skill[1];
+    int skill_amount = skill[2];
+    
+    std::map<std::string, SkillType::type> pokSkillTypes
+    {
+        {"ATTACK", SkillType::ATTACK},
+        {"BUFF", SkillType::BUFF},
+        {"DEBUFF", SkillType::DEBUFF},
+    };
+
+    PokemonSkill pokemonSkill;
+    pokemonSkill.__set_name(skill_name);
+    pokemonSkill.__set_type(pokSkillTypes.find(skill_type)->second);
+    pokemonSkill.__set_amount(skill_amount);
+
+    pokemon.__set_skill(pokemonSkill); 
+
+    return pokemon;
 }

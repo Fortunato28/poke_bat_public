@@ -7,6 +7,10 @@
 #include <gcrypt.h>
 #include <dirent.h>
 #include <fstream>
+#include <map>
+#include "gen-cpp/interfaces_types.h"
+
+using namespace poke_bat::middleware;
 
 class clientConfigHandler
 {
@@ -16,7 +20,7 @@ public:
     void SaveConfigToFile();
     void LoadConfigFromFile(); 
     void DecryptConfig();
-    void ParseConfig();
+    Pokemon ParseConfig();
 private:
     std::string configContent;
 };

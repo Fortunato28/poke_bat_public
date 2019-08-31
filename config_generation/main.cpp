@@ -3,15 +3,6 @@
 
 int main()
 {
-    serverConfigHandler server;
-    server.EncryptConfig();
-    clientConfigHandler client;
-    if (client.IsConfigExist())
-    {
-        client.LoadConfigFromFile();
-        client.DecryptConfig();
-        client.ParseConfig();
-    }
-    //printf("I hate my life!\n");
+    printf("I hate my life!\n");
     return 0;
 }
