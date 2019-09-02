@@ -1,4 +1,5 @@
-include_directories(/usr/local/include 
+include_directories(../middleware
+    /usr/local/include 
     /usr/local/include/cppconn
     ${CMAKE_BINARY_DIR}
     /usr/include

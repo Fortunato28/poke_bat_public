@@ -9,8 +9,7 @@
 #include <fstream>
 #include <map>
 #include "gen-cpp/interfaces_types.h"
-
-using namespace poke_bat::middleware;
+#include "utilities.h"
 
 class clientConfigHandler
 {
@@ -20,7 +19,7 @@ public:
     void SaveConfigToFile();
     void LoadConfigFromFile(); 
     void DecryptConfig();
-    Pokemon ParseConfig();
+    poke_bat::middleware::Pokemon ParseConfig();
 private:
     std::string configContent;
 };

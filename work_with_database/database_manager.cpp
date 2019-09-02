@@ -8,6 +8,7 @@
 #include <cppconn/resultset.h>
 
 #include "database_manager.h"
+#include "utilities.h"
 #include "gen-cpp/interfaces_types.h"
 
 using namespace std;
@@ -111,19 +112,12 @@ PokemonSkill parseStringFromDB(const std::string& str)
 
     auto skillType = skillData.substr(0, skillData.find('_'));
     skillData.erase(0, skillType.length() + 1);
-    // TODO если костыль сработает, то вынести отдельно
-    std::map<string, SkillType::type> pokSkillTypes
-    {
-        {"ATTACK", SkillType::ATTACK},
-        {"BUFF", SkillType::BUFF},
-        {"DEBUFF", SkillType::DEBUFF},
-    };
 
     auto skillAmount = skillData;
 
     PokemonSkill pokemonSkill;
     pokemonSkill.__set_name(skillName);
-    pokemonSkill.__set_type(pokSkillTypes.find(skillType)->second);
+    pokemonSkill.__set_type(utilities::pokeSkillTypes.find(skillType)->second);
     pokemonSkill.__set_amount(atoi(skillAmount.c_str()));
     return pokemonSkill;
 }
@@ -134,34 +128,11 @@ Pokemon DBManager::GetPokemon(size_t level)
     string getPokemonCommand = "SELECT * FROM pokemons WHERE LVL=" + to_string(level) + ";";
         std::unique_ptr<sql::ResultSet> res(stmt_->executeQuery(getPokemonCommand));
 
-        // TODO если костыль сработает, то вынести отдельно
-        std::map<string, PokemonType::type> pokTypes
-        {
-            {"NORMAL", PokemonType::NORMAL},
-            {"FIRE", PokemonType::FIRE},
-            {"WATER", PokemonType::WATER},
-            {"GRASS", PokemonType::GRASS},
-            {"ELECTRIC", PokemonType::ELECTRIC},
-            {"ICE", PokemonType::ICE},
-            {"FIGHTING", PokemonType::FIGHTING},
-            {"POISON", PokemonType::POISON},
-            {"GROUND", PokemonType::GROUND},
-            {"FLYING", PokemonType::FLYING},
-            {"PSYCHIC", PokemonType::PSYCHIC},
-            {"BUG", PokemonType::BUG},
-            {"ROCK", PokemonType::ROCK},
-            {"GHOST", PokemonType::GHOST},
-            {"DARK", PokemonType::DARK},
-            {"DRAGON", PokemonType::DRAGON},
-            {"STEEL", PokemonType::STEEL},
-            {"FAIRY", PokemonType::FAIRY}
-        };
-
         Pokemon gottenPokemon;
         if(res->next())
         {
             gottenPokemon.__set_name(res->getString(2));
-            gottenPokemon.__set_type(pokTypes.find(res->getString(3))->second);
+            gottenPokemon.__set_type(utilities::pokeTypes.find(res->getString(3))->second);
             gottenPokemon.__set_HP(res->getInt(4));
             gottenPokemon.__set_attack(res->getInt(5));
             gottenPokemon.__set_defense(res->getInt(6));

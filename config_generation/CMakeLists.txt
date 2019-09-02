@@ -8,7 +8,8 @@ find_library(LibConfig
     NAMES libconfig++.so libconfig++.a
     PATHS "/usr/lib/x86_64-linux-gnu")
 
-include_directories("src"
+include_directories(src
+     ../middleware
      /usr/local/include
      /usr/local/include/cppconn
      ${CMAKE_BINARY_DIR}
@@ -18,14 +19,14 @@ include_directories("src"
      /usr/include/jdbc
      )
 
-set(ANUS_SOURCES "src/client_config_handler.cpp"
-                 "src/server_config_handler.cpp"
-                 )
-add_library(anus ${ANUS_SOURCES})
-target_link_libraries(anus mysqlcppconn middleware)
+ set(CONFIG_HANDLER_SOURCES "src/client_config_handler.cpp"
+                            "src/server_config_handler.cpp"
+                            )
+add_library(config_handler ${CONFIG_HANDLER_SOURCES})
+target_link_libraries(config_handler mysqlcppconn middleware)
 
 add_executable(test_config_generation main.cpp)
 
-target_link_libraries(test_config_generation anus)
+target_link_libraries(test_config_generation config_handler)
 target_link_libraries(test_config_generation ${LibGCrypt})
 target_link_libraries(test_config_generation ${LibConfig})
