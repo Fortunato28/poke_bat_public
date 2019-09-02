@@ -1,5 +1,7 @@
 #include "client_config_handler.h"
 
+using namespace poke_bat::middleware;
+
 bool clientConfigHandler::IsConfigExist()
 {
     std::ifstream config("config.cfg");
@@ -116,4 +118,52 @@ void clientConfigHandler::DecryptConfig()
 
     delete [] bufferContent;
     free(buffer);
+}
+
+Pokemon clientConfigHandler::ParseConfig()
+{
+    libconfig::Config cfg;
+    Pokemon pokemon;
+    
+    try
+    {
+        cfg.readString(configContent);
+        pokemon.__set_name(cfg.lookup("pokemon.name"));
+       
+        std::string type = cfg.lookup("pokemon.type"); 
+        pokemon.__set_type(utilities::get_enum_poketype(type));
+
+        pokemon.__set_HP(cfg.lookup("pokemon.HP"));
+        pokemon.__set_attack(cfg.lookup("pokemon.Attack"));
+        pokemon.__set_defense(cfg.lookup("pokemon.Defense"));
+        pokemon.__set_spell_attack(cfg.lookup("pokemon.Sp_Atk"));
+        pokemon.__set_spell_defense(cfg.lookup("pokemon.Sp_Def"));
+        pokemon.__set_speed(cfg.lookup("pokemon.Speed"));
+        pokemon.__set_EXP(cfg.lookup("pokemon.EXP"));
+        pokemon.__set_LVL(cfg.lookup("pokemon.LVL"));
+       
+        const libconfig::Setting& root = cfg.getRoot();
+        const libconfig::Setting& skills = root["pokemon"]["skills"];
+        const libconfig::Setting& skill = skills[0];
+        std::string skill_name = skill[0];
+        std::string skill_type = skill[1];
+        int skill_amount = skill[2];
+        
+        PokemonSkill pokemonSkill;
+        pokemonSkill.__set_name(skill_name);
+        pokemonSkill.__set_type(utilities::get_enum_pokeskilltype(skill_type));
+        pokemonSkill.__set_amount(skill_amount);
+
+        pokemon.__set_skill(pokemonSkill); 
+    } 
+    catch (const libconfig::ParseException &pex)
+    {
+        throw std::runtime_error("String parsing error!\n");
+    }
+    catch (const libconfig::SettingNotFoundException &nfex)
+    {
+        throw std::runtime_error("Label searching error!\n");
+    }
+
+    return pokemon;
 }

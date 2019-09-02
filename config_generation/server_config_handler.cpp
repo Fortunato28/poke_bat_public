@@ -9,8 +9,8 @@ void serverConfigHandler::EncryptConfig()
             "\tHP = 100;\n"
             "\tAttack = 10;\n"
             "\tDefense = 10;\n"
-            "\tSp.Atk = 10;\n"
-            "\tSp.Def = 10;\n"
+            "\tSp_Atk = 10;\n"
+            "\tSp_Def = 10;\n"
             "\tSpeed = 40;\n"
             "\tEXP = 0;\n"
             "\tLVL = 0;\n"
@@ -18,7 +18,7 @@ void serverConfigHandler::EncryptConfig()
                         "\"atk\","
                         "4) );\n"
         "};";
-
+    
     char password[] = "12345678";
 
     char salt[] = "12345678";

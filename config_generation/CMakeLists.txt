@@ -5,24 +5,27 @@ find_library(LibGCrypt
     PATHS "/usr/lib/x86_64-linux-gnu")
 
 find_library(LibConfig 
-    NAMES libconfig.so libconfig.a
+    NAMES libconfig++.so libconfig++.a
     PATHS "/usr/lib/x86_64-linux-gnu")
 
-#list of dirs with headers
-list(APPEND HEADERS_DIRS "src")
+include_directories(../middleware
+     /usr/local/include
+     /usr/local/include/cppconn
+     ${CMAKE_BINARY_DIR}
+     /usr/include
+     /usr/include/mysql
+     /usr/include/mysqlx
+     /usr/include/jdbc
+     )
 
-#list of headers
-list(APPEND HEADERS "src/client_config_handler.h")
-list(APPEND HEADERS "src/server_config_handler.h")
+ set(CONFIG_HANDLER_SOURCES client_config_handler.cpp
+                            server_config_handler.cpp
+                            )
+add_library(config_handler ${CONFIG_HANDLER_SOURCES})
+target_link_libraries(config_handler middleware)
 
-#list of sources
-list(APPEND SOURCES "src/client_config_handler.cpp")
-list(APPEND SOURCES "src/server_config_handler.cpp")
-list(APPEND SOURCES "main.cpp")
+add_executable(test_config_generation main.cpp)
 
-include_directories(${HEADERS_DIRS})
-
-add_executable(test_config_generation ${HEADERS} ${SOURCES})
-
+target_link_libraries(test_config_generation config_handler)
 target_link_libraries(test_config_generation ${LibGCrypt})
 target_link_libraries(test_config_generation ${LibConfig})

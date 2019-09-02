@@ -7,6 +7,9 @@
 #include <gcrypt.h>
 #include <dirent.h>
 #include <fstream>
+#include <map>
+#include "gen-cpp/interfaces_types.h"
+#include "utilities.h"
 
 class clientConfigHandler
 {
@@ -16,6 +19,7 @@ public:
     void SaveConfigToFile();
     void LoadConfigFromFile(); 
     void DecryptConfig();
+    poke_bat::middleware::Pokemon ParseConfig();
 private:
     std::string configContent;
 };
