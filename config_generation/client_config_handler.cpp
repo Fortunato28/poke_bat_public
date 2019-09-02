@@ -131,7 +131,7 @@ Pokemon clientConfigHandler::ParseConfig()
         pokemon.__set_name(cfg.lookup("pokemon.name"));
        
         std::string type = cfg.lookup("pokemon.type"); 
-        pokemon.__set_type(utilities::pokeTypes.find(type)->second);
+        pokemon.__set_type(utilities::get_enum_poketype(type));
 
         pokemon.__set_HP(cfg.lookup("pokemon.HP"));
         pokemon.__set_attack(cfg.lookup("pokemon.Attack"));
@@ -151,18 +151,18 @@ Pokemon clientConfigHandler::ParseConfig()
         
         PokemonSkill pokemonSkill;
         pokemonSkill.__set_name(skill_name);
-        pokemonSkill.__set_type(utilities::pokeSkillTypes.find(skill_type)->second);
+        pokemonSkill.__set_type(utilities::get_enum_pokeskilltype(skill_type));
         pokemonSkill.__set_amount(skill_amount);
 
         pokemon.__set_skill(pokemonSkill); 
     } 
     catch (const libconfig::ParseException &pex)
     {
-        printf("String parsing error!\n");
+        throw std::runtime_error("String parsing error!\n");
     }
     catch (const libconfig::SettingNotFoundException &nfex)
     {
-        printf("Label searching error!\n");
+        throw std::runtime_error("Label searching error!\n");
     }
 
     return pokemon;

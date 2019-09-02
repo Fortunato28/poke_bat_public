@@ -117,7 +117,7 @@ PokemonSkill parseStringFromDB(const std::string& str)
 
     PokemonSkill pokemonSkill;
     pokemonSkill.__set_name(skillName);
-    pokemonSkill.__set_type(utilities::pokeSkillTypes.find(skillType)->second);
+    pokemonSkill.__set_type(utilities::get_enum_pokeskilltype(skillType));
     pokemonSkill.__set_amount(atoi(skillAmount.c_str()));
     return pokemonSkill;
 }
@@ -132,7 +132,7 @@ Pokemon DBManager::GetPokemon(size_t level)
         if(res->next())
         {
             gottenPokemon.__set_name(res->getString(2));
-            gottenPokemon.__set_type(utilities::pokeTypes.find(res->getString(3))->second);
+            gottenPokemon.__set_type(utilities::get_enum_poketype(res->getString(3)));
             gottenPokemon.__set_HP(res->getInt(4));
             gottenPokemon.__set_attack(res->getInt(5));
             gottenPokemon.__set_defense(res->getInt(6));

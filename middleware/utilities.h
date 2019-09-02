@@ -26,10 +26,20 @@ namespace utilities
         {"FAIRY",    poke_bat::middleware::PokemonType::FAIRY}
     };
 
+    poke_bat::middleware::PokemonType::type get_enum_poketype(std::string pokemon_type)
+    {
+        return pokeTypes.find(pokemon_type)->second;
+    } 
+
     std::map<std::string, poke_bat::middleware::SkillType::type> pokeSkillTypes
     {
         {"ATTACK", poke_bat::middleware::SkillType::ATTACK},
         {"BUFF",   poke_bat::middleware::SkillType::BUFF},
         {"DEBUFF", poke_bat::middleware::SkillType::DEBUFF},
     };
+
+    poke_bat::middleware::SkillType::type get_enum_pokeskilltype(std::string skill_type)
+    {
+        return pokeSkillTypes.find(skill_type)->second; 
+    }
 }

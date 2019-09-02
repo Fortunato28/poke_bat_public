@@ -8,8 +8,7 @@ find_library(LibConfig
     NAMES libconfig++.so libconfig++.a
     PATHS "/usr/lib/x86_64-linux-gnu")
 
-include_directories(src
-     ../middleware
+include_directories(../middleware
      /usr/local/include
      /usr/local/include/cppconn
      ${CMAKE_BINARY_DIR}
@@ -19,11 +18,11 @@ include_directories(src
      /usr/include/jdbc
      )
 
- set(CONFIG_HANDLER_SOURCES "src/client_config_handler.cpp"
-                            "src/server_config_handler.cpp"
+ set(CONFIG_HANDLER_SOURCES client_config_handler.cpp
+                            server_config_handler.cpp
                             )
 add_library(config_handler ${CONFIG_HANDLER_SOURCES})
-target_link_libraries(config_handler mysqlcppconn middleware)
+target_link_libraries(config_handler middleware)
 
 add_executable(test_config_generation main.cpp)
 
