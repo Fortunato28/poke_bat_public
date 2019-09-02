@@ -6,4 +6,10 @@ add_subdirectory(work_with_database)
 add_subdirectory(config_generation)
 add_subdirectory(middleware)
 
-add_executable(main main.cpp)
+include_directories(middleware)
+
+set(SERVER_SOURCES
+    src/main.cpp)
+
+add_executable(main ${SERVER_SOURCES})
+target_link_libraries(main middleware)

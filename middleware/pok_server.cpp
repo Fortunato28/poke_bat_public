@@ -7,6 +7,8 @@
 #include <thrift/transport/TServerSocket.h>
 #include <thrift/transport/TBufferTransports.h>
 
+#include "pok_server.h"
+
 using namespace ::apache::thrift;
 using namespace ::apache::thrift::protocol;
 using namespace ::apache::thrift::transport;
@@ -14,38 +16,42 @@ using namespace ::apache::thrift::server;
 
 using namespace  ::poke_bat::middleware;
 
-class PokServerHandler : virtual public PokServerIf {
- public:
-  PokServerHandler() {
+
+
+PokServerHandler::PokServerHandler()
+{
     // Your initialization goes here
-  }
+}
 
-  void getConfig(Config& _return) {
-    // Your implementation goes here
-    printf("getConfig\n");
-  }
+void PokServerHandler::getConfig(Config& _return)
+{
+  // Your implementation goes here
+  printf("getConfig\n");
+}
 
-  void startFight(Pokemon& _return, const int64_t complexity, const Pokemon& clientPokemon) {
-    // Your implementation goes here
-    printf("startFight\n");
-  }
+void PokServerHandler::startFight(Pokemon& _return, const int64_t complexity, const Pokemon& clientPokemon)
+{
+  // Your implementation goes here
+  printf("startFight\n");
+}
 
-  void punch(RoundResult& _return) {
-    // Your implementation goes here
-    printf("punch\n");
-  }
+void PokServerHandler::punch(RoundResult& _return)
+{
+  // Your implementation goes here
+  printf("punch\n");
+}
 
-  void defend(RoundResult& _return) {
-    // Your implementation goes here
-    printf("defend\n");
-  }
+void PokServerHandler::defend(RoundResult& _return)
+{
+  // Your implementation goes here
+  printf("defend\n");
+}
 
-  void useSkill(RoundResult& _return, const std::string& skillName) {
-    // Your implementation goes here
-    printf("useSkill\n");
-  }
-
-};
+void PokServerHandler::useSkill(RoundResult& _return, const std::string& skillName)
+{
+  // Your implementation goes here
+  printf("useSkill\n");
+}
 
 //int main(int argc, char **argv) {
 //  int port = 9090;
