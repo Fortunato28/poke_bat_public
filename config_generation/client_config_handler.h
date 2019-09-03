@@ -9,7 +9,6 @@
 #include <fstream>
 #include <map>
 #include "gen-cpp/interfaces_types.h"
-#include "utilities.h"
 
 class clientConfigHandler
 {

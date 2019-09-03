@@ -1,4 +1,5 @@
 #include "client_config_handler.h"
+#include "utilities.h"
 
 using namespace poke_bat::middleware;
 
@@ -16,8 +17,15 @@ void clientConfigHandler::GetDefaultConfig()
 void clientConfigHandler::SaveConfigToFile()
 {
     std::ofstream fout("config.cfg", std::ios_base::trunc);
-    fout << configContent;
-    fout.close(); 
+    if(fout.is_open())
+    {   
+        fout << configContent;
+        fout.close();
+    }
+    else
+    {
+        throw std::runtime_error("Can't open file for writing! Try to use sudo.");
+    }
 }
 
 /*
@@ -32,8 +40,7 @@ void clientConfigHandler::LoadConfigFromFile()
 
     if (ptrFile ==  NULL)
     {
-        printf("Can't open file!\n");
-        exit(1);
+        throw std::runtime_error("Can't open file for reading!");
     }
 
     fseek(ptrFile, 0, SEEK_END);
@@ -129,18 +136,33 @@ Pokemon clientConfigHandler::ParseConfig()
     {
         cfg.readString(configContent);
         pokemon.__set_name(cfg.lookup("pokemon.name"));
-       
+
         std::string type = cfg.lookup("pokemon.type"); 
         pokemon.__set_type(utilities::get_enum_poketype(type));
 
-        pokemon.__set_HP(cfg.lookup("pokemon.HP"));
-        pokemon.__set_attack(cfg.lookup("pokemon.Attack"));
-        pokemon.__set_defense(cfg.lookup("pokemon.Defense"));
-        pokemon.__set_spell_attack(cfg.lookup("pokemon.Sp_Atk"));
-        pokemon.__set_spell_defense(cfg.lookup("pokemon.Sp_Def"));
-        pokemon.__set_speed(cfg.lookup("pokemon.Speed"));
-        pokemon.__set_EXP(cfg.lookup("pokemon.EXP"));
-        pokemon.__set_LVL(cfg.lookup("pokemon.LVL"));
+        int HP = cfg.lookup("pokemon.HP");
+        pokemon.__set_HP(HP);
+        
+        int attack = cfg.lookup("pokemon.Attack");       
+        pokemon.__set_attack(attack);
+        
+        int defense = cfg.lookup("pokemon.Defense");       
+        pokemon.__set_defense(defense);
+        
+        int sp_atk = cfg.lookup("pokemon.Sp_Atk");       
+        pokemon.__set_spell_attack(sp_atk);
+        
+        int sp_def = cfg.lookup("pokemon.Sp_Def");       
+        pokemon.__set_spell_defense(sp_def);
+        
+        int speed = cfg.lookup("pokemon.Speed");       
+        pokemon.__set_speed(speed);
+        
+        int EXP = cfg.lookup("pokemon.EXP");       
+        pokemon.__set_EXP(EXP);
+        
+        int LVL = cfg.lookup("pokemon.LVL");       
+        pokemon.__set_LVL(LVL);
        
         const libconfig::Setting& root = cfg.getRoot();
         const libconfig::Setting& skills = root["pokemon"]["skills"];
@@ -158,11 +180,15 @@ Pokemon clientConfigHandler::ParseConfig()
     } 
     catch (const libconfig::ParseException &pex)
     {
-        throw std::runtime_error("String parsing error!\n");
+        throw std::runtime_error("String parsing error!");
     }
     catch (const libconfig::SettingNotFoundException &nfex)
     {
-        throw std::runtime_error("Label searching error!\n");
+        throw std::runtime_error("Label searching error!");
+    }
+    catch (const libconfig::SettingTypeException &sex)
+    {
+        throw std::runtime_error("Parameter type error!");
     }
 
     return pokemon;
