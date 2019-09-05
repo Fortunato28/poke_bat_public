@@ -52,17 +52,3 @@ void PokServerHandler::useSkill(RoundResult& _return, const std::string& skillNa
   // Your implementation goes here
   printf("useSkill\n");
 }
-
-//int main(int argc, char **argv) {
-//  int port = 9090;
-//  ::apache::thrift::stdcxx::shared_ptr<PokServerHandler> handler(new PokServerHandler());
-//  ::apache::thrift::stdcxx::shared_ptr<TProcessor> processor(new PokServerProcessor(handler));
-//  ::apache::thrift::stdcxx::shared_ptr<TServerTransport> serverTransport(new TServerSocket(port));
-//  ::apache::thrift::stdcxx::shared_ptr<TTransportFactory> transportFactory(new TBufferedTransportFactory());
-//  ::apache::thrift::stdcxx::shared_ptr<TProtocolFactory> protocolFactory(new TBinaryProtocolFactory());
-//
-//  TSimpleServer server(processor, serverTransport, transportFactory, protocolFactory);
-//  server.serve();
-//  return 0;
-//}
-

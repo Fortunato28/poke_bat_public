@@ -1,6 +1,5 @@
 #include <thrift/concurrency/ThreadManager.h>
 #include <thrift/concurrency/PosixThreadFactory.h>
-#include <thrift/server/TNonblockingServer.h>
 #include <thrift/transport/TNonblockingServerSocket.h>
 
 #include "gen-cpp/PokServer.h"
@@ -8,6 +7,7 @@
 #include "pok_server.h"
 
 // TODO think about it
+// TODO это должно пролетать через конструкторы
 #define host_ "localhost"
 #define port_ 3990
 
@@ -23,6 +23,7 @@ ServerController::ServerController()
 {
     std::shared_ptr<PokServerHandler> handler(new PokServerHandler());
     std::shared_ptr<TProcessor> processor(new PokServerProcessor(handler));
+    // TODO количество потоков в отдельное поле
     std::shared_ptr<ThreadManager> threadManager = ThreadManager::newSimpleThreadManager(15);
     std::shared_ptr<TNonblockingServerTransport> serverTransport(new TNonblockingServerSocket(host_, port_));
     std::shared_ptr<TTransportFactory> transportFactory(new TBufferedTransportFactory());
@@ -30,5 +31,19 @@ ServerController::ServerController()
     threadManager->threadFactory(threadFactory);
     threadManager->start();
     std::shared_ptr<TProtocolFactory> protocolFactory(new TBinaryProtocolFactory());
-    printf("HERE %s\n", "Constructor started!");
+
+    server_ = std::make_shared<TNonblockingServer>(processor, protocolFactory, serverTransport, threadManager);
+
+    server_->run();
+    // TODO зафигачить запуск сервера в отдельный поток
+    //serverThread_(&TNonblockingServer::run, server_);
+}
+
+// TODO сделать отдельный метод stopServer()
+ServerController::~ServerController()
+{
+    if(serverThread_.joinable())
+    {
+        serverThread_.join();
+    }
 }

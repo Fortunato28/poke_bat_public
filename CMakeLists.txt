@@ -8,8 +8,16 @@ add_subdirectory(middleware)
 
 include_directories(middleware)
 
-set(SERVER_SOURCES
-    src/main.cpp)
+# Сервер
+set(SERVER_EXAMPLE_SOURCES
+    src/server.cpp)
 
-add_executable(main ${SERVER_SOURCES})
-target_link_libraries(main middleware)
+add_executable(server ${SERVER_EXAMPLE_SOURCES})
+target_link_libraries(server middleware)
+
+# Клиент
+set(CLIENT_EXAMPLE_SOURCES
+    src/client.cpp)
+
+add_executable(client ${CLIENT_EXAMPLE_SOURCES})
+target_link_libraries(client middleware)
