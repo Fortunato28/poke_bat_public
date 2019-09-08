@@ -1,3 +1,5 @@
+#pragma once
+
 #include "gen-cpp/PokServer.h"
 #include <thrift/protocol/TBinaryProtocol.h>
 #include <thrift/server/TSimpleServer.h>
@@ -23,5 +25,4 @@ class PokServerHandler : virtual public PokServerIf
   void defend(RoundResult& _return);
 
   void useSkill(RoundResult& _return, const std::string& skillName);
-
 };

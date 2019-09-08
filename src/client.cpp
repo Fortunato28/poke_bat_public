@@ -4,11 +4,10 @@
 
 int main()
 {
-    // This object has thrift server inside
-//    ServerController server;
-
     // TODO здесь запуск клиента клиента
     ClientController client;
+    Config config;
+    client.getConfig(config);
 
     return 0;
 }

@@ -6,7 +6,7 @@ add_subdirectory(work_with_database)
 add_subdirectory(config_generation)
 add_subdirectory(middleware)
 
-include_directories(middleware)
+include_directories(middleware ${CMAKE_BINARY_DIR})
 
 # Сервер
 set(SERVER_EXAMPLE_SOURCES

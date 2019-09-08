@@ -23,6 +23,7 @@ ServerController::ServerController()
 {
     std::shared_ptr<PokServerHandler> handler(new PokServerHandler());
     std::shared_ptr<TProcessor> processor(new PokServerProcessor(handler));
+
     // TODO количество потоков в отдельное поле
     std::shared_ptr<ThreadManager> threadManager = ThreadManager::newSimpleThreadManager(15);
     std::shared_ptr<TNonblockingServerTransport> serverTransport(new TNonblockingServerSocket(host_, port_));
@@ -36,10 +37,10 @@ ServerController::ServerController()
 
     server_->run();
     // TODO зафигачить запуск сервера в отдельный поток
+    // А, собственно, зачем? этот бинарь будет висеть в докере в заблокированном режиме
     //serverThread_(&TNonblockingServer::run, server_);
 }
 
-// TODO сделать отдельный метод stopServer()
 ServerController::~ServerController()
 {
     if(serverThread_.joinable())
