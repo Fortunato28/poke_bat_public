@@ -4,11 +4,6 @@
 #include <memory>
 #include <thread>
 
-//// TODO think about it
-// TODO почему тут-то не работает?
-//#define host_ "localhost"
-//#define port_ 3990
-
 #include <thrift/server/TNonblockingServer.h>
 
 class ServerController
@@ -27,4 +22,5 @@ private:
 
     std::shared_ptr<::apache::thrift::server::TNonblockingServer> server_;
     std::thread serverThread_;
+    const size_t threadsAmount_ = 15;
 };

@@ -5,11 +5,7 @@
 #include "gen-cpp/PokServer.h"
 #include "server_controller.h"
 #include "pok_server.h"
-
-// TODO think about it
-// TODO это должно пролетать через конструкторы
-#define host_ "localhost"
-#define port_ 3990
+#include "common.h"
 
 using namespace ::apache::thrift;
 using namespace ::apache::thrift::protocol;
@@ -24,8 +20,7 @@ ServerController::ServerController()
     std::shared_ptr<PokServerHandler> handler(new PokServerHandler());
     std::shared_ptr<TProcessor> processor(new PokServerProcessor(handler));
 
-    // TODO количество потоков в отдельное поле
-    std::shared_ptr<ThreadManager> threadManager = ThreadManager::newSimpleThreadManager(15);
+    std::shared_ptr<ThreadManager> threadManager = ThreadManager::newSimpleThreadManager(threadsAmount_);
     std::shared_ptr<TNonblockingServerTransport> serverTransport(new TNonblockingServerSocket(host_, port_));
     std::shared_ptr<TTransportFactory> transportFactory(new TBufferedTransportFactory());
     std::shared_ptr<PosixThreadFactory> threadFactory = std::shared_ptr<PosixThreadFactory>(new PosixThreadFactory());

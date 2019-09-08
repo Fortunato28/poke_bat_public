@@ -59,7 +59,7 @@ void DBManager::CreateDatabase()
 {
     stmt_->execute("CREATE DATABASE IF NOT EXISTS poke_bat");
     stmt_->execute("USE poke_bat");
-    // TODO Имя pokemons вынести отдельным полем
+    // TODO Имя таблицы pokemons вынести отдельным полем
     stmt_->execute("CREATE TABLE IF NOT EXISTS pokemons\
         (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,\
         name VARCHAR(30),\

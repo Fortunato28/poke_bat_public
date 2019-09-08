@@ -12,7 +12,7 @@ else(CMAKE_CXX_THRIFT)
      message(FATAL_ERROR "Cannot find thrift in path")
 endif()
 
-include_directories(/usr/local/include/ ${CMAKE_BINARY_DIR}/ .)
+include_directories(/usr/local/include/ ${CMAKE_BINARY_DIR}/ ../include .)
 
 set(THRIFT_GENERATED
     ${CMAKE_BINARY_DIR}/gen-cpp/interfaces_constants.cpp

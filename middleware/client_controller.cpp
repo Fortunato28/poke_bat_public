@@ -6,15 +6,13 @@
 #include <thrift/transport/TTransportUtils.h>
 
 #include "client_controller.h"
+#include "common.h"
 
 using namespace std;
 using namespace apache::thrift;
 using namespace apache::thrift::protocol;
 using namespace apache::thrift::transport;
 using namespace poke_bat::middleware;
-
-#define host_ "localhost"
-#define port_ 3990
 
 ClientController::ClientController()
 {
