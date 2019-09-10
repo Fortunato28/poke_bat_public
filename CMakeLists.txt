@@ -10,6 +10,8 @@ include_directories(middleware ${CMAKE_BINARY_DIR} include/)
 
 # Сервер
 set(SERVER_EXAMPLE_SOURCES
+    src/pok_server.cpp
+    src/server_controller.cpp
     src/server.cpp)
 
 add_executable(server ${SERVER_EXAMPLE_SOURCES})

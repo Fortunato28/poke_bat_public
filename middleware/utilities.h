@@ -26,6 +26,7 @@ namespace utilities
         {"FAIRY",    poke_bat::middleware::PokemonType::FAIRY}
     };
 
+    // TODO обработка ошибок!
     poke_bat::middleware::PokemonType::type get_enum_poketype(std::string pokemon_type)
     {
         return pokeTypes.find(pokemon_type)->second;
@@ -38,6 +39,7 @@ namespace utilities
         {"DEBUFF", poke_bat::middleware::SkillType::DEBUFF},
     };
 
+    // TODO обработка ошибок!
     poke_bat::middleware::SkillType::type get_enum_pokeskilltype(std::string skill_type)
     {
         return pokeSkillTypes.find(skill_type)->second; 

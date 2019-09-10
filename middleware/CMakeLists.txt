@@ -20,13 +20,8 @@ set(THRIFT_GENERATED
     ${CMAKE_BINARY_DIR}/gen-cpp/PokServer.cpp
     )
 set(MIDDLEWARE_SOURCES
-    server_controller.cpp
     client_controller.cpp
-    pok_server.cpp
     )
 
 add_library(middleware ${MIDDLEWARE_SOURCES} ${THRIFT_GENERATED})
 target_link_libraries(middleware thrift thriftnb event)
-
-add_executable(test_thrift main.cpp)
-target_link_libraries(test_thrift middleware)
