@@ -12,7 +12,7 @@ else(CMAKE_CXX_THRIFT)
      message(FATAL_ERROR "Cannot find thrift in path")
 endif()
 
-include_directories(/usr/local/include/ ${CMAKE_BINARY_DIR}/ .)
+include_directories(/usr/local/include/ ${CMAKE_BINARY_DIR}/ ../include .)
 
 set(THRIFT_GENERATED
     ${CMAKE_BINARY_DIR}/gen-cpp/interfaces_constants.cpp
@@ -20,12 +20,8 @@ set(THRIFT_GENERATED
     ${CMAKE_BINARY_DIR}/gen-cpp/PokServer.cpp
     )
 set(MIDDLEWARE_SOURCES
-    server_controller.cpp
-    pok_server.cpp
+    client_controller.cpp
     )
 
 add_library(middleware ${MIDDLEWARE_SOURCES} ${THRIFT_GENERATED})
-target_link_libraries(middleware thrift thriftnb)
-
-add_executable(test_thrift main.cpp)
-target_link_libraries(test_thrift middleware)
+target_link_libraries(middleware thrift thriftnb event)
