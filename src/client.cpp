@@ -1,4 +1,6 @@
 #include <iostream>
+#include <functional>
+
 #include "server_controller.h"
 #include "client_controller.h"
 #include "client_config_handler.h"
@@ -36,7 +38,10 @@ void start_fight()
     clientConfigHandler config_handler;
     if(!config_handler.IsConfigExist()) 
     {
-        config_handler.GetDefaultConfig();
+        config_handler.GetDefaultConfig([&](std::string encrypted_config){
+                client.getConfig(encrypted_config);
+                printf("HERE %s\n", "dFVdfvd");
+                });
         config_handler.SaveConfigToFile();
     }
     config_handler.LoadConfigFromFile();

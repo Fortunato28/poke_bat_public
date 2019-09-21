@@ -27,7 +27,7 @@ ClientController::~ClientController()
 {
 }
 
-void ClientController::getConfig(Config& _return) try
+void ClientController::getConfig(std::string& _return) try
 {
     transport_->open();
 

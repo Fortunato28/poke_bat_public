@@ -10,7 +10,7 @@
 class serverConfigHandler
 {
 public:
-    void EncryptConfig();
+    std::string EncryptConfig();
 private:
     std::string encryptedContent;
 };

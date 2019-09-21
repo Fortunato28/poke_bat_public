@@ -9,7 +9,6 @@
 #include <thrift/transport/TBufferTransports.h>
 
 using PokServerIf = poke_bat::middleware::PokServerIf;
-using Config = poke_bat::middleware::Config;
 using Pokemon = poke_bat::middleware::Pokemon;
 using RoundResult = poke_bat::middleware::RoundResult;
 using FightData = poke_bat::middleware::FightData;
@@ -22,7 +21,7 @@ class PokServerHandler : virtual public PokServerIf
   uint64_t next_fight_id;
   std::map<uint64_t, Fight> fight_storage;
 
-  void getConfig(Config& _return);
+  void getConfig(std::string& _return);
 
   void startFight(FightData& _return, const int64_t complexity, const Pokemon& clientPokemon);
 
