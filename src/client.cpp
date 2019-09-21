@@ -33,8 +33,8 @@ void start_fight()
     ClientController client;
     //TODO extract from config
     Pokemon client_pokemon;
-    Pokemon server_pokemon;
-    client.startFight(server_pokemon, complexity, client_pokemon);
+    FightData fightData;
+    client.startFight(fightData, complexity, client_pokemon);
     //TODO print info about server pokemon
     RoundResult roundResult_;
 

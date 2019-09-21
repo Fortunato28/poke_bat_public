@@ -40,11 +40,12 @@ catch (TException& tx)
     cout << "ERROR: " << tx.what() << endl;
 }
 
-void ClientController::startFight(Pokemon& _return, const int64_t complexity, const Pokemon& clientPokemon) try
+void ClientController::startFight(FightData& _return, const int64_t complexity, const Pokemon& clientPokemon) try
 {
     transport_->open();
 
     thrift_client_->startFight(_return, complexity, clientPokemon);
+    fight_id_ = _return.fight_id;
 
     transport_->close();
 }
@@ -57,7 +58,7 @@ void ClientController::punch(RoundResult& _return) try
 {
     transport_->open();
 
-    thrift_client_->punch(_return);
+    thrift_client_->punch(_return, fight_id_);
 
     transport_->close();
 }
@@ -70,7 +71,7 @@ void ClientController::defend(RoundResult& _return) try
 {
     transport_->open();
 
-    thrift_client_->defend(_return);
+    thrift_client_->defend(_return, fight_id_);
 
     transport_->close();
 }
@@ -83,7 +84,7 @@ void ClientController::useSkill(RoundResult& _return, const std::string& skillNa
 {
     transport_->open();
 
-    thrift_client_->useSkill(_return, skillName);
+    thrift_client_->useSkill(_return, fight_id_, skillName);
 
     transport_->close();
 }

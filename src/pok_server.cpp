@@ -33,26 +33,26 @@ void PokServerHandler::getConfig(Config& _return)
     _return.__set_defeats(11);
 }
 
-void PokServerHandler::startFight(Pokemon& _return, const int64_t complexity, const Pokemon& clientPokemon)
+void PokServerHandler::startFight(FightData& _return, const int64_t complexity, const Pokemon& clientPokemon)
 {
   //TODO extract from DB (complexity)
-  Fight fight(clientPokemon, _return);
+  Fight fight(clientPokemon, _return.pokemon);
   fight_storage.emplace(last_fight_id++, fight);   
 }
 
-void PokServerHandler::punch(RoundResult& _return)
+void PokServerHandler::punch(RoundResult& _return, const int64_t fight_id)
 {
   // Your implementation goes here
   printf("punch\n");
 }
 
-void PokServerHandler::defend(RoundResult& _return)
+void PokServerHandler::defend(RoundResult& _return, const int64_t fight_id)
 {
   // Your implementation goes here
   printf("defend\n");
 }
 
-void PokServerHandler::useSkill(RoundResult& _return, const std::string& skillName)
+void PokServerHandler::useSkill(RoundResult& _return, const int64_t fight_id, const std::string& skillName)
 {
   // Your implementation goes here
   printf("useSkill\n");
