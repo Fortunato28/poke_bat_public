@@ -22,7 +22,7 @@ void PokServerHandler::findFight(const int64_t &fight_id)
     printf("%lu", fight_storage.find(fight_id)->first);
 }
 
-PokServerHandler::PokServerHandler() : last_fight_id(0)
+PokServerHandler::PokServerHandler() : next_fight_id(0)
 {
 }
 
@@ -40,8 +40,10 @@ void PokServerHandler::startFight(FightData& _return, const int64_t complexity, 
 {
   //TODO extract from DB (complexity)
   Fight fight(clientPokemon, _return.pokemon);
-  fight_storage.emplace(last_fight_id, fight);   
-  last_fight_id += 1;
+  fight_storage.emplace(next_fight_id, fight);
+
+  _return.__set_fight_id(next_fight_id);
+  ++next_fight_id;
 }
 
 void PokServerHandler::punch(RoundResult& _return, const int64_t fight_id)
@@ -54,13 +56,13 @@ void PokServerHandler::punch(RoundResult& _return, const int64_t fight_id)
 void PokServerHandler::defend(RoundResult& _return, const int64_t fight_id)
 {
   // Your implementation goes here
-  printf("defend\n");
   findFight(fight_id);
+  printf("defend\n");
 }
 
 void PokServerHandler::useSkill(RoundResult& _return, const int64_t fight_id, const std::string& skillName)
 {
   // Your implementation goes here
-  printf("useSkill\n");
   findFight(fight_id);
+  printf("useSkill\n");
 }

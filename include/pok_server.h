@@ -19,7 +19,7 @@ class PokServerHandler : virtual public PokServerIf
  public:
   PokServerHandler();
 
-  uint64_t last_fight_id;
+  uint64_t next_fight_id;
   std::map<uint64_t, Fight> fight_storage;
 
   void getConfig(Config& _return);
