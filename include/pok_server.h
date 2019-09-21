@@ -1,5 +1,7 @@
 #pragma once
 
+#include <map>
+#include "fight.h"
 #include "gen-cpp/PokServer.h"
 #include <thrift/protocol/TBinaryProtocol.h>
 #include <thrift/server/TSimpleServer.h>
@@ -15,6 +17,9 @@ class PokServerHandler : virtual public PokServerIf
 {
  public:
   PokServerHandler();
+
+  uint64_t last_fight_id;
+  std::map<uint64_t, Fight> fight_storage;
 
   void getConfig(Config& _return);
 

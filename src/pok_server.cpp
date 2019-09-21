@@ -6,6 +6,7 @@
 #include <thrift/server/TSimpleServer.h>
 #include <thrift/transport/TServerSocket.h>
 #include <thrift/transport/TBufferTransports.h>
+#include "fight.h"
 
 #include "pok_server.h"
 
@@ -18,21 +19,25 @@ using namespace  ::poke_bat::middleware;
 
 
 
-PokServerHandler::PokServerHandler()
+PokServerHandler::PokServerHandler() : last_fight_id(0)
 {
-    // Your initialization goes here
 }
 
 void PokServerHandler::getConfig(Config& _return)
 {
   // Your implementation goes here
-  printf("getConfig\n");
+    printf("getConfig\n");
+    Pokemon pok;
+    _return.__set_pokemon(pok);
+    _return.__set_victories(0);
+    _return.__set_defeats(11);
 }
 
 void PokServerHandler::startFight(Pokemon& _return, const int64_t complexity, const Pokemon& clientPokemon)
 {
-  // Your implementation goes here
-  printf("startFight\n");
+  //TODO extract from DB (complexity)
+  Fight fight(clientPokemon, _return);
+  fight_storage.emplace(last_fight_id++, fight);   
 }
 
 void PokServerHandler::punch(RoundResult& _return)

@@ -12,7 +12,8 @@ include_directories(middleware ${CMAKE_BINARY_DIR} include/)
 set(SERVER_EXAMPLE_SOURCES
     src/pok_server.cpp
     src/server_controller.cpp
-    src/server.cpp)
+    src/server.cpp
+    src/fight.cpp)
 
 add_executable(server ${SERVER_EXAMPLE_SOURCES})
 target_link_libraries(server middleware)
