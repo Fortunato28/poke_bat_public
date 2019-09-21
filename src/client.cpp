@@ -1,6 +1,7 @@
 #include <iostream>
 #include "server_controller.h"
 #include "client_controller.h"
+#include "client_config_handler.h"
 
 using namespace std;
 
@@ -31,8 +32,17 @@ void start_fight()
 {
     auto complexity = choose_complexity();
     ClientController client;
-    //TODO extract from config
-    Pokemon client_pokemon;
+    
+    clientConfigHandler config_handler;
+    if(!config_handler.IsConfigExist()) 
+    {
+        config_handler.GetDefaultConfig();
+        config_handler.SaveConfigToFile();
+    }
+    config_handler.LoadConfigFromFile();
+    config_handler.DecryptConfig();
+    
+    Pokemon client_pokemon = config_handler.ParseConfig();
     FightData fightData;
     client.startFight(fightData, complexity, client_pokemon);
     //TODO print info about server pokemon

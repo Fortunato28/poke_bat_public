@@ -32,5 +32,5 @@ class PokServerHandler : virtual public PokServerIf
 
   void useSkill(RoundResult& _return, const int64_t fight, const std::string& skillName);
 
-  void findFight(const int64_t &fight_id);
+  Fight findFight(const int64_t &fight_id);
 };

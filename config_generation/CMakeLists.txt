@@ -24,8 +24,8 @@ include_directories(../middleware
 add_library(config_handler ${CONFIG_HANDLER_SOURCES})
 target_link_libraries(config_handler middleware)
 
-add_executable(test_config_generation main.cpp)
+add_library(config_generation main.cpp)
 
-target_link_libraries(test_config_generation config_handler)
-target_link_libraries(test_config_generation ${LibGCrypt})
-target_link_libraries(test_config_generation ${LibConfig})
+target_link_libraries(config_generation config_handler)
+target_link_libraries(config_generation ${LibGCrypt})
+target_link_libraries(config_generation ${LibConfig})

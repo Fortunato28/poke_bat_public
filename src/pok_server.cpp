@@ -17,9 +17,10 @@ using namespace ::apache::thrift::server;
 
 using namespace  ::poke_bat::middleware;
 
-void PokServerHandler::findFight(const int64_t &fight_id)
+Fight PokServerHandler::findFight(const int64_t &fight_id)
 {
-    printf("%lu", fight_storage.find(fight_id)->first);
+    //printf("%lu", fight_storage.find(fight_id)->first);
+    return fight_storage.at(fight_id);
 }
 
 PokServerHandler::PokServerHandler() : next_fight_id(0)
@@ -42,6 +43,8 @@ void PokServerHandler::startFight(FightData& _return, const int64_t complexity, 
   Fight fight(clientPokemon, _return.pokemon);
   fight_storage.emplace(next_fight_id, fight);
 
+  printf("%s\n", clientPokemon.name.c_str());
+
   _return.__set_fight_id(next_fight_id);
   ++next_fight_id;
 }
@@ -49,8 +52,12 @@ void PokServerHandler::startFight(FightData& _return, const int64_t complexity, 
 void PokServerHandler::punch(RoundResult& _return, const int64_t fight_id)
 {
   // Your implementation goes here
-    findFight(fight_id);
+    Fight current_fight = findFight(fight_id);
+    auto& c_pok = current_fight.client_pokemon_;
+    auto& s_pok = current_fight.server_pokemon_;
+    
     printf("punch\n");
+    
 }
 
 void PokServerHandler::defend(RoundResult& _return, const int64_t fight_id)
