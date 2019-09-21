@@ -60,12 +60,17 @@ struct Config {
     3: required i64 defeats;
 }
 
+struct FightData {
+    1: required Pokemon pokemon;
+    2: required i64 fight_id;
+}
+
 service PokServer {
     Config getConfig(),
 
-    Pokemon startFight(1:i64 complexity, 2:Pokemon clientPokemon)
-    RoundResult punch(),
-    RoundResult defend(),
-    RoundResult useSkill(1:string skillName)
+    FightData startFight(1:i64 complexity, 2:Pokemon clientPokemon)
+    RoundResult punch(1:i64 fight_id),
+    RoundResult defend(1:i64 fight_id),
+    RoundResult useSkill(1:i64 fight_id, 2:string skillName)
 }
 
