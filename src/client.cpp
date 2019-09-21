@@ -34,19 +34,18 @@ void start_fight()
 {
     auto complexity = choose_complexity();
     ClientController client;
-    
+
     clientConfigHandler config_handler;
-    if(!config_handler.IsConfigExist()) 
+    if(!config_handler.IsConfigExist())
     {
-        config_handler.GetDefaultConfig([&](std::string encrypted_config){
+        config_handler.GetDefaultConfig([&client](std::string& encrypted_config){
                 client.getConfig(encrypted_config);
-                printf("HERE %s\n", "dFVdfvd");
                 });
         config_handler.SaveConfigToFile();
     }
     config_handler.LoadConfigFromFile();
     config_handler.DecryptConfig();
-    
+
     Pokemon client_pokemon = config_handler.ParseConfig();
     FightData fightData;
     client.startFight(fightData, complexity, client_pokemon);

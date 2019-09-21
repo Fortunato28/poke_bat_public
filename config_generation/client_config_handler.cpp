@@ -6,20 +6,22 @@ using namespace poke_bat::middleware;
 bool clientConfigHandler::IsConfigExist()
 {
     std::ifstream config("config.cfg");
-    return config.good(); 
+    return config.good();
 }
 
-void clientConfigHandler::GetDefaultConfig(std::function<void(std::string)> callback_to_get_from_server)
+void clientConfigHandler::GetDefaultConfig(std::function<void(std::string&)> callback_to_get_from_server)
 {
     callback_to_get_from_server(configContent_);
+        printf("HERE %lu\n", configContent_.length());
     //TODO sending a request for the new config, recieving it and saving
 }
 
 void clientConfigHandler::SaveConfigToFile()
 {
-    std::ofstream fout("config.cfg", std::ios_base::trunc);
+    std::ofstream fout;
+    fout.open("/tmp/test/config.cfg", std::ios_base::trunc);
     if(fout.is_open())
-    {   
+    {
         fout << configContent_;
         fout.close();
     }
@@ -47,7 +49,8 @@ void clientConfigHandler::LoadConfigFromFile()
     fseek(ptrFile, 0, SEEK_END);
     long iSize = ftell(ptrFile);
     rewind(ptrFile);
-    char* buffer = (char*) malloc(sizeof(char) * iSize);
+    char*
+        buffer = (char*) malloc(sizeof(char) * iSize);
     size_t result = fread(buffer, 1, iSize, ptrFile);
 
     std::string temp(buffer, result);

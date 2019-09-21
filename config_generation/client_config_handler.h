@@ -17,7 +17,7 @@ class clientConfigHandler
 {
 public:
     bool IsConfigExist();
-    void GetDefaultConfig(std::function<void(std::string)> callback_to_get_from_server);
+    void GetDefaultConfig(std::function<void(std::string&)> callback_to_get_from_server);
     void SaveConfigToFile();
     void LoadConfigFromFile(); 
     void DecryptConfig();
