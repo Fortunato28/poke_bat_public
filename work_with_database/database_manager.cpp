@@ -24,20 +24,22 @@ DBManager::DBManager(const std::string host, const std::string user, const std::
 {
     try
     {
-        sql::Driver * driver = sql::mysql::get_driver_instance();
+        sql::Driver* driver = sql::mysql::get_driver_instance();
+
         /* Using the Driver to create a connection */
         con_ = unique_ptr<sql::Connection>(driver->connect(host_, user_, pass_));
         con_->setSchema(db_name_);
 
         stmt_ = unique_ptr<sql::Statement>(con_->createStatement());
 
-        CreateDatabase();
+        // TODO В общем-то не нужно - база будет создаваться заранее
+        //CreateDatabase();
+
+        // TODO Это залипуха только для тестирования
         Pokemon testPok;
         AddPokemon(testPok);
         testPok = GetPokemon(1);
         cout << testPok.skill << endl;
-        // Тестово удаляет всех покемонов
-        RemovePokemon();
     }
     catch (sql::SQLException &e)
     {
@@ -52,7 +54,9 @@ DBManager::DBManager(const std::string host, const std::string user, const std::
 
 DBManager::~DBManager()
 {
-
+    // TODO is it safe?
+    delete con_.get();
+    delete stmt_.get();
 }
 
 void DBManager::CreateDatabase()
@@ -94,7 +98,6 @@ void DBManager::CreateDatabase()
             skill LONGTEXT,\
             flag LONGTEXT);"
             );
-
 }
 
 void DBManager::AddPokemon(Pokemon& given_pok)
@@ -151,7 +154,6 @@ Pokemon DBManager::GetPokemon(size_t level)
 void DBManager::RemovePokemon()
 {
     string deleteCommand = "DELETE FROM pokemons WHERE spell_attack=5;";
-    cout << "ALOE BLYA" << endl;
     stmt_->execute(deleteCommand);
 }
 

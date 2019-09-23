@@ -50,6 +50,9 @@ void start_fight()
     Pokemon client_pokemon = config_handler.ParseConfig();
     FightData fightData;
     client.startFight(fightData, complexity, client_pokemon);
+
+    printf("HERE %s\n", fightData.pokemon.name.c_str());
+
     //TODO print info about server pokemon
     RoundResult roundResult_;
 

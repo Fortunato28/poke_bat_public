@@ -56,9 +56,8 @@ void PokServerHandler::punch(RoundResult& _return, const int64_t fight_id)
     Fight current_fight = findFight(fight_id);
     auto& c_pok = current_fight.client_pokemon_;
     auto& s_pok = current_fight.server_pokemon_;
-    
+
     printf("punch\n");
-    
 }
 
 void PokServerHandler::defend(RoundResult& _return, const int64_t fight_id)
