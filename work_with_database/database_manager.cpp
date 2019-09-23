@@ -16,7 +16,7 @@ using namespace poke_bat::middleware;
 
 namespace work_with_datbase {
 
-DBManager::DBManager(const std::string& host, const std::string& user, const std::string& pass, const std::string& db_name):
+DBManager::DBManager(const std::string host, const std::string user, const std::string pass, const std::string db_name):
     host_(host),
     user_(user),
     pass_(pass),

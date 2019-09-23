@@ -10,22 +10,26 @@
 #include "gen-cpp/PokServer.h"
 #include "fight.h"
 #include "server_config_handler.h"
+#include "conf.h"
 
 using namespace ::apache::thrift;
 using namespace ::apache::thrift::protocol;
 using namespace ::apache::thrift::transport;
 using namespace ::apache::thrift::server;
 
-using namespace  ::poke_bat::middleware;
+using namespace ::poke_bat::middleware;
+using namespace work_with_datbase;
+
+PokServerHandler::PokServerHandler() 
+    : next_fight_id_(0),
+      dbManager_(host, user, pass, db)
+{
+}
 
 Fight PokServerHandler::findFight(const int64_t &fight_id)
 {
     //printf("%lu", fight_storage.find(fight_id)->first);
-    return fight_storage.at(fight_id);
-}
-
-PokServerHandler::PokServerHandler() : next_fight_id(0)
-{
+    return fight_storage_.at(fight_id);
 }
 
 void PokServerHandler::getConfig(std::string& _return)
@@ -36,14 +40,14 @@ void PokServerHandler::getConfig(std::string& _return)
 
 void PokServerHandler::startFight(FightData& _return, const int64_t complexity, const Pokemon& clientPokemon)
 {
-  //TODO extract from DB (complexity)
+  _return.pokemon = dbManager_.GetPokemon(complexity);
   Fight fight(clientPokemon, _return.pokemon);
-  fight_storage.emplace(next_fight_id, fight);
+  fight_storage_.emplace(next_fight_id_, fight);
 
-  printf("%s\n", clientPokemon.name.c_str());
+  //printf("%s\n", clientPokemon.name.c_str());
 
-  _return.__set_fight_id(next_fight_id);
-  ++next_fight_id;
+  _return.__set_fight_id(next_fight_id_);
+  ++next_fight_id_;
 }
 
 void PokServerHandler::punch(RoundResult& _return, const int64_t fight_id)

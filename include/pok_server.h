@@ -7,6 +7,7 @@
 #include <thrift/server/TSimpleServer.h>
 #include <thrift/transport/TServerSocket.h>
 #include <thrift/transport/TBufferTransports.h>
+#include "database_manager.h"
 
 using PokServerIf = poke_bat::middleware::PokServerIf;
 using Pokemon = poke_bat::middleware::Pokemon;
@@ -17,9 +18,6 @@ class PokServerHandler : virtual public PokServerIf
 {
  public:
   PokServerHandler();
-
-  uint64_t next_fight_id;
-  std::map<uint64_t, Fight> fight_storage;
 
   void getConfig(std::string& _return);
 
@@ -32,4 +30,9 @@ class PokServerHandler : virtual public PokServerIf
   void useSkill(RoundResult& _return, const int64_t fight, const std::string& skillName);
 
   Fight findFight(const int64_t &fight_id);
+
+private:
+  uint64_t next_fight_id_;
+  std::map<uint64_t, Fight> fight_storage_;
+  work_with_datbase::DBManager dbManager_;
 };

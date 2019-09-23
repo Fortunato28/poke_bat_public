@@ -7,7 +7,7 @@ using namespace work_with_datbase;
 
 int main()
 {
-    DBManager db_manager(EXAMPLE_HOST, EXAMPLE_USER, EXAMPLE_PASS, EXAMPLE_DB);
+    DBManager db_manager("localhost", "root", "1", "poke_bat");
 
     cout << "Worked minimal!" << endl;
 }

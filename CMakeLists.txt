@@ -6,8 +6,17 @@ add_subdirectory(work_with_database)
 add_subdirectory(config_generation)
 add_subdirectory(middleware)
 
-include_directories(config_generation)
-include_directories(middleware ${CMAKE_BINARY_DIR} include/)
+include_directories(middleware
+                    ${CMAKE_BINARY_DIR}
+                    work_with_database
+                    config_generation
+                    include/
+                    /usr/include
+                    /usr/include/mysql
+                    /usr/include/mysqlx
+                    /usr/include/jdbc
+                    .
+                    )
 
 # Сервер
 set(SERVER_EXAMPLE_SOURCES
@@ -17,7 +26,11 @@ set(SERVER_EXAMPLE_SOURCES
     src/fight.cpp)
 
 add_executable(server ${SERVER_EXAMPLE_SOURCES})
-target_link_libraries(server middleware config_generation)
+target_link_libraries(server
+                      middleware
+                      config_generation
+                      db_manager
+                      )
 
 # Клиент
 set(CLIENT_EXAMPLE_SOURCES
