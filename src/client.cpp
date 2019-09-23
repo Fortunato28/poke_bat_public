@@ -13,6 +13,7 @@ const int64_t choose_complexity()
     std::cout << "Choose the complexity of the fight!\n"
               << "1, 2 or 3.\n";
     std::cin >> result;
+    std::cout << "=================================\n";
     switch(result)
     {
         case 1:
@@ -59,6 +60,7 @@ void start_fight()
                   << "Press 3 to use skill;\n"; 
         int action;
         std::cin >> action;
+        std::cout << "=================================\n";
         switch(action)
         {
             case 1:
@@ -84,12 +86,12 @@ void client_run()
     while(true)
     {
         //TODO add a nice legend
-        //TODO add ===== as a distinctor
         std::cout << "Choose your action!\n"
                   << "To start press 1;\n"
                   << "To exit the game press 0;\n";
         int choice;
         std::cin >> choice;
+        std::cout << "=================================\n";
         switch(choice)
         {
             case 1:

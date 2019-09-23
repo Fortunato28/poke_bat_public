@@ -16,6 +16,7 @@
 class clientConfigHandler
 {
 public:
+    clientConfigHandler();
     bool IsConfigExist();
     void GetDefaultConfig(std::function<void(std::string&)> callback_to_get_from_server);
     void SaveConfigToFile();
@@ -24,4 +25,5 @@ public:
     poke_bat::middleware::Pokemon ParseConfig();
 private:
     std::string configContent_;
+    std::string configFileName_;
 };
