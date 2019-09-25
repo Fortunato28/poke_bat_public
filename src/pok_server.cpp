@@ -26,7 +26,7 @@ PokServerHandler::PokServerHandler()
 {
 }
 
-Fight PokServerHandler::findFight(const int64_t &fight_id)
+Fight& PokServerHandler::findFight(const int64_t &fight_id)
 {
     //printf("%lu", fight_storage.find(fight_id)->first);
     return fight_storage_.at(fight_id);
@@ -44,20 +44,81 @@ void PokServerHandler::startFight(FightData& _return, const int64_t complexity, 
   Fight fight(clientPokemon, _return.pokemon);
   fight_storage_.emplace(next_fight_id_, fight);
 
-  //printf("%s\n", clientPokemon.name.c_str());
+  printf("HERE GOTTEN POKEMON%ld\n", _return.pokemon.LVL);
 
   _return.__set_fight_id(next_fight_id_);
   ++next_fight_id_;
 }
 
+int64_t calculateDamage(int64_t lvl, int64_t attack, int64_t def)
+{
+    return ((((2 * lvl / 5) + 2) * (attack / def) / 50) + 2);
+}
+
+RoundResult clientWin()
+{
+    printf("HERE %s\n", "client is win");
+    return {};
+}
+
+RoundResult serverWin()
+{
+    printf("HERE %s\n", "server is win");
+    return {};
+}
+
+bool isDeadInside(const Pokemon& pok)
+{
+    return pok.HP <= 0 ? true : false;
+}
+
+bool PokServerHandler::isFightStopped(
+        RoundResult& roundResult_,
+        const Pokemon& s_pok,
+        const Pokemon& c_pok,
+        const int64_t fight_id)
+{
+    if(isDeadInside(s_pok))
+    {
+        roundResult_ = clientWin();
+        // Drop fight
+        fight_storage_.erase(fight_id);
+        return true;
+    }
+    if(isDeadInside(c_pok))
+    {
+        roundResult_ = serverWin();
+        // Drop fight
+        fight_storage_.erase(fight_id);
+        return true;
+    }
+
+    return false;
+}
+
 void PokServerHandler::punch(RoundResult& _return, const int64_t fight_id)
 {
-  // Your implementation goes here
-    Fight current_fight = findFight(fight_id);
+    Fight& current_fight = findFight(fight_id);
+    // Extract pokemons from fight object
     auto& c_pok = current_fight.client_pokemon_;
     auto& s_pok = current_fight.server_pokemon_;
 
-    printf("punch\n");
+    // Calculate damage
+    auto lvl = c_pok.LVL;
+    auto attack = c_pok.attack;
+    auto def = s_pok.defense;
+    int64_t damage = calculateDamage(lvl, attack, def);
+
+    // Apply damage to server_pokemon
+    printf("BEFORE punch %ld\n", s_pok.HP);
+    printf("DAMAGE %ld\n", damage);
+    s_pok.HP -= damage;
+    printf("AFTER punch %ld\n", s_pok.HP);
+
+    if(isFightStopped(_return, s_pok, c_pok, fight_id))
+    {
+        return;
+    }
 }
 
 void PokServerHandler::defend(RoundResult& _return, const int64_t fight_id)

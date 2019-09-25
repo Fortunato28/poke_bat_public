@@ -7,6 +7,11 @@
 
 using namespace std;
 
+void printPokemonData(Pokemon&)
+{
+    //TODO print info about server pokemon
+}
+
 const int64_t choose_complexity()
 {
     int64_t result;
@@ -31,11 +36,8 @@ const int64_t choose_complexity()
     }
 }
 
-void start_fight()
+Pokemon getPokemonFromConfig(ClientController& client)
 {
-    auto complexity = choose_complexity();
-    ClientController client;
-
     clientConfigHandler config_handler;
     if(!config_handler.IsConfigExist())
     {
@@ -48,12 +50,22 @@ void start_fight()
     config_handler.DecryptConfig();
 
     Pokemon client_pokemon = config_handler.ParseConfig();
+
+    return client_pokemon;
+}
+
+void start_fight()
+{
+    auto complexity = choose_complexity();
+    ClientController client;
+
+    Pokemon clientPokemon = getPokemonFromConfig(client);
     FightData fightData;
-    client.startFight(fightData, complexity, client_pokemon);
+    client.startFight(fightData, complexity, clientPokemon);
 
-    printf("HERE %s\n", fightData.pokemon.name.c_str());
+    printf("HERE ENEMY POKEMON LVL = %ld\n", fightData.pokemon.LVL);
 
-    //TODO print info about server pokemon
+    printPokemonData(fightData.pokemon);
     RoundResult roundResult_;
 
     while(true)
@@ -61,24 +73,34 @@ void start_fight()
         std::cout << "Press 1 to punch enemy pokemon;\n"
                   << "Press 2 to defend;\n"
                   << "Press 3 to use skill;\n"; 
-        int action;
+        int action = 228;
         std::cin >> action;
         std::cout << "=================================\n";
-        switch(action)
+
+        if(action > 3)
         {
-            case 1:
-                client.punch(roundResult_);
-                break;
-            case 2:
-                client.defend(roundResult_);
-                break;
-            case 3:
-                client.useSkill(roundResult_, client_pokemon.skill.name);
-                break;
-            default:
-                std::cout << "What are you, fucking immature!?\n"
-                          << "Try it again!\n";
+            std::cout << "What are you, fucking immature!?\n"
+                << "Try it again!\n";
         }
+        else
+        {
+            switch(action)
+            {
+                case 1:
+                    client.punch(roundResult_);
+                    break;
+                case 2:
+                    client.defend(roundResult_);
+                    break;
+                case 3:
+                    client.useSkill(roundResult_, clientPokemon.skill.name);
+                    break;
+            }
+
+            printPokemonData(roundResult_.clientPokemon);
+            printPokemonData(roundResult_.serverPokemon);
+        }
+
     }
 }
 
@@ -103,6 +125,8 @@ void client_run()
                 std::cout << "Fight is over!\n";
                 break;
             case 2:
+                // TODO To think about the way how to pass clientPokemon into method below
+                //printPokemonData(clientPokemon);
                 std::cout << "2\n";
                 break;
             case 0:

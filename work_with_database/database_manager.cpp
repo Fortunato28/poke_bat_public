@@ -33,13 +33,13 @@ DBManager::DBManager(const std::string host, const std::string user, const std::
         stmt_ = unique_ptr<sql::Statement>(con_->createStatement());
 
         // TODO В общем-то не нужно - база будет создаваться заранее
-        //CreateDatabase();
+        CreateDatabase();
 
         // TODO Это залипуха только для тестирования
         Pokemon testPok;
         AddPokemon(testPok);
-        testPok = GetPokemon(1);
-        cout << testPok.skill << endl;
+        //testPok = GetPokemon(1);
+        //cout << testPok.skill << endl;
     }
     catch (sql::SQLException &e)
     {
@@ -103,7 +103,7 @@ void DBManager::CreateDatabase()
 void DBManager::AddPokemon(Pokemon& given_pok)
 {
     // TODO Добавить нарезку строки от пришедшего покемона
-    stmt_->execute("INSERT INTO pokemons VALUES (NULL, 'ZHOPA', 'FIRE', 20, 20, 10, 5, 5, 15, 0, 1, 'lightning_ATTACK_20', 'isib_wtf{some_flag}');");
+    stmt_->execute("INSERT INTO pokemons VALUES (NULL, 'ZHOPA', 'GRASS', 20, 20, 10, 5, 5, 15, 0, 3, 'lightning_ATTACK_20', 'isib_wtf{some_flag}');");
 }
 
 // TODO если костыль сработает, то вынести отдельно

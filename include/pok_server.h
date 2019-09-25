@@ -29,9 +29,11 @@ class PokServerHandler : virtual public PokServerIf
 
   void useSkill(RoundResult& _return, const int64_t fight, const std::string& skillName);
 
-  Fight findFight(const int64_t &fight_id);
+  Fight& findFight(const int64_t &fight_id);
 
 private:
+  bool isFightStopped(RoundResult& roundResult_, const Pokemon& server, const Pokemon& client, const int64_t fight_id);
+
   uint64_t next_fight_id_;
   std::map<uint64_t, Fight> fight_storage_;
   work_with_datbase::DBManager dbManager_;
