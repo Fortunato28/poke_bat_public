@@ -55,16 +55,22 @@ int64_t calculateDamage(int64_t lvl, int64_t attack, int64_t def)
     return ((((2 * lvl / 5) + 2) * (attack / def) / 50) + 2);
 }
 
-RoundResult clientWin()
+std::string clientWin()
 {
     printf("HERE %s\n", "client is win");
-    return {};
+
+    return {"Congratulations!\n"
+            "You won the battle!\n"
+            "You earn some EXP!\n"};
 }
 
-RoundResult serverWin()
+std::string serverWin()
 {
     printf("HERE %s\n", "server is win");
-    return {};
+
+    return {"Try harder nex time, loser!\n"
+            "You lost the battle!\n"
+            "Your pokemon is dead inside!\n"};
 }
 
 bool isDeadInside(const Pokemon& pok)
@@ -80,14 +86,21 @@ bool PokServerHandler::isFightStopped(
 {
     if(isDeadInside(s_pok))
     {
-        roundResult_ = clientWin();
+        //TODO calculate exp according to s_pok level
+        //c_pok.EXP += 100;
+
+        roundResult_.__set_clientPokemon(c_pok);
+        roundResult_.__set_serverPokemon(s_pok);
+        roundResult_.__set_actionResultDescription(clientWin());
         // Drop fight
         fight_storage_.erase(fight_id);
         return true;
     }
     if(isDeadInside(c_pok))
     {
-        roundResult_ = serverWin();
+        roundResult_.__set_clientPokemon(c_pok);
+        roundResult_.__set_serverPokemon(s_pok);
+        roundResult_.__set_actionResultDescription(serverWin());
         // Drop fight
         fight_storage_.erase(fight_id);
         return true;
@@ -119,6 +132,9 @@ void PokServerHandler::punch(RoundResult& _return, const int64_t fight_id)
     {
         return;
     }
+
+    _return.__set_clientPokemon(c_pok);
+    _return.__set_serverPokemon(s_pok);
 }
 
 void PokServerHandler::defend(RoundResult& _return, const int64_t fight_id)

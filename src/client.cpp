@@ -54,6 +54,19 @@ Pokemon getPokemonFromConfig(ClientController& client)
     return client_pokemon;
 }
 
+bool isFightStopped(const RoundResult& roundResult_)
+{
+    printf("CLIENT_POK %ld\n", roundResult_.clientPokemon.HP);
+    printf("SERVER %ld\n", roundResult_.serverPokemon.HP);
+    if (roundResult_.clientPokemon.HP <= 0 ||
+        roundResult_.serverPokemon.HP <= 0)
+    {
+        return true;
+    }
+
+    return false;
+}
+
 void start_fight()
 {
     auto complexity = choose_complexity();
@@ -96,7 +109,12 @@ void start_fight()
                     client.useSkill(roundResult_, clientPokemon.skill.name);
                     break;
             }
-
+            if(isFightStopped(roundResult_))
+            {
+                printf("%s\n", roundResult_.actionResultDescription.c_str());
+                std::cout << "=================================\n";
+                break;
+            }
             printPokemonData(roundResult_.clientPokemon);
             printPokemonData(roundResult_.serverPokemon);
         }
