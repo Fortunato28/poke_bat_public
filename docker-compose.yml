@@ -5,18 +5,24 @@ services:
         command: bash -c "./_result/server"
         #command: bash -c "pwd && cd _result/"
         ports:
-            - 127.0.0.1:3990:3990
+            - 3990:3990
         volumes:
             - .:/usr/src/poke_bat
+        networks:
+            - poke_net
     database:
         image: mysql
         restart: always
         environment:
-            MYSQL_ROOT_PASSWORD: 'test_pass'
-            MYSQL_USER: 'test'
-            MYSQL_PASS: 'pass'
+            MYSQL_ROOT_PASSWORD: '1'
+            MYSQL_DATABASE: 'poke_bat'
+            #MYSQL_USER: 'test'
+            #MYSQL_PASS: 'pass'
         depends_on:
             - server
+        networks:
+            - poke_net
 
-#networks:
-    #default:
+networks:
+    poke_net:
+        driver: bridge
