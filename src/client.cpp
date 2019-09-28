@@ -90,6 +90,7 @@ void start_fight()
         std::cin >> action;
         std::cout << "=================================\n";
 
+        // TODO нормальная валидация!!!! что вводит только цифры. Если не цифры, то идёт нах
         if(action > 3)
         {
             std::cout << "What are you, fucking immature!?\n"
@@ -141,6 +142,7 @@ void client_run()
                 std::cout << "Fight is started!\n";
                 start_fight();
                 std::cout << "Fight is over!\n";
+                std::cout << "=================================\n";
                 break;
             case 2:
                 // TODO To think about the way how to pass clientPokemon into method below

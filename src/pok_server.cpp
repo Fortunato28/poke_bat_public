@@ -52,7 +52,7 @@ void PokServerHandler::startFight(FightData& _return, const int64_t complexity, 
 
 int64_t calculateDamage(int64_t lvl, int64_t attack, int64_t def)
 {
-    return ((((2 * lvl / 5) + 2) * (attack / def) / 50) + 2);
+    return ((((2 * lvl / 5) + 2) * (attack * attack / def) / 50) + 2);
 }
 
 std::string clientWin()
@@ -112,9 +112,13 @@ bool PokServerHandler::isFightStopped(
 void PokServerHandler::punch(RoundResult& _return, const int64_t fight_id)
 {
     Fight& current_fight = findFight(fight_id);
+
+    // For an appropriate handling of the client pokemon's state
+    current_fight.handleClientStats();
+
     // Extract pokemons from fight object
-    auto& c_pok = current_fight.client_pokemon_;
-    auto& s_pok = current_fight.server_pokemon_;
+    auto& c_pok = current_fight.getClientPok();
+    auto& s_pok = current_fight.getServerPok();
 
     // Calculate damage
     auto lvl = c_pok.LVL;
@@ -139,14 +143,39 @@ void PokServerHandler::punch(RoundResult& _return, const int64_t fight_id)
 
 void PokServerHandler::defend(RoundResult& _return, const int64_t fight_id)
 {
-  // Your implementation goes here
-  findFight(fight_id);
-  printf("defend\n");
+    Fight& current_fight = findFight(fight_id);
+
+    // For an appropriate handling of the client pokemon's state
+    current_fight.handleClientStats();
+
+    // Extract pokemons from fight object
+    auto& c_pok = current_fight.getClientPok();
+    auto& s_pok = current_fight.getServerPok();
+
+    current_fight.setClientDefense();
+
+    _return.__set_clientPokemon(c_pok);
+    _return.__set_serverPokemon(s_pok);
 }
 
 void PokServerHandler::useSkill(RoundResult& _return, const int64_t fight_id, const std::string& skillName)
 {
-  // Your implementation goes here
-  findFight(fight_id);
-  printf("useSkill\n");
+    Fight& current_fight = findFight(fight_id);
+
+    // For an appropriate handling of the client pokemon's state
+    current_fight.handleClientStats();
+
+    // Extract pokemons from fight object
+    auto& c_pok = current_fight.getClientPok();
+    auto& s_pok = current_fight.getServerPok();
+
+    //// TODO delete, it's for test only
+    //c_pok.attack = 100;
+    //s_pok.attack = 100;
+    //s_pok.HP = 1000;
+
+    printf("useSkill\n");
+
+    _return.__set_clientPokemon(c_pok);
+    _return.__set_serverPokemon(s_pok);
 }

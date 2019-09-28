@@ -37,7 +37,7 @@ DBManager::DBManager(const std::string host, const std::string user, const std::
 
         // TODO Это залипуха только для тестирования
         Pokemon testPok;
-        AddPokemon(testPok);
+        //AddPokemon(testPok);
         //testPok = GetPokemon(1);
         //cout << testPok.skill << endl;
     }
