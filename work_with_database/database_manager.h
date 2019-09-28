@@ -34,7 +34,7 @@ private:
     const std::string db_name_;
 
     // Держалки коннекта к базе
-    std::unique_ptr<sql::Statement> stmt_;
-    std::unique_ptr<sql::Connection> con_;
+    sql::Statement* stmt_;
+    sql::Connection* con_;
 };
 } // namespace

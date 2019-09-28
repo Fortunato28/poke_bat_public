@@ -24,19 +24,20 @@ DBManager::DBManager(const std::string host, const std::string user, const std::
 {
     try
     {
-        sql::Driver* driver = sql::mysql::get_driver_instance();
+        sql::mysql::MySQL_Driver* driver = sql::mysql::get_driver_instance();
 
         /* Using the Driver to create a connection */
-        con_ = unique_ptr<sql::Connection>(driver->connect(host_, user_, pass_));
+        con_ = driver->connect(host_, user_, pass_);
+        //con_ = driver->connect("tcp://127.0.0.1:3306", "root", "1");
         con_->setSchema(db_name_);
 
-        stmt_ = unique_ptr<sql::Statement>(con_->createStatement());
+        stmt_ = con_->createStatement();
 
         // TODO В общем-то не нужно - база будет создаваться заранее
-        CreateDatabase();
+        //CreateDatabase();
 
-        // TODO Это залипуха только для тестирования
-        Pokemon testPok;
+        //// TODO Это залипуха только для тестирования
+        //Pokemon testPok;
         //AddPokemon(testPok);
         //testPok = GetPokemon(1);
         //cout << testPok.skill << endl;
@@ -44,19 +45,23 @@ DBManager::DBManager(const std::string host, const std::string user, const std::
     catch (sql::SQLException &e)
     {
         cout << "# ERR: SQLException in " << __FILE__;
-        cout << "(" << "EXAMPLE_FUNCTION" << ") on line " << __LINE__ << endl;
-        cout << "# ERR: " << e.what();
+        cout << "(" << "EXAMPLE_FUNCTION" << ") on line " << __LINE__ << endl; cout << "# ERR: " << e.what();
         cout << " (MySQL error code: " << e.getErrorCode();
         cout << ", SQLState: " << e.getSQLState() << " )" << endl;
+        throw std::runtime_error("Cannot connect to database!");
     }
+    catch (std::exception &e)
+    {
+        printf("HERE %s\n", e.what());
 
+    }
 }
 
 DBManager::~DBManager()
 {
     // TODO is it safe?
-    delete con_.get();
-    delete stmt_.get();
+    delete con_;
+    delete stmt_;
 }
 
 void DBManager::CreateDatabase()
@@ -129,7 +134,7 @@ Pokemon DBManager::GetPokemon(size_t level)
 {
     // FIXME Правильно ли я понимаю, что тут возможно инъекция?
     string getPokemonCommand = "SELECT * FROM pokemons WHERE LVL=" + to_string(level) + ";";
-        std::unique_ptr<sql::ResultSet> res(stmt_->executeQuery(getPokemonCommand));
+        sql::ResultSet* res(stmt_->executeQuery(getPokemonCommand));
 
         Pokemon gottenPokemon;
         if(res->next())
@@ -148,6 +153,7 @@ Pokemon DBManager::GetPokemon(size_t level)
             gottenPokemon.__set_flag(res->getString(13));
         }
 
+        delete res;
         return gottenPokemon;
 }
 

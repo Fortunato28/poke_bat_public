@@ -9,5 +9,5 @@ int main()
 {
     DBManager db_manager("localhost", "root", "1", "poke_bat");
 
-    cout << "Worked minimal!" << endl;
+    printf("HERE %s\n", "WORKED MINIMAL");
 }
