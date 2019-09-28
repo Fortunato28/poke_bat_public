@@ -1,0 +1,22 @@
+version: "2"
+services:
+    server:
+        build: .
+        command: bash -c "./_result/server"
+        #command: bash -c "pwd && cd _result/"
+        ports:
+            - 127.0.0.1:3990:3990
+        volumes:
+            - .:/usr/src/poke_bat
+    database:
+        image: mysql
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: 'test_pass'
+            MYSQL_USER: 'test'
+            MYSQL_PASS: 'pass'
+        depends_on:
+            - server
+
+#networks:
+    #default:
