@@ -20,54 +20,63 @@ DBManager::DBManager(const std::string host, const std::string user, const std::
     host_(host),
     user_(user),
     pass_(pass),
-    db_name_(db_name)
+    db_name_(db_name),
+    stmt_(nullptr),
+    con_(nullptr)
 {
     try
     {
         sql::mysql::MySQL_Driver* driver = sql::mysql::get_driver_instance();
 
-        /* Using the Driver to create a connection */
+        ///* Using the Driver to create a connection */
+        printf("HERE %s\n", "OWOWOW");
         con_ = driver->connect(host_, user_, pass_);
-        //con_ = driver->connect("tcp://127.0.0.1:3306", "root", "1");
+        printf("\n\nCONNECTION %d\n\n", con_->isValid());
         con_->setSchema(db_name_);
 
         stmt_ = con_->createStatement();
 
-        // TODO В общем-то не нужно - база будет создаваться заранее
+        //// TODO В общем-то не нужно - база будет создаваться заранее
         //CreateDatabase();
 
         //// TODO Это залипуха только для тестирования
-        //Pokemon testPok;
+        Pokemon testPok;
         //AddPokemon(testPok);
-        //testPok = GetPokemon(1);
+        //testPok = GetPokemon(3);
         //cout << testPok.skill << endl;
     }
     catch (sql::SQLException &e)
     {
         cout << "# ERR: SQLException in " << __FILE__;
-        cout << "(" << "EXAMPLE_FUNCTION" << ") on line " << __LINE__ << endl; cout << "# ERR: " << e.what();
-        cout << " (MySQL error code: " << e.getErrorCode();
-        cout << ", SQLState: " << e.getSQLState() << " )" << endl;
-        throw std::runtime_error("Cannot connect to database!");
+        cout << "(" << "EXAMPLE_FUNCTION" << ") on line " << __LINE__ << endl;
+        cout << "# ERR: " << e.what();
+        //cout << " (MySQL error code: " << e.getErrorCode();
+        //cout << ", SQLState: " << e.getSQLState() << " )" << endl;
+        //throw std::runtime_error("Cannot connect to database!");
     }
     catch (std::exception &e)
     {
         printf("HERE %s\n", e.what());
-
     }
 }
 
 DBManager::~DBManager()
 {
     // TODO is it safe?
-    delete con_;
-    delete stmt_;
+    if(con_)
+    {
+        delete con_;
+    }
+    if(stmt_)
+    {
+        delete stmt_;
+    }
 }
 
 void DBManager::CreateDatabase()
 {
-    stmt_->execute("CREATE DATABASE IF NOT EXISTS poke_bat");
-    stmt_->execute("USE poke_bat");
+    stmt_->execute("CREATE DATABASE IF NOT EXISTS poke_bat;");
+    stmt_->execute("USE poke_bat;");
     // TODO Имя таблицы pokemons вынести отдельным полем
     stmt_->execute("CREATE TABLE IF NOT EXISTS pokemons\
         (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,\
@@ -153,7 +162,10 @@ Pokemon DBManager::GetPokemon(size_t level)
             gottenPokemon.__set_flag(res->getString(13));
         }
 
-        delete res;
+        if(res)
+        {
+            delete res;
+        }
         return gottenPokemon;
 }
 

@@ -11,14 +11,13 @@ services:
             MYSQL_USER: 'test'
             MYSQL_PASS: 'pass'
             MYSQL_DATABASE: 'poke_bat'
-            MYSQL_HOST: 0.0.0.0
-
+            #MYSQL_HOST: 0.0.0.0
         networks:
             - poke_net
 
     poke_bat_server:
-        container_name: poke_bat_server
         build: .
+        container_name: poke_bat_server
         depends_on:
             - poke_bat_db
         restart: always
