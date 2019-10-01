@@ -15,8 +15,18 @@ public:
     Pokemon& getServerPok();
 
     // Setters
+    void decreaseClientHP();
+    void decreaseServerHPDueToPunch();
+    void decreaseServerHPDueToSkill();
+
     void setClientDefense();
     void setServerDefense();
+
+    void setClientBuf();
+    void setServerBuf();
+
+    void setClientDebuf();
+    void setServerDebuf();
 
     // Handlers
     void handleClientStats();
@@ -35,10 +45,10 @@ private:
             bool isInDefense_;
 
             uint64_t buf_;
-            uint32_t bufRoundCounter_;
+            int bufRoundCounter_;
 
             uint64_t debuf_;
-            uint32_t debufRoundCounter_;
+            int debufRoundCounter_;
     };
 
 private:

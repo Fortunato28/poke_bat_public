@@ -37,22 +37,22 @@ DBManager::DBManager(const std::string host, const std::string user, const std::
         stmt_ = con_->createStatement();
 
         //// TODO В общем-то не нужно - база будет создаваться заранее
-        //CreateDatabase();
+        CreateDatabase();
 
-        //// TODO Это залипуха только для тестирования
+        // TODO Это залипуха только для тестирования
         Pokemon testPok;
-        //AddPokemon(testPok);
-        //testPok = GetPokemon(3);
-        //cout << testPok.skill << endl;
+        AddPokemon(testPok);
+        testPok = GetPokemon(3);
+        cout << testPok.skill << endl;
     }
     catch (sql::SQLException &e)
     {
         cout << "# ERR: SQLException in " << __FILE__;
         cout << "(" << "EXAMPLE_FUNCTION" << ") on line " << __LINE__ << endl;
         cout << "# ERR: " << e.what();
-        //cout << " (MySQL error code: " << e.getErrorCode();
-        //cout << ", SQLState: " << e.getSQLState() << " )" << endl;
-        //throw std::runtime_error("Cannot connect to database!");
+        cout << " (MySQL error code: " << e.getErrorCode();
+        cout << ", SQLState: " << e.getSQLState() << " )" << endl;
+        throw std::runtime_error("Cannot connect to database!");
     }
     catch (std::exception &e)
     {
@@ -117,7 +117,7 @@ void DBManager::CreateDatabase()
 void DBManager::AddPokemon(Pokemon& given_pok)
 {
     // TODO Добавить нарезку строки от пришедшего покемона
-    stmt_->execute("INSERT INTO pokemons VALUES (NULL, 'ZHOPA', 'GRASS', 20, 20, 10, 5, 5, 15, 0, 3, 'lightning_ATTACK_20', 'isib_wtf{some_flag}');");
+    stmt_->execute("INSERT INTO pokemons VALUES (NULL, 'ZHOPA', 'GRASS', 100, 20, 10, 5, 5, 15, 0, 3, 'lightning_ATTACK_20', 'isib_wtf{some_flag}');");
 }
 
 // TODO если костыль сработает, то вынести отдельно

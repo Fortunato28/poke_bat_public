@@ -7,8 +7,10 @@
 
 using namespace std;
 
-void printPokemonData(Pokemon&)
+void printRoundData(const RoundResult& result)
 {
+    printf("HERE %s\n", result.actionResultDescription.c_str());
+
     //TODO print info about server pokemon
 }
 
@@ -78,7 +80,8 @@ void start_fight()
 
     printf("HERE ENEMY POKEMON LVL = %ld\n", fightData.pokemon.LVL);
 
-    printPokemonData(fightData.pokemon);
+    // TODO Функция переименована! Подумать, что и как тут нормально принтавать
+    //printPokemonData(fightData.pokemon);
     RoundResult roundResult_;
 
     while(true)
@@ -116,8 +119,7 @@ void start_fight()
                 std::cout << "=================================\n";
                 break;
             }
-            printPokemonData(roundResult_.clientPokemon);
-            printPokemonData(roundResult_.serverPokemon);
+            printRoundData(roundResult_);
         }
 
     }

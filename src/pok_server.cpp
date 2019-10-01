@@ -50,11 +50,6 @@ void PokServerHandler::startFight(FightData& _return, const int64_t complexity, 
   ++next_fight_id_;
 }
 
-int64_t calculateDamage(int64_t lvl, int64_t attack, int64_t def)
-{
-    return ((((2 * lvl / 5) + 2) * (attack * attack / def) / 50) + 2);
-}
-
 std::string clientWin()
 {
     printf("HERE %s\n", "client is win");
@@ -120,23 +115,14 @@ void PokServerHandler::punch(RoundResult& _return, const int64_t fight_id)
     auto& c_pok = current_fight.getClientPok();
     auto& s_pok = current_fight.getServerPok();
 
-    // Calculate damage
-    auto lvl = c_pok.LVL;
-    auto attack = c_pok.attack;
-    auto def = s_pok.defense;
-    int64_t damage = calculateDamage(lvl, attack, def);
-
-    // Apply damage to server_pokemon
-    printf("BEFORE punch %ld\n", s_pok.HP);
-    printf("DAMAGE %ld\n", damage);
-    s_pok.HP -= damage;
-    printf("AFTER punch %ld\n", s_pok.HP);
+    current_fight.decreaseServerHPDueToPunch();
 
     if(isFightStopped(_return, s_pok, c_pok, fight_id))
     {
         return;
     }
 
+    // TODO Добавить возврат строки с описание произешедшего за раунд
     _return.__set_clientPokemon(c_pok);
     _return.__set_serverPokemon(s_pok);
 }
@@ -154,6 +140,7 @@ void PokServerHandler::defend(RoundResult& _return, const int64_t fight_id)
 
     current_fight.setClientDefense();
 
+    // TODO Добавить возврат строки с описание произешедшего за раунд
     _return.__set_clientPokemon(c_pok);
     _return.__set_serverPokemon(s_pok);
 }
@@ -169,12 +156,37 @@ void PokServerHandler::useSkill(RoundResult& _return, const int64_t fight_id, co
     auto& c_pok = current_fight.getClientPok();
     auto& s_pok = current_fight.getServerPok();
 
-    //// TODO delete, it's for test only
-    //c_pok.attack = 100;
-    //s_pok.attack = 100;
-    //s_pok.HP = 1000;
+    const PokemonSkill& c_skill = c_pok.skill;
+    if(c_skill.amount < 0)
+    {
+        _return.__set_actionResultDescription("Your pokemon cunt use skills anymore!\n"
+                                               "You`ve just screwed up your turn ┌∩┐(◣_◢)┌∩┐");
+        _return.__set_clientPokemon(c_pok);
+        _return.__set_serverPokemon(s_pok);
+    }
 
-    printf("useSkill\n");
+    // TODO Не забыть в кейзах прописать нарезку результирующей строки с описанием раунда
+    // Depends on skill type
+        printf("BEFORE SKILL %ld\n", c_pok.attack);
+        // TODO delete
+        c_pok.skill.type = SkillType::BUFF;
+        c_pok.spell_attack = 100;
+    switch(c_skill.type)
+    {
+        case SkillType::BUFF:
+            // Buff client pok
+            current_fight.setClientBuf();
+            break;
+        case SkillType::DEBUFF:
+            // Debuff server pok
+            current_fight.setServerDebuf();
+            break;
+        case SkillType::ATTACK:
+            // Decrease server pok HP
+            current_fight.decreaseServerHPDueToSkill();
+            break;
+    }
+        printf("AFTER SKILL %ld\n", c_pok.attack);
 
     _return.__set_clientPokemon(c_pok);
     _return.__set_serverPokemon(s_pok);
