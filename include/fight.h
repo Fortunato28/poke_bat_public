@@ -15,7 +15,9 @@ public:
     Pokemon& getServerPok();
 
     // Setters
-    void decreaseClientHP();
+    void decreaseClientHPDueToPunch();
+    void decreaseClientHPDueToSkill();
+
     void decreaseServerHPDueToPunch();
     void decreaseServerHPDueToSkill();
 
@@ -49,6 +51,7 @@ private:
 
             uint64_t debuf_;
             int debufRoundCounter_;
+            int64_t defaultAttack_;
     };
 
 private:

@@ -22,7 +22,12 @@ Pokemon& Fight::getServerPok()
     return serverState_.pokemon_;
 }
 
-void Fight::decreaseClientHP()
+void Fight::decreaseClientHPDueToPunch()
+{
+
+}
+
+void Fight::decreaseClientHPDueToSkill()
 {
 
 }
@@ -80,7 +85,6 @@ void Fight::setClientBuf()
         clientState_.buf_ += bufSize;
         c_pok.attack += clientState_.buf_;
         clientState_.bufRoundCounter_ = 3;
-        printf("SET BUF %lu\n", clientState_.buf_);
     }
 }
 
@@ -89,6 +93,29 @@ void Fight::setServerDebuf()
     auto& c_pok = clientState_.pokemon_;
     --c_pok.skill.amount;
 
+    if(serverState_.debufRoundCounter_ > 0)
+    {
+        serverState_.debufRoundCounter_ = 3;
+        return;
+    }
+    else
+    {
+        auto& s_pok = serverState_.pokemon_;
+
+        auto debufSize = calculateBuf(c_pok.LVL, c_pok.spell_attack, s_pok.spell_defense);
+        serverState_.debuf_ += debufSize;
+
+        // Запомним значение реальной атаки, чтобы увернуться от роя пидрил
+        serverState_.defaultAttack_ = s_pok.attack;
+        s_pok.attack -= serverState_.debuf_;
+
+        // Если дебафнули слишком сильно, пусть урон будет минимальным
+        if (s_pok.attack < 0)
+        {
+            s_pok.attack = 0;
+        }
+        serverState_.debufRoundCounter_ = 3;
+    }
 }
 
 void Fight::setServerBuf()
@@ -108,13 +135,26 @@ void Fight::handleClientStats()
         // Баф кончился
         if(!clientState_.bufRoundCounter_)
         {
-            printf("IN HANDLE STATS %lu\n", clientState_.buf_);
             clientState_.pokemon_.attack -= clientState_.buf_;
             clientState_.buf_ = 0;
         }
 
         // Если баф есть, то уменьшаем его длительность
         --clientState_.bufRoundCounter_;
+
+    }
+
+    // Скоуп, в котором контролируется длительность дебафа
+    {
+        // Дебаф кончился
+        if(!clientState_.debufRoundCounter_)
+        {
+            clientState_.pokemon_.attack = clientState_.defaultAttack_;
+            clientState_.debuf_ = 0;
+        }
+
+        // Если баф есть, то уменьшаем его длительность
+        --clientState_.debufRoundCounter_;
 
     }
 
@@ -127,6 +167,40 @@ void Fight::handleClientStats()
 
 void Fight::handleServerStats()
 {
+    // Скоуп, в котором контролируется длительность бафа
+    {
+        // Баф кончился
+        if(!serverState_.bufRoundCounter_)
+        {
+            serverState_.pokemon_.attack -= serverState_.buf_;
+            serverState_.buf_ = 0;
+        }
+
+        // Если баф есть, то уменьшаем его длительность
+        --serverState_.bufRoundCounter_;
+
+    }
+    // Скоуп, в котором контролируется длительность дебафа
+    {
+        // Дебаф кончился
+        printf("DEBUFCOUNTER BEFORE DEBUFF HANDLE %d\n", serverState_.debufRoundCounter_);
+        if(!serverState_.debufRoundCounter_)
+        {
+            if(!serverState_.defaultAttack_)
+            {
+                serverState_.pokemon_.attack += serverState_.debuf_;
+                printf("HERE %lu\n", serverState_.debuf_);
+            }
+            else
+            {
+                serverState_.pokemon_.attack = serverState_.defaultAttack_;
+            }
+            serverState_.debuf_ = 0;
+        }
+
+        // Если дебаф есть, то уменьшаем его длительность
+        --serverState_.debufRoundCounter_;
+    }
     if(serverState_.isInDefense_)
     {
         serverState_.isInDefense_ = false;
@@ -140,7 +214,8 @@ Fight::PokemonState::PokemonState(Pokemon pok):
     buf_(0),
     bufRoundCounter_(0),
     debuf_(0),
-    debufRoundCounter_(0)
+    debufRoundCounter_(0),
+    defaultAttack_(0)
 {}
 
 void Fight::PokemonState::setDefense()

@@ -32,6 +32,31 @@ Fight& PokServerHandler::findFight(const int64_t &fight_id)
     return fight_storage_.at(fight_id);
 }
 
+void serverPunch(RoundResult& _return)
+{
+
+}
+
+void serverDefense(RoundResult& _return)
+{
+
+}
+
+void serverUseSkill(RoundResult& _return)
+{
+
+}
+
+void serverAction(Fight& fight, RoundResult& _return)
+{
+    printf("ATTACK ON SERVER = %ld\n", fight.getServerPok().attack);
+
+    fight.handleServerStats();
+    serverPunch(_return);
+    serverDefense(_return);
+    serverUseSkill(_return);
+}
+
 void PokServerHandler::getConfig(std::string& _return)
 {
     serverConfigHandler configHandler;
@@ -122,7 +147,9 @@ void PokServerHandler::punch(RoundResult& _return, const int64_t fight_id)
         return;
     }
 
-    // TODO Добавить возврат строки с описание произешедшего за раунд
+    serverAction(current_fight, _return);
+
+    // TODO Добавить возврат строки с описание произешедшего за раунд. Мб удалить это вообще?
     _return.__set_clientPokemon(c_pok);
     _return.__set_serverPokemon(s_pok);
 }
@@ -139,6 +166,8 @@ void PokServerHandler::defend(RoundResult& _return, const int64_t fight_id)
     auto& s_pok = current_fight.getServerPok();
 
     current_fight.setClientDefense();
+
+    serverAction(current_fight, _return);
 
     // TODO Добавить возврат строки с описание произешедшего за раунд
     _return.__set_clientPokemon(c_pok);
@@ -167,10 +196,9 @@ void PokServerHandler::useSkill(RoundResult& _return, const int64_t fight_id, co
 
     // TODO Не забыть в кейзах прописать нарезку результирующей строки с описанием раунда
     // Depends on skill type
-        printf("BEFORE SKILL %ld\n", c_pok.attack);
         // TODO delete
-        c_pok.skill.type = SkillType::BUFF;
-        c_pok.spell_attack = 100;
+        c_pok.skill.type = SkillType::DEBUFF;
+        c_pok.spell_attack = 10;
     switch(c_skill.type)
     {
         case SkillType::BUFF:
@@ -180,13 +208,15 @@ void PokServerHandler::useSkill(RoundResult& _return, const int64_t fight_id, co
         case SkillType::DEBUFF:
             // Debuff server pok
             current_fight.setServerDebuf();
+            printf("SERVER ATTACK AFTER DEBUFF = %ld\n", s_pok.attack);
             break;
         case SkillType::ATTACK:
             // Decrease server pok HP
             current_fight.decreaseServerHPDueToSkill();
             break;
     }
-        printf("AFTER SKILL %ld\n", c_pok.attack);
+
+    serverAction(current_fight, _return);
 
     _return.__set_clientPokemon(c_pok);
     _return.__set_serverPokemon(s_pok);
