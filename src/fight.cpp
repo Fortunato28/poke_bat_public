@@ -2,8 +2,35 @@
 
 Fight::Fight(Pokemon client_pokemon, Pokemon server_pokemon) :
     clientState_(client_pokemon),
-    serverState_(server_pokemon)
+    serverState_(server_pokemon),
+    lastActionPunch_(false)
 {
+}
+
+bool Fight::isServerBuffed()
+{
+    return (serverState_.bufRoundCounter_ > 0);
+}
+
+bool Fight::isClientDebuffed()
+{
+    return (clientState_.debufRoundCounter_ > 0);
+}
+
+bool Fight::isLastActionPunch()
+{
+    return lastActionPunch_;
+}
+
+void Fight::toggleLastActionPunch()
+{
+    lastActionPunch_ ? (lastActionPunch_ = false) : (lastActionPunch_ = true);
+}
+
+bool Fight::isServerLowHP()
+{
+    auto low_hp = serverState_.defaultHP_ * 20 / 100;
+    return serverState_.pokemon_.HP <= low_hp ? true : false;
 }
 
 // По этой формуле высчитываются все изменения статов покемонов
@@ -129,7 +156,7 @@ void Fight::setServerBuf()
     auto& s_pok = serverState_.pokemon_;
     --s_pok.skill.amount;
 
-    if(serverState_.bufRoundCounter_ > 0)
+    if(serverState_.bufRoundCounter_ >= 0)
     {
         serverState_.bufRoundCounter_ = 3;
         return;
@@ -148,7 +175,8 @@ void Fight::setClientDebuf()
     auto& s_pok = serverState_.pokemon_;
     --s_pok.skill.amount;
 
-    if(clientState_.debufRoundCounter_ > 0)
+    printf("HERE DEBUF COUNTER %d\n", clientState_.debufRoundCounter_);
+    if(clientState_.debufRoundCounter_ >= 0)
     {
         clientState_.debufRoundCounter_ = 3;
         return;
@@ -158,7 +186,7 @@ void Fight::setClientDebuf()
         auto& c_pok = clientState_.pokemon_;
 
         auto debufSize = calculateBuf(s_pok.LVL, s_pok.spell_attack, c_pok.spell_defense);
-        clientState_.debuf_ += debufSize;
+        clientState_.debuf_ = debufSize;
 
         c_pok.attack -= clientState_.debuf_;
 
@@ -169,7 +197,7 @@ void Fight::setClientDebuf()
         }
         clientState_.debufRoundCounter_ = 3;
     }
-
+    printf("HERE DEBUF COUNTER 2 %d\n", clientState_.debufRoundCounter_);
 }
 
 void Fight::handleClientStats()
@@ -257,8 +285,12 @@ Fight::PokemonState::PokemonState(Pokemon pok):
     bufRoundCounter_(0),
     debuf_(0),
     debufRoundCounter_(0),
-    defaultAttack_(pok.attack)
-{}
+    defaultAttack_(pok.attack),
+    defaultHP_(pok.HP)
+{
+    // TODO delete
+    pokemon_.skill.amount = 5;
+}
 
 void Fight::PokemonState::setDefense()
 {

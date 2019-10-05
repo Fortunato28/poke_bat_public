@@ -9,7 +9,6 @@ using namespace std;
 
 void printRoundData(const RoundResult& result)
 {
-    printf("CLIENT HP = %ld\n", result.clientPokemon.HP);
     printf("ACTION DESCRIPTION = %s\n", result.actionResultDescription.c_str());
 
     //TODO print info about server pokemon

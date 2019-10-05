@@ -159,6 +159,7 @@ Pokemon DBManager::GetPokemon(size_t level)
             gottenPokemon.__set_EXP(res->getInt(10));
             gottenPokemon.__set_LVL(res->getInt(11));
             gottenPokemon.__set_skill(parseStringFromDB(res->getString(12)));
+            // TODO в отдельный метод! Флаг не должен лежать в покемоне всегда
             gottenPokemon.__set_flag(res->getString(13));
         }
 

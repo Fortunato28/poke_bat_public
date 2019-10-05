@@ -30,9 +30,17 @@ public:
     void setClientDebuf();
     void setServerDebuf();
 
+    void toggleLastActionPunch();
+
     // Handlers
     void handleClientStats();
     void handleServerStats();
+
+    // Getters
+    bool isServerLowHP();
+    bool isServerBuffed();
+    bool isClientDebuffed();
+    bool isLastActionPunch();
 private:
 
     class PokemonState
@@ -52,9 +60,13 @@ private:
             uint64_t debuf_;
             int debufRoundCounter_;
             int64_t defaultAttack_;
+
+            // Для выбора действий сервера на основе процента оставшихся ХП
+            uint64_t defaultHP_;
     };
 
 private:
     PokemonState clientState_;
     PokemonState serverState_;;
+    bool lastActionPunch_;
 };

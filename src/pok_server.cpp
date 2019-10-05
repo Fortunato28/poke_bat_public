@@ -68,11 +68,6 @@ void serverUseSkill(Fight& current_fight, RoundResult& _return)
 
 
     const PokemonSkill& s_skill = s_pok.skill;
-    // TODO delete
-
-        s_pok.skill.type = SkillType::DEBUFF;
-        //s_pok.spell_attack = 100;
-        s_pok.skill.amount = 1;
     switch(s_skill.type)
     {
         case SkillType::BUFF:
@@ -95,21 +90,73 @@ void serverUseSkill(Fight& current_fight, RoundResult& _return)
             _return.actionResultDescription +
             "Opponent`s pokemon used skill " +
             s_pok.skill.name.c_str() +
-            ". You'll like it");
+            ". You'll like it ╰( ͡° ͜ʖ ͡°  )つ──☆*:・ﾟ");
 }
 
-void serverAction(Fight& fight, RoundResult& _return)
+void serverAction(Fight& current_fight, RoundResult& _return)
 {
-    fight.handleServerStats();
+    current_fight.handleServerStats();
+    auto& s_pok = current_fight.getServerPok();
+    // TODO delete
+    s_pok.skill.type = SkillType::BUFF;
+    auto& c_pok = current_fight.getClientPok();
 
-    //serverPunch(fight, _return);
-    //serverDefense(fight, _return);
-    if(fight.getServerPok().skill.amount)
+    // Server pokemons AI
+    if(!current_fight.isServerLowHP())
     {
-        serverUseSkill(fight, _return);
+        if(s_pok.skill.amount)
+        {
+            printf("BEFORE BUF %ld\n", s_pok.attack);
+            if(s_pok.skill.type == SkillType::BUFF &&
+                    !current_fight.isServerBuffed())
+            {
+                serverUseSkill(current_fight, _return);
+                printf("AFTER BUF %ld\n", s_pok.attack);
+                return;
+            }
+            if(s_pok.skill.type == SkillType::DEBUFF &&
+                    !current_fight.isClientDebuffed())
+            {
+                serverUseSkill(current_fight, _return);
+                return;
+            }
+            if(s_pok.skill.type == SkillType::ATTACK &&
+                    current_fight.isLastActionPunch())
+            {
+                serverUseSkill(current_fight, _return);
+                current_fight.toggleLastActionPunch();
+                return;
+            }
+            else
+            {
+                serverPunch(current_fight, _return);
+                current_fight.toggleLastActionPunch();
+                return;
+            }
+        }
+        else
+        {
+                printf("AFTER BUF 2 %ld\n", s_pok.attack);
+            _return.__set_actionResultDescription( _return.actionResultDescription + " Opponent`s pokemon is tired, so it can only do punch.\n");
+            serverPunch(current_fight, _return);
+            return;
+        }
     }
-
-    _return.__set_actionResultDescription(_return.actionResultDescription);
+    else
+    {
+        if(current_fight.isLastActionPunch())
+        {
+            serverDefense(current_fight, _return);
+            current_fight.toggleLastActionPunch();
+            return;
+        }
+        else
+        {
+            serverPunch(current_fight, _return);
+            current_fight.toggleLastActionPunch();
+            return;
+        }
+    }
 }
 
 void PokServerHandler::getConfig(std::string& _return)
@@ -255,9 +302,6 @@ void PokServerHandler::useSkill(RoundResult& _return, const int64_t fight_id, co
 
     // TODO Не забыть в кейзах прописать нарезку результирующей строки с описанием раунда
     // Depends on skill type
-        // TODO delete
-        c_pok.skill.type = SkillType::ATTACK;
-        c_pok.spell_attack = 100;
     switch(c_skill.type)
     {
         case SkillType::BUFF:
