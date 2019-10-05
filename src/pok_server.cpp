@@ -48,9 +48,7 @@ void serverPunch(Fight& current_fight, RoundResult& _return)
 
 void serverDefense(Fight& current_fight, RoundResult& _return)
 {
-    printf("BEFORE DEFENSE %ld\n", current_fight.getServerPok().defense);
     current_fight.setServerDefense();
-    printf("AFTER DEFENSE %ld\n", current_fight.getServerPok().defense);
 
     // Extract pokemons from fight object
     auto& c_pok = current_fight.getClientPok();
@@ -62,20 +60,54 @@ void serverDefense(Fight& current_fight, RoundResult& _return)
             "Opponent`s pokemon set block. Try to penetrate ( ͡° ͜ʖ ͡° ).");
 }
 
-void serverUseSkill(Fight& fight, RoundResult& _return)
+void serverUseSkill(Fight& current_fight, RoundResult& _return)
 {
+    // Extract pokemons from fight object
+    auto& c_pok = current_fight.getClientPok();
+    auto& s_pok = current_fight.getServerPok();
 
+
+    const PokemonSkill& s_skill = s_pok.skill;
+    // TODO delete
+
+        s_pok.skill.type = SkillType::DEBUFF;
+        //s_pok.spell_attack = 100;
+        s_pok.skill.amount = 1;
+    switch(s_skill.type)
+    {
+        case SkillType::BUFF:
+            // Buff client pok
+            current_fight.setServerBuf();
+            break;
+        case SkillType::DEBUFF:
+            // Debuff client pok
+            current_fight.setClientDebuf();
+            break;
+        case SkillType::ATTACK:
+            // Decrease server pok HP
+            current_fight.decreaseClientHPDueToSkill();
+            break;
+    }
+
+    _return.__set_clientPokemon(c_pok);
+    _return.__set_serverPokemon(s_pok);
+    _return.__set_actionResultDescription(
+            _return.actionResultDescription +
+            "Opponent`s pokemon used skill " +
+            s_pok.skill.name.c_str() +
+            ". You'll like it");
 }
 
 void serverAction(Fight& fight, RoundResult& _return)
 {
-    printf("ATTACK ON SERVER = %ld\n", fight.getServerPok().attack);
-
     fight.handleServerStats();
 
     //serverPunch(fight, _return);
-    serverDefense(fight, _return);
-    serverUseSkill(fight, _return);
+    //serverDefense(fight, _return);
+    if(fight.getServerPok().skill.amount)
+    {
+        serverUseSkill(fight, _return);
+    }
 
     _return.__set_actionResultDescription(_return.actionResultDescription);
 }
@@ -92,16 +124,12 @@ void PokServerHandler::startFight(FightData& _return, const int64_t complexity, 
   Fight fight(clientPokemon, _return.pokemon);
   fight_storage_.emplace(next_fight_id_, fight);
 
-  printf("HERE GOTTEN POKEMON%ld\n", _return.pokemon.LVL);
-
   _return.__set_fight_id(next_fight_id_);
   ++next_fight_id_;
 }
 
 std::string clientWin()
 {
-    printf("HERE %s\n", "client is win");
-
     return {"Congratulations!\n"
             "You won the battle!\n"
             "You earn some EXP!\n"};
@@ -109,8 +137,6 @@ std::string clientWin()
 
 std::string serverWin()
 {
-    printf("HERE %s\n", "server is win");
-
     return {"Try harder nex time, loser!\n"
             "You lost the battle!\n"
             "Your pokemon is dead inside!\n"};
@@ -162,9 +188,6 @@ void PokServerHandler::punch(RoundResult& _return, const int64_t fight_id)
     // Extract pokemons from fight object
     auto& c_pok = current_fight.getClientPok();
     auto& s_pok = current_fight.getServerPok();
-
-    // TODO delete
-        c_pok.attack = 50;
 
     current_fight.decreaseServerHPDueToPunch();
 
@@ -244,7 +267,6 @@ void PokServerHandler::useSkill(RoundResult& _return, const int64_t fight_id, co
         case SkillType::DEBUFF:
             // Debuff server pok
             current_fight.setServerDebuf();
-            printf("SERVER ATTACK AFTER DEBUFF = %ld\n", s_pok.attack);
             break;
         case SkillType::ATTACK:
             // Decrease server pok HP

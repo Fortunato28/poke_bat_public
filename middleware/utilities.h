@@ -32,7 +32,7 @@ namespace utilities
     poke_bat::middleware::PokemonType::type get_enum_poketype(std::string pokemon_type)
     {
         return pokeTypes.find(pokemon_type)->second;
-    } 
+    }
 
     std::map<std::string, poke_bat::middleware::SkillType::type> pokeSkillTypes
     {

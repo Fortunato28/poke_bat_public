@@ -79,7 +79,6 @@ void start_fight()
     FightData fightData;
     client.startFight(fightData, complexity, clientPokemon);
 
-
     // TODO Функция переименована! Подумать, что и как тут нормально принтавать
     //printPokemonData(fightData.pokemon);
     RoundResult roundResult_;
