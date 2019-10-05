@@ -46,9 +46,20 @@ void serverPunch(Fight& current_fight, RoundResult& _return)
             "Opponent`s pokemon punched your pokemon. Suffer (っಠ‿ಠ)っ.");
 }
 
-void serverDefense(Fight& fight, RoundResult& _return)
+void serverDefense(Fight& current_fight, RoundResult& _return)
 {
+    printf("BEFORE DEFENSE %ld\n", current_fight.getServerPok().defense);
+    current_fight.setServerDefense();
+    printf("AFTER DEFENSE %ld\n", current_fight.getServerPok().defense);
 
+    // Extract pokemons from fight object
+    auto& c_pok = current_fight.getClientPok();
+    auto& s_pok = current_fight.getServerPok();
+
+    _return.__set_clientPokemon(c_pok);
+    _return.__set_serverPokemon(s_pok);
+    _return.__set_actionResultDescription(_return.actionResultDescription +
+            "Opponent`s pokemon set block. Try to penetrate ( ͡° ͜ʖ ͡° ).");
 }
 
 void serverUseSkill(Fight& fight, RoundResult& _return)
@@ -62,7 +73,7 @@ void serverAction(Fight& fight, RoundResult& _return)
 
     fight.handleServerStats();
 
-    serverPunch(fight, _return);
+    //serverPunch(fight, _return);
     serverDefense(fight, _return);
     serverUseSkill(fight, _return);
 
@@ -151,6 +162,9 @@ void PokServerHandler::punch(RoundResult& _return, const int64_t fight_id)
     // Extract pokemons from fight object
     auto& c_pok = current_fight.getClientPok();
     auto& s_pok = current_fight.getServerPok();
+
+    // TODO delete
+        c_pok.attack = 50;
 
     current_fight.decreaseServerHPDueToPunch();
 
