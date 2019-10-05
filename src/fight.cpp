@@ -24,12 +24,19 @@ Pokemon& Fight::getServerPok()
 
 void Fight::decreaseClientHPDueToPunch()
 {
+    auto& s_pok = serverState_.pokemon_;
+    auto& c_pok = clientState_.pokemon_;
 
+    c_pok.HP -= useSuperFormula(s_pok.LVL, s_pok.attack, c_pok.defense);
 }
 
 void Fight::decreaseClientHPDueToSkill()
 {
+    // TODO проверить корректность
+    auto& s_pok = serverState_.pokemon_;
+    auto& c_pok = clientState_.pokemon_;
 
+    c_pok.HP -= useSuperFormula(s_pok.LVL, s_pok.attack, c_pok.defense);
 }
 
 void Fight::decreaseServerHPDueToPunch()

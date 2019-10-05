@@ -32,17 +32,26 @@ Fight& PokServerHandler::findFight(const int64_t &fight_id)
     return fight_storage_.at(fight_id);
 }
 
-void serverPunch(RoundResult& _return)
+void serverPunch(Fight& current_fight, RoundResult& _return)
+{
+    current_fight.decreaseClientHPDueToPunch();
+
+    // Extract pokemons from fight object
+    auto& c_pok = current_fight.getClientPok();
+    auto& s_pok = current_fight.getServerPok();
+
+    _return.__set_clientPokemon(c_pok);
+    _return.__set_serverPokemon(s_pok);
+    _return.__set_actionResultDescription(_return.actionResultDescription +
+            "Opponent`s pokemon punched your pokemon. Suffer (っಠ‿ಠ)っ.");
+}
+
+void serverDefense(Fight& fight, RoundResult& _return)
 {
 
 }
 
-void serverDefense(RoundResult& _return)
-{
-
-}
-
-void serverUseSkill(RoundResult& _return)
+void serverUseSkill(Fight& fight, RoundResult& _return)
 {
 
 }
@@ -52,9 +61,12 @@ void serverAction(Fight& fight, RoundResult& _return)
     printf("ATTACK ON SERVER = %ld\n", fight.getServerPok().attack);
 
     fight.handleServerStats();
-    serverPunch(_return);
-    serverDefense(_return);
-    serverUseSkill(_return);
+
+    serverPunch(fight, _return);
+    serverDefense(fight, _return);
+    serverUseSkill(fight, _return);
+
+    _return.__set_actionResultDescription(_return.actionResultDescription);
 }
 
 void PokServerHandler::getConfig(std::string& _return)
@@ -149,7 +161,12 @@ void PokServerHandler::punch(RoundResult& _return, const int64_t fight_id)
 
     serverAction(current_fight, _return);
 
-    // TODO Добавить возврат строки с описание произешедшего за раунд. Мб удалить это вообще?
+    if(isFightStopped(_return, s_pok, c_pok, fight_id))
+    {
+        return;
+    }
+
+    // TODO Добавить возврат строки с описание произошедшего за раунд. Мб удалить это вообще?
     _return.__set_clientPokemon(c_pok);
     _return.__set_serverPokemon(s_pok);
 }
@@ -168,6 +185,11 @@ void PokServerHandler::defend(RoundResult& _return, const int64_t fight_id)
     current_fight.setClientDefense();
 
     serverAction(current_fight, _return);
+
+    if(isFightStopped(_return, s_pok, c_pok, fight_id))
+    {
+        return;
+    }
 
     // TODO Добавить возврат строки с описание произешедшего за раунд
     _return.__set_clientPokemon(c_pok);
@@ -197,8 +219,8 @@ void PokServerHandler::useSkill(RoundResult& _return, const int64_t fight_id, co
     // TODO Не забыть в кейзах прописать нарезку результирующей строки с описанием раунда
     // Depends on skill type
         // TODO delete
-        c_pok.skill.type = SkillType::DEBUFF;
-        c_pok.spell_attack = 10;
+        c_pok.skill.type = SkillType::ATTACK;
+        c_pok.spell_attack = 100;
     switch(c_skill.type)
     {
         case SkillType::BUFF:
@@ -213,10 +235,20 @@ void PokServerHandler::useSkill(RoundResult& _return, const int64_t fight_id, co
         case SkillType::ATTACK:
             // Decrease server pok HP
             current_fight.decreaseServerHPDueToSkill();
+
+            if(isFightStopped(_return, s_pok, c_pok, fight_id))
+            {
+                return;
+            }
             break;
     }
 
     serverAction(current_fight, _return);
+
+    if(isFightStopped(_return, s_pok, c_pok, fight_id))
+    {
+        return;
+    }
 
     _return.__set_clientPokemon(c_pok);
     _return.__set_serverPokemon(s_pok);

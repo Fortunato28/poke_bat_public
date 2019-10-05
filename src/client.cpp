@@ -9,7 +9,8 @@ using namespace std;
 
 void printRoundData(const RoundResult& result)
 {
-    printf("HERE %s\n", result.actionResultDescription.c_str());
+    printf("CLIENT HP = %ld\n", result.clientPokemon.HP);
+    printf("ACTION DESCRIPTION = %s\n", result.actionResultDescription.c_str());
 
     //TODO print info about server pokemon
 }
@@ -78,7 +79,6 @@ void start_fight()
     FightData fightData;
     client.startFight(fightData, complexity, clientPokemon);
 
-    printf("HERE ENEMY POKEMON LVL = %ld\n", fightData.pokemon.LVL);
 
     // TODO Функция переименована! Подумать, что и как тут нормально принтавать
     //printPokemonData(fightData.pokemon);

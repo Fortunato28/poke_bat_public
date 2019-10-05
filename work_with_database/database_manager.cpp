@@ -29,7 +29,7 @@ DBManager::DBManager(const std::string host, const std::string user, const std::
         sql::mysql::MySQL_Driver* driver = sql::mysql::get_driver_instance();
 
         ///* Using the Driver to create a connection */
-        printf("HERE %s\n", "OWOWOW");
+        printf("HERE %s\n", "BEFORE CONNECTION");
         con_ = driver->connect(host_, user_, pass_);
         printf("\n\nCONNECTION %d\n\n", con_->isValid());
         con_->setSchema(db_name_);
