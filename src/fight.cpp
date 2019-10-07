@@ -109,15 +109,17 @@ void Fight::setClientBuf()
     auto& c_pok = clientState_.pokemon_;
     --c_pok.skill.amount;
 
-    if(clientState_.bufRoundCounter_ > 0)
+    if(clientState_.bufRoundCounter_ >= 0)
     {
         clientState_.bufRoundCounter_ = 3;
+        clientState_.pokemon_.attack = clientState_.defaultAttack_ + clientState_.buf_;
+        clientState_.debufRoundCounter_ = -1;
         return;
     }
     else
     {
         auto bufSize = calculateBuf(c_pok.LVL, c_pok.spell_attack, c_pok.spell_defense);
-        clientState_.buf_ += bufSize;
+        clientState_.buf_ = bufSize;
         c_pok.attack += clientState_.buf_;
         clientState_.bufRoundCounter_ = 3;
     }
@@ -128,7 +130,7 @@ void Fight::setServerDebuf()
     auto& c_pok = clientState_.pokemon_;
     --c_pok.skill.amount;
 
-    if(serverState_.debufRoundCounter_ > 0)
+    if(serverState_.debufRoundCounter_ >= 0)
     {
         serverState_.debufRoundCounter_ = 3;
         return;
@@ -138,7 +140,7 @@ void Fight::setServerDebuf()
         auto& s_pok = serverState_.pokemon_;
 
         auto debufSize = calculateBuf(c_pok.LVL, c_pok.spell_attack, s_pok.spell_defense);
-        serverState_.debuf_ += debufSize;
+        serverState_.debuf_ = debufSize;
 
         s_pok.attack -= serverState_.debuf_;
 
@@ -159,6 +161,8 @@ void Fight::setServerBuf()
     if(serverState_.bufRoundCounter_ >= 0)
     {
         serverState_.bufRoundCounter_ = 3;
+        serverState_.pokemon_.attack = serverState_.defaultAttack_ + serverState_.buf_;
+        serverState_.debufRoundCounter_ = -1;
         return;
     }
     else
@@ -175,7 +179,6 @@ void Fight::setClientDebuf()
     auto& s_pok = serverState_.pokemon_;
     --s_pok.skill.amount;
 
-    printf("HERE DEBUF COUNTER %d\n", clientState_.debufRoundCounter_);
     if(clientState_.debufRoundCounter_ >= 0)
     {
         clientState_.debufRoundCounter_ = 3;
@@ -197,7 +200,6 @@ void Fight::setClientDebuf()
         }
         clientState_.debufRoundCounter_ = 3;
     }
-    printf("HERE DEBUF COUNTER 2 %d\n", clientState_.debufRoundCounter_);
 }
 
 void Fight::handleClientStats()
@@ -213,7 +215,6 @@ void Fight::handleClientStats()
 
         // Если баф есть, то уменьшаем его длительность
         --clientState_.bufRoundCounter_;
-
     }
 
     // Скоуп, в котором контролируется длительность дебафа
@@ -225,9 +226,10 @@ void Fight::handleClientStats()
             clientState_.debuf_ = 0;
         }
 
-        // Если баф есть, то уменьшаем его длительность
-        --clientState_.debufRoundCounter_;
-
+        if(clientState_.debufRoundCounter_)
+        {
+            --clientState_.debufRoundCounter_;
+        }
     }
 
     if(clientState_.isInDefense_)
@@ -250,26 +252,22 @@ void Fight::handleServerStats()
 
         // Если баф есть, то уменьшаем его длительность
         --serverState_.bufRoundCounter_;
-
     }
+
     // Скоуп, в котором контролируется длительность дебафа
     {
         // Дебаф кончился
         if(!serverState_.debufRoundCounter_)
         {
-            if(!serverState_.defaultAttack_)
-            {
-                serverState_.pokemon_.attack += serverState_.debuf_;
-            }
-            else
-            {
-                serverState_.pokemon_.attack = serverState_.defaultAttack_;
-            }
+            serverState_.pokemon_.attack = serverState_.defaultAttack_;
             serverState_.debuf_ = 0;
         }
 
         // Если дебаф есть, то уменьшаем его длительность
-        --serverState_.debufRoundCounter_;
+        if(serverState_.debufRoundCounter_)
+        {
+            --serverState_.debufRoundCounter_;
+        }
     }
     if(serverState_.isInDefense_)
     {
@@ -284,12 +282,10 @@ Fight::PokemonState::PokemonState(Pokemon pok):
     buf_(0),
     bufRoundCounter_(0),
     debuf_(0),
-    debufRoundCounter_(0),
+    debufRoundCounter_(-1),
     defaultAttack_(pok.attack),
     defaultHP_(pok.HP)
 {
-    // TODO delete
-    pokemon_.skill.amount = 5;
 }
 
 void Fight::PokemonState::setDefense()

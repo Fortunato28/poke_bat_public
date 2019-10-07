@@ -97,27 +97,23 @@ void serverAction(Fight& current_fight, RoundResult& _return)
 {
     current_fight.handleServerStats();
     auto& s_pok = current_fight.getServerPok();
-    // TODO delete
-    s_pok.skill.type = SkillType::BUFF;
-    auto& c_pok = current_fight.getClientPok();
 
     // Server pokemons AI
     if(!current_fight.isServerLowHP())
     {
         if(s_pok.skill.amount)
         {
-            printf("BEFORE BUF %ld\n", s_pok.attack);
             if(s_pok.skill.type == SkillType::BUFF &&
                     !current_fight.isServerBuffed())
             {
                 serverUseSkill(current_fight, _return);
-                printf("AFTER BUF %ld\n", s_pok.attack);
                 return;
             }
             if(s_pok.skill.type == SkillType::DEBUFF &&
                     !current_fight.isClientDebuffed())
             {
                 serverUseSkill(current_fight, _return);
+
                 return;
             }
             if(s_pok.skill.type == SkillType::ATTACK &&
@@ -136,7 +132,6 @@ void serverAction(Fight& current_fight, RoundResult& _return)
         }
         else
         {
-                printf("AFTER BUF 2 %ld\n", s_pok.attack);
             _return.__set_actionResultDescription( _return.actionResultDescription + " Opponent`s pokemon is tired, so it can only do punch.\n");
             serverPunch(current_fight, _return);
             return;
@@ -292,35 +287,38 @@ void PokServerHandler::useSkill(RoundResult& _return, const int64_t fight_id, co
     auto& s_pok = current_fight.getServerPok();
 
     const PokemonSkill& c_skill = c_pok.skill;
-    if(c_skill.amount < 0)
+    if(!c_skill.amount)
     {
         _return.__set_actionResultDescription("Your pokemon cunt use skills anymore!\n"
                                                "You`ve just screwed up your turn ┌∩┐(◣_◢)┌∩┐");
         _return.__set_clientPokemon(c_pok);
         _return.__set_serverPokemon(s_pok);
     }
-
-    // TODO Не забыть в кейзах прописать нарезку результирующей строки с описанием раунда
-    // Depends on skill type
-    switch(c_skill.type)
+    else
     {
-        case SkillType::BUFF:
-            // Buff client pok
-            current_fight.setClientBuf();
-            break;
-        case SkillType::DEBUFF:
-            // Debuff server pok
-            current_fight.setServerDebuf();
-            break;
-        case SkillType::ATTACK:
-            // Decrease server pok HP
-            current_fight.decreaseServerHPDueToSkill();
+        // TODO Не забыть в кейзах прописать нарезку результирующей строки с описанием раунда
+        // Depends on skill type
+        switch(c_skill.type)
+        {
+            case SkillType::BUFF:
+                // Buff client pok
+                current_fight.setClientBuf();
+                break;
+            case SkillType::DEBUFF:
+                // Debuff server pok
+                current_fight.setServerDebuf();
+                break;
+            case SkillType::ATTACK:
+                // Decrease server pok HP
+                current_fight.decreaseServerHPDueToSkill();
 
-            if(isFightStopped(_return, s_pok, c_pok, fight_id))
-            {
-                return;
-            }
-            break;
+                if(isFightStopped(_return, s_pok, c_pok, fight_id))
+                {
+                    return;
+                }
+                break;
+        }
+
     }
 
     serverAction(current_fight, _return);
