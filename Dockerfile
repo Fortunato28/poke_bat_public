@@ -17,15 +17,16 @@ RUN git checkout 0.12.0 && \
 RUN apt-get install -y libconfig++-dev libgcrypt20-dev
 
 #dependency installation for work with DB
-RUN apt-get install -y wget
+RUN apt-get install -y wget mysql-client libmysqlclient-dev
 WORKDIR /usr/share
-#RUN wget -O mysql_connector.tar.gz https://dev.mysql.com/get/Downloads/Connector-C++/mysql-connector-c++-8.0.17-linux-glibc2.12-x86-64bit.tar.gz && \
-RUN wget -O mysql_connector.tar.gz https://dev.mysql.com/get/Downloads/Connector-C++/mysql-connector-c++-1.1.12-linux-glibc2.12-x86-64bit.tar.gz && \
-    tar zxvf mysql_connector.tar.gz && \
-    rm mysql_connector.tar.gz && \
-    mv mysql-connector-c++-1.1.12-linux-glibc2.12-x86-64bit mysql_connector && \
-    cp -r mysql_connector/include/* /usr/include && \
-    cp -r mysql_connector/lib/* /usr/local/lib
+RUN git clone https://github.com/mysql/mysql-connector-cpp.git && \
+    cd mysql-connector-cpp && \
+    git checkout 1.1 && \
+    mkdir build && \
+    cd build && \
+    cmake .. && \
+    make && \
+    make install
 ENV LD_LIBRARY_PATH="/usr/local/lib:${LD_LIBRARY_PATH}"
 
 #create a mount point to the source dir
