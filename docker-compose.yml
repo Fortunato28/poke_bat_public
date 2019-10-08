@@ -1,0 +1,37 @@
+version: "3"
+services:
+    poke_bat_db:
+        container_name: poke_bat_db
+        image: mysql:5.7
+        restart: always
+        volumes:
+            - my-db:/var/lib/mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: '1'
+            MYSQL_USER: 'test'
+            MYSQL_PASS: 'pass'
+            MYSQL_DATABASE: 'poke_bat'
+            #MYSQL_HOST: 0.0.0.0
+        networks:
+            - poke_net
+
+    poke_bat_server:
+        build: .
+        container_name: poke_bat_server
+        depends_on:
+            - poke_bat_db
+        restart: always
+        command: bash -c "./_result/server"
+        ports:
+            - 3990:3990
+        volumes:
+            - .:/usr/src/poke_bat
+        networks:
+            - poke_net
+
+volumes:
+    my-db: {}
+
+networks:
+    poke_net:
+        driver: bridge

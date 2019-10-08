@@ -3,23 +3,31 @@
 
 using namespace poke_bat::middleware;
 
-bool clientConfigHandler::IsConfigExist()
+clientConfigHandler::clientConfigHandler()
 {
-    std::ifstream config("config.cfg");
-    return config.good(); 
+    configFileName_ = "config.cfg";
 }
 
-void clientConfigHandler::GetDefaultConfig()
+bool clientConfigHandler::IsConfigExist()
 {
+    std::ifstream config(configFileName_);
+    return config.good();
+}
+
+void clientConfigHandler::GetDefaultConfig(std::function<void(std::string&)> callback_to_get_from_server)
+{
+    callback_to_get_from_server(configContent_);
+    //printf("HERE %lu\n", configContent_.length());
     //TODO sending a request for the new config, recieving it and saving
 }
 
 void clientConfigHandler::SaveConfigToFile()
 {
-    std::ofstream fout("config.cfg", std::ios_base::trunc);
+    std::ofstream fout;
+    fout.open(configFileName_, std::ios_base::trunc);
     if(fout.is_open())
-    {   
-        fout << configContent;
+    {
+        fout << configContent_;
         fout.close();
     }
     else
@@ -36,7 +44,7 @@ void clientConfigHandler::SaveConfigToFile()
 
 void clientConfigHandler::LoadConfigFromFile()
 {
-    FILE * ptrFile = fopen("config.cfg", "rb");
+    FILE * ptrFile = fopen(configFileName_.c_str(), "rb");
 
     if (ptrFile ==  NULL)
     {
@@ -46,11 +54,12 @@ void clientConfigHandler::LoadConfigFromFile()
     fseek(ptrFile, 0, SEEK_END);
     long iSize = ftell(ptrFile);
     rewind(ptrFile);
-    char* buffer = (char*) malloc(sizeof(char) * iSize);
+    char*
+        buffer = (char*) malloc(sizeof(char) * iSize);
     size_t result = fread(buffer, 1, iSize, ptrFile);
 
     std::string temp(buffer, result);
-    configContent = temp;
+    configContent_ = temp;
 
     fclose(ptrFile);
     free(buffer);
@@ -59,12 +68,12 @@ void clientConfigHandler::LoadConfigFromFile()
 void clientConfigHandler::DecryptConfig()
 { 
     //conversion data into char 
-    char *bufferContent = new char[configContent.length() + 1];
-    for (int i = 0; i < configContent.length(); ++i)
+    char *bufferContent = new char[configContent_.length() + 1];
+    for (int i = 0; i < configContent_.length(); ++i)
     {
-        bufferContent[i] = configContent.c_str()[i];
+        bufferContent[i] = configContent_.c_str()[i];
     }
-    bufferContent[configContent.length()] = '\0';
+    bufferContent[configContent_.length()] = '\0';
 
     char password[] = "12345678";
 
@@ -72,7 +81,7 @@ void clientConfigHandler::DecryptConfig()
 
     gcry_error_t        gcryError;
     gcry_cipher_hd_t    descriptorPointer;
-    size_t bufferContentLength = configContent.length();
+    size_t bufferContentLength = configContent_.length();
     size_t passwordLength = strlen(password);
     size_t saltLength = strlen(salt);
     char* buffer = (char*)malloc(bufferContentLength);
@@ -121,7 +130,7 @@ void clientConfigHandler::DecryptConfig()
 
     //conversion data back to std::string
     std::string temp(buffer, bufferContentLength);
-    configContent = temp;
+    configContent_ = temp;
 
     delete [] bufferContent;
     free(buffer);
@@ -134,7 +143,7 @@ Pokemon clientConfigHandler::ParseConfig()
     
     try
     {
-        cfg.readString(configContent);
+        cfg.readString(configContent_);
         pokemon.__set_name(cfg.lookup("pokemon.name"));
 
         std::string type = cfg.lookup("pokemon.type"); 

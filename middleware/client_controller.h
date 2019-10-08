@@ -4,9 +4,9 @@
 #include "gen-cpp/PokServer.h"
 
 using PokServerIf = poke_bat::middleware::PokServerIf;
-using Config = poke_bat::middleware::Config;
 using Pokemon = poke_bat::middleware::Pokemon;
 using RoundResult = poke_bat::middleware::RoundResult;
+using FightData = poke_bat::middleware::FightData;
 
 class ClientController
 {
@@ -14,9 +14,9 @@ public:
     ClientController();
     ~ClientController();
 
-    void getConfig(Config& _return);
+    void getConfig(std::string& _return);
 
-    void startFight(Pokemon& _return, const int64_t complexity, const Pokemon& clientPokemon);
+    void startFight(FightData& _return, const int64_t complexity, const Pokemon& clientPokemon);
 
     void punch(RoundResult& _return);
 
@@ -33,4 +33,6 @@ private:
 
     std::unique_ptr<poke_bat::middleware::PokServerClient> thrift_client_;
     std::shared_ptr<apache::thrift::protocol::TTransport> transport_;
+
+    uint64_t fight_id_;
 };

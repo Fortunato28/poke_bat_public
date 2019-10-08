@@ -16,28 +16,34 @@ using namespace poke_bat::middleware;
 
 namespace work_with_datbase {
 
-DBManager::DBManager(const std::string& host, const std::string& user, const std::string& pass, const std::string& db_name):
+DBManager::DBManager(const std::string host, const std::string user, const std::string pass, const std::string db_name):
     host_(host),
     user_(user),
     pass_(pass),
-    db_name_(db_name)
+    db_name_(db_name),
+    stmt_(nullptr),
+    con_(nullptr)
 {
     try
     {
-        sql::Driver * driver = sql::mysql::get_driver_instance();
-        /* Using the Driver to create a connection */
-        con_ = unique_ptr<sql::Connection>(driver->connect(host_, user_, pass_));
+        sql::mysql::MySQL_Driver* driver = sql::mysql::get_driver_instance();
+
+        ///* Using the Driver to create a connection */
+        printf("HERE %s\n", "BEFORE CONNECTION");
+        con_ = driver->connect(host_, user_, pass_);
+        printf("\n\nCONNECTION %d\n\n", con_->isValid());
         con_->setSchema(db_name_);
 
-        stmt_ = unique_ptr<sql::Statement>(con_->createStatement());
+        stmt_ = con_->createStatement();
 
+        //// TODO В общем-то не нужно - база будет создаваться заранее
         CreateDatabase();
+
+        // TODO Это залипуха только для тестирования
         Pokemon testPok;
         AddPokemon(testPok);
-        testPok = GetPokemon(1);
+        testPok = GetPokemon(3);
         cout << testPok.skill << endl;
-        // Тестово удаляет всех покемонов
-        RemovePokemon();
     }
     catch (sql::SQLException &e)
     {
@@ -46,19 +52,31 @@ DBManager::DBManager(const std::string& host, const std::string& user, const std
         cout << "# ERR: " << e.what();
         cout << " (MySQL error code: " << e.getErrorCode();
         cout << ", SQLState: " << e.getSQLState() << " )" << endl;
+        throw std::runtime_error("Cannot connect to database!");
     }
-
+    catch (std::exception &e)
+    {
+        printf("HERE %s\n", e.what());
+    }
 }
 
 DBManager::~DBManager()
 {
-
+    // TODO is it safe?
+    if(con_)
+    {
+        delete con_;
+    }
+    if(stmt_)
+    {
+        delete stmt_;
+    }
 }
 
 void DBManager::CreateDatabase()
 {
-    stmt_->execute("CREATE DATABASE IF NOT EXISTS poke_bat");
-    stmt_->execute("USE poke_bat");
+    stmt_->execute("CREATE DATABASE IF NOT EXISTS poke_bat;");
+    stmt_->execute("USE poke_bat;");
     // TODO Имя таблицы pokemons вынести отдельным полем
     stmt_->execute("CREATE TABLE IF NOT EXISTS pokemons\
         (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,\
@@ -94,13 +112,12 @@ void DBManager::CreateDatabase()
             skill LONGTEXT,\
             flag LONGTEXT);"
             );
-
 }
 
 void DBManager::AddPokemon(Pokemon& given_pok)
 {
     // TODO Добавить нарезку строки от пришедшего покемона
-    stmt_->execute("INSERT INTO pokemons VALUES (NULL, 'ZHOPA', 'FIRE', 20, 20, 10, 5, 5, 15, 0, 1, 'lightning_ATTACK_20', 'isib_wtf{some_flag}');");
+    stmt_->execute("INSERT INTO pokemons VALUES (NULL, 'ZHOPA', 'GRASS', 100, 20, 10, 5, 5, 15, 0, 3, 'lightning_ATTACK_20', 'isib_wtf{some_flag}');");
 }
 
 // TODO если костыль сработает, то вынести отдельно
@@ -126,7 +143,7 @@ Pokemon DBManager::GetPokemon(size_t level)
 {
     // FIXME Правильно ли я понимаю, что тут возможно инъекция?
     string getPokemonCommand = "SELECT * FROM pokemons WHERE LVL=" + to_string(level) + ";";
-        std::unique_ptr<sql::ResultSet> res(stmt_->executeQuery(getPokemonCommand));
+        sql::ResultSet* res(stmt_->executeQuery(getPokemonCommand));
 
         Pokemon gottenPokemon;
         if(res->next())
@@ -142,16 +159,20 @@ Pokemon DBManager::GetPokemon(size_t level)
             gottenPokemon.__set_EXP(res->getInt(10));
             gottenPokemon.__set_LVL(res->getInt(11));
             gottenPokemon.__set_skill(parseStringFromDB(res->getString(12)));
+            // TODO в отдельный метод! Флаг не должен лежать в покемоне всегда
             gottenPokemon.__set_flag(res->getString(13));
         }
 
+        if(res)
+        {
+            delete res;
+        }
         return gottenPokemon;
 }
 
 void DBManager::RemovePokemon()
 {
     string deleteCommand = "DELETE FROM pokemons WHERE spell_attack=5;";
-    cout << "ALOE BLYA" << endl;
     stmt_->execute(deleteCommand);
 }
 

@@ -3,22 +3,27 @@
  * with pokemon data on the client side. Nothing special, really ¯\_(ツ)_/¯.
 */
 
+#include <fstream>
+#include <map>
+#include <functional>
+
 #include <libconfig.h++>
 #include <gcrypt.h>
 #include <dirent.h>
-#include <fstream>
-#include <map>
+
 #include "gen-cpp/interfaces_types.h"
 
 class clientConfigHandler
 {
 public:
+    clientConfigHandler();
     bool IsConfigExist();
-    void GetDefaultConfig();
+    void GetDefaultConfig(std::function<void(std::string&)> callback_to_get_from_server);
     void SaveConfigToFile();
-    void LoadConfigFromFile(); 
+    void LoadConfigFromFile();
     void DecryptConfig();
     poke_bat::middleware::Pokemon ParseConfig();
 private:
-    std::string configContent;
+    std::string configContent_;
+    std::string configFileName_;
 };
