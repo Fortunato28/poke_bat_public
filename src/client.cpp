@@ -69,16 +69,16 @@ bool isFightStopped(const RoundResult& roundResult_)
     return false;
 }
 
-void start_fight()
+Pokemon start_fight()
 {
     auto complexity = choose_complexity();
-    ClientController client;
 
-    Pokemon clientPokemon = getPokemonFromConfig(client);
+    ClientController thrift_client;
+    Pokemon clientPokemon = getPokemonFromConfig(thrift_client);
     FightData fightData;
-    client.startFight(fightData, complexity, clientPokemon);
+    thrift_client.startFight(fightData, complexity, clientPokemon);
 
-    // TODO Функция переименована! Подумать, что и как тут нормально принтавать
+    // TODO Функция переименована! Подумать, что и как тут нормально принтовать
     //printPokemonData(fightData.pokemon);
     RoundResult roundResult_;
 
@@ -102,13 +102,13 @@ void start_fight()
             switch(action)
             {
                 case 1:
-                    client.punch(roundResult_);
+                    thrift_client.punch(roundResult_);
                     break;
                 case 2:
-                    client.defend(roundResult_);
+                    thrift_client.defend(roundResult_);
                     break;
                 case 3:
-                    client.useSkill(roundResult_, clientPokemon.skill.name);
+                    thrift_client.useSkill(roundResult_, clientPokemon.skill.name);
                     break;
             }
             if(isFightStopped(roundResult_))
@@ -121,17 +121,42 @@ void start_fight()
         }
 
     }
+    return roundResult_.clientPokemon;
+}
+
+void save_pokemon(Pokemon& c_pok)
+{
+    ClientController thrift_client;
+    // Клиентского покемона ещё и нет вовсе (боя ещё не было)
+    if(c_pok.name == "")
+    {
+        c_pok = getPokemonFromConfig(thrift_client);
+    }
+
+    std::cout << "Enter private id to find your pokemon later!\n";
+    string private_id;
+    std::cin >> private_id;
+
+    std::cout << "Enter some comment about your sweety pokemon!\n";
+    string comment;
+    std::cin >> comment;
+
+    string result = thrift_client.savePokemon(private_id, c_pok, comment);
+    cout << result;
 }
 
 void client_run()
 {
+    Pokemon c_pok;
     //TODO nice Pikachu output
     std::cout << "Welcome to PokeBattle!\n";
     while(true)
     {
         //TODO add a nice legend
         std::cout << "Choose your action!\n"
-                  << "To start press 1;\n"
+                  << "To start fight press 1;\n"
+                  << "To show your current pokemon press 2;\n"
+                  << "To save your current pokemon press 3;\n"
                   << "To exit the game press 0;\n";
         int choice;
         std::cin >> choice;
@@ -140,14 +165,18 @@ void client_run()
         {
             case 1:
                 std::cout << "Fight is started!\n";
-                start_fight();
+                c_pok = start_fight();
                 std::cout << "Fight is over!\n";
                 std::cout << "=================================\n";
                 break;
             case 2:
                 // TODO To think about the way how to pass clientPokemon into method below
                 //printPokemonData(clientPokemon);
-                std::cout << "2\n";
+                std::cout << "Here will be show_pokemon() method\n";
+                break;
+            case 3:
+                save_pokemon(c_pok);
+                std::cout << "=================================\n";
                 break;
             case 0:
                 return;

@@ -21,10 +21,25 @@ ClientController::ClientController()
     transport_ = make_shared<TFramedTransport>(socket);
     shared_ptr<TProtocol> protocol(new TBinaryProtocol(transport_));
     thrift_client_ = make_unique<PokServerClient>(protocol);
+
+    // TODO по-хорошему, соедиенение должно открываться здесь, а закрываться в деструкторе
 }
 
 ClientController::~ClientController()
 {
+}
+
+string ClientController::savePokemon(const string& private_id, const Pokemon& c_pok, const string& comment)
+{
+
+    transport_->open();
+
+    string result;
+    thrift_client_->savePokemon(result, private_id, c_pok, comment);
+
+    transport_->close();
+
+    return result;
 }
 
 void ClientController::getConfig(std::string& _return) try

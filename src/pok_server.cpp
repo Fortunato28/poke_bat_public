@@ -26,6 +26,12 @@ PokServerHandler::PokServerHandler()
 {
 }
 
+void PokServerHandler::savePokemon(std::string& _return, const std::string& private_id, const Pokemon& client_pokemon, const std::string& comment)
+{
+    printf("Save Pokemon worked %s\n", "YEAH");
+    _return = "Your pokemon was successfully saved!\n";
+}
+
 Fight& PokServerHandler::findFight(const int64_t &fight_id)
 {
     //printf("%lu", fight_storage.find(fight_id)->first);
