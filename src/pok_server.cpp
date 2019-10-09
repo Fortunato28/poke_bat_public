@@ -10,7 +10,7 @@
 #include "gen-cpp/PokServer.h"
 #include "fight.h"
 #include "server_config_handler.h"
-#include "conf.h"
+#include "db_conf.h"
 
 using namespace ::apache::thrift;
 using namespace ::apache::thrift::protocol;

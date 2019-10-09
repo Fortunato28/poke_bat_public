@@ -24,8 +24,7 @@ public:
     void RemovePokemon();
 private:
 
-    // Тестовый метод, по факту при работе сервиса ничего создаваться не должно
-    void CreateDatabase();
+    void CreateTable();
 
     // Данные по базе
     const std::string host_;
@@ -36,5 +35,7 @@ private:
     // Держалки коннекта к базе
     sql::Statement* stmt_;
     sql::Connection* con_;
+
+    const std::string table_name = "saved_pokemons";
 };
 } // namespace

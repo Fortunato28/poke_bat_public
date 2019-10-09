@@ -6,6 +6,7 @@ include_directories(../middleware
     /usr/include/mysql
     /usr/include/mysqlx
     /usr/include/jdbc
+    ${CMAKE_SOURCE_DIR}/include
     )
 
 set(DB_MANAGER_SOURCES database_manager.cpp)

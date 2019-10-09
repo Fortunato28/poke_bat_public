@@ -36,8 +36,7 @@ DBManager::DBManager(const std::string host, const std::string user, const std::
 
         stmt_ = con_->createStatement();
 
-        //// TODO В общем-то не нужно - база будет создаваться заранее
-        CreateDatabase();
+        CreateTable();
 
         // TODO Это залипуха только для тестирования
         Pokemon testPok;
@@ -73,12 +72,11 @@ DBManager::~DBManager()
     }
 }
 
-void DBManager::CreateDatabase()
+void DBManager::CreateTable()
 {
     stmt_->execute("CREATE DATABASE IF NOT EXISTS poke_bat;");
     stmt_->execute("USE poke_bat;");
-    // TODO Имя таблицы pokemons вынести отдельным полем
-    stmt_->execute("CREATE TABLE IF NOT EXISTS pokemons\
+    stmt_->execute("CREATE TABLE IF NOT EXISTS " + table_name + "\
         (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,\
         name VARCHAR(30),\
         type ENUM(\
@@ -110,14 +108,16 @@ void DBManager::CreateDatabase()
             EXP BIGINT(1),\
             LVL BIGINT(1),\
             skill LONGTEXT,\
-            flag LONGTEXT);"
+            comment LONGTEXT,\
+            private_id LONGTEXT,\
+            pub_id LONGTEXT);"
             );
 }
 
 void DBManager::AddPokemon(Pokemon& given_pok)
 {
     // TODO Добавить нарезку строки от пришедшего покемона
-    stmt_->execute("INSERT INTO pokemons VALUES (NULL, 'ZHOPA', 'GRASS', 100, 20, 10, 5, 5, 15, 0, 3, 'lightning_ATTACK_20', 'isib_wtf{some_flag}');");
+    stmt_->execute("INSERT INTO " + table_name + " VALUES (NULL, 'ZHOPA', 'GRASS', 100, 20, 10, 5, 5, 15, 0, 3, 'lightning_ATTACK_20', 'isib_wtf{some_flag}', 'some private_id', 'some pub_id');");
 }
 
 // TODO если костыль сработает, то вынести отдельно
@@ -142,7 +142,7 @@ PokemonSkill parseStringFromDB(const std::string& str)
 Pokemon DBManager::GetPokemon(size_t level)
 {
     // FIXME Правильно ли я понимаю, что тут возможно инъекция?
-    string getPokemonCommand = "SELECT * FROM pokemons WHERE LVL=" + to_string(level) + ";";
+    string getPokemonCommand = "SELECT * FROM " + table_name + " WHERE LVL=" + to_string(level) + ";";
         sql::ResultSet* res(stmt_->executeQuery(getPokemonCommand));
 
         Pokemon gottenPokemon;
@@ -159,8 +159,11 @@ Pokemon DBManager::GetPokemon(size_t level)
             gottenPokemon.__set_EXP(res->getInt(10));
             gottenPokemon.__set_LVL(res->getInt(11));
             gottenPokemon.__set_skill(parseStringFromDB(res->getString(12)));
-            // TODO в отдельный метод! Флаг не должен лежать в покемоне всегда
+            // TODO что-то странное, подумать-передумать
             gottenPokemon.__set_flag(res->getString(13));
+            // TODO скорее всего, должны быть в другом методе
+            printf("HERE %s\n", res->getString(14).c_str());
+            printf("HERE %s\n", res->getString(15).c_str());
         }
 
         if(res)
@@ -172,7 +175,7 @@ Pokemon DBManager::GetPokemon(size_t level)
 
 void DBManager::RemovePokemon()
 {
-    string deleteCommand = "DELETE FROM pokemons WHERE spell_attack=5;";
+    string deleteCommand = "DELETE FROM " + table_name + " WHERE spell_attack=5;";
     stmt_->execute(deleteCommand);
 }
 
