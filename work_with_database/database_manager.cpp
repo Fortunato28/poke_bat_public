@@ -118,11 +118,19 @@ void DBManager::CreateTable()
 
 void DBManager::SavePokemon(const std::string& private_id,
                             const std::string& pub_id,
-                            const Pokemon& given_pok,
+                            const Pokemon& pok,
                             const std::string& comment)
 {
+
     // TODO Добавить нарезку строки от пришедшего покемона
-    stmt_->execute("INSERT INTO " + table_name + " VALUES (NULL, 'ZHOPA', 'GRASS', 100, 20, 10, 5, 5, 15, 0, 3, 'lightning_ATTACK_20', 'isib_wtf{some_flag}', 'some private_id', 'some pub_id');");
+    //stmt_->execute("INSERT INTO " + table_name + " VALUES (NULL, 'ZHOPA', 'GRASS', 100, 20, 10, 5, 5, 15, 0, 3, 'lightning_ATTACK_20', 'isib_wtf{some_flag}', 'some private_id', 'some pub_id');");
+
+    stmt_->execute("INSERT INTO " +
+            table_name +
+            " VALUES (NULL, " +
+            "'" + pok.name + "', " +
+            "'" + utilities::get_string_poketype(pok.type) + "', " +
+            "100, 20, 10, 5, 5, 15, 0, 3, 'lightning_ATTACK_20', 'isib_wtf{some_flag}', 'some private_id', 'some pub_id');");
 }
 
 // TODO если костыль сработает, то вынести отдельно

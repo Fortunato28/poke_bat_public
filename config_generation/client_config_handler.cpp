@@ -146,7 +146,7 @@ Pokemon clientConfigHandler::ParseConfig()
         cfg.readString(configContent_);
         pokemon.__set_name(cfg.lookup("pokemon.name"));
 
-        std::string type = cfg.lookup("pokemon.type"); 
+        std::string type = cfg.lookup("pokemon.type");
         pokemon.__set_type(utilities::get_enum_poketype(type));
 
         int HP = cfg.lookup("pokemon.HP");
