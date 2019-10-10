@@ -29,9 +29,12 @@ DBManager::DBManager(const std::string host, const std::string user, const std::
         sql::mysql::MySQL_Driver* driver = sql::mysql::get_driver_instance();
 
         ///* Using the Driver to create a connection */
-        printf("HERE %s\n", "BEFORE CONNECTION");
         con_ = driver->connect(host_, user_, pass_);
-        printf("\n\nCONNECTION %d\n\n", con_->isValid());
+        if(con_->isValid())
+        {
+            printf("Connected to database succesfully\n");
+        }
+        else throw::runtime_error("Cannot connect to database!");
         con_->setSchema(db_name_);
 
         stmt_ = con_->createStatement();
@@ -40,7 +43,6 @@ DBManager::DBManager(const std::string host, const std::string user, const std::
 
         // TODO Это залипуха только для тестирования
         Pokemon testPok;
-        AddPokemon(testPok);
         testPok = GetPokemon(3);
         cout << testPok.skill << endl;
     }
@@ -114,7 +116,10 @@ void DBManager::CreateTable()
             );
 }
 
-void DBManager::AddPokemon(Pokemon& given_pok)
+void DBManager::SavePokemon(const std::string& private_id,
+                            const std::string& pub_id,
+                            const Pokemon& given_pok,
+                            const std::string& comment)
 {
     // TODO Добавить нарезку строки от пришедшего покемона
     stmt_->execute("INSERT INTO " + table_name + " VALUES (NULL, 'ZHOPA', 'GRASS', 100, 20, 10, 5, 5, 15, 0, 3, 'lightning_ATTACK_20', 'isib_wtf{some_flag}', 'some private_id', 'some pub_id');");

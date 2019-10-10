@@ -173,6 +173,7 @@ void client_run()
                 // TODO To think about the way how to pass clientPokemon into method below
                 //printPokemonData(clientPokemon);
                 std::cout << "Here will be show_pokemon() method\n";
+                std::cout << "=================================\n";
                 break;
             case 3:
                 save_pokemon(c_pok);

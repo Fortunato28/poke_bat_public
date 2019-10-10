@@ -17,7 +17,10 @@ public:
     DBManager(const std::string host, const std::string user, const std::string pass, const std::string db_name);
     ~DBManager();
 
-    void AddPokemon(Pokemon& given_pok);
+    void SavePokemon(const std::string& private_id,
+                     const std::string& pub_id,
+                     const Pokemon& given_pok,
+                     const std::string& comment);
 
     Pokemon GetPokemon(size_t complexity);
     void UpdatePokemon(std::string name, size_t complexity);

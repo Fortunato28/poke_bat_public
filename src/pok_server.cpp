@@ -26,9 +26,18 @@ PokServerHandler::PokServerHandler()
 {
 }
 
+// TODO implement!
+std::string get_pub_id(const std::string& private_id)
+{
+
+    return {"not implemented"};
+}
+
 void PokServerHandler::savePokemon(std::string& _return, const std::string& private_id, const Pokemon& client_pokemon, const std::string& comment)
 {
-    printf("Save Pokemon worked %s\n", "YEAH");
+    std::string pub_id = get_pub_id(private_id);
+    dbManager_.SavePokemon(private_id, pub_id, client_pokemon, comment);
+
     _return = "Your pokemon was successfully saved!\n";
 }
 
