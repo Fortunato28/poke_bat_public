@@ -15,7 +15,7 @@ std::string serverConfigHandler::EncryptConfig()
             "\tEXP = 0;\n"
             "\tLVL = 1;\n"
             "\tskills = ( (\"lightning bow\","
-                        "\"atk\","
+                        "\"attack\","
                         "4) );\n"
         "};";
     

@@ -62,9 +62,9 @@ namespace utilities
         return pokeTypes.find(pokemon_type)->second;
     }
 
-    std::string get_string_poketype(poke_bat::middleware::PokemonType::type skill_type)
+    std::string get_string_poketype(poke_bat::middleware::PokemonType::type pokemon_type)
     {
-        return invertedPokeTypes.find(skill_type)->second;
+        return invertedPokeTypes.find(pokemon_type)->second;
     }
 
     std::map<std::string, poke_bat::middleware::SkillType::type> pokeSkillTypes
@@ -72,6 +72,13 @@ namespace utilities
         {"ATTACK", poke_bat::middleware::SkillType::ATTACK},
         {"BUFF",   poke_bat::middleware::SkillType::BUFF},
         {"DEBUFF", poke_bat::middleware::SkillType::DEBUFF},
+    };
+
+    std::map<poke_bat::middleware::SkillType::type, std::string> invertedPokeSkillTypes
+    {
+        {poke_bat::middleware::SkillType::ATTACK, "ATTACK"},
+        {poke_bat::middleware::SkillType::BUFF, "BUFF"},
+        {poke_bat::middleware::SkillType::DEBUFF, "DEBUFF"},
     };
 
     // TODO обработка ошибок!
@@ -84,5 +91,10 @@ namespace utilities
         }
 
         return pokeSkillTypes.find(skill_type)->second;
+    }
+
+    std::string get_string_pokeskilltype(poke_bat::middleware::SkillType::type skill_type)
+    {
+        return invertedPokeSkillTypes.find(skill_type)->second;
     }
 }
