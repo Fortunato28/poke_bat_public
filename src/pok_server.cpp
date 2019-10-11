@@ -33,6 +33,13 @@ std::string get_pub_id(const std::string& private_id)
     return {"not implemented"};
 }
 
+void PokServerHandler::getSavedPoksTable(std::string& _return)
+{
+    printf("HERE %s\n", "WORKED TABLE!");
+
+    _return = " IT really worked!\n";
+}
+
 void PokServerHandler::savePokemon(std::string& _return, const std::string& private_id, const Pokemon& client_pokemon, const std::string& comment)
 {
     std::string pub_id = get_pub_id(private_id);

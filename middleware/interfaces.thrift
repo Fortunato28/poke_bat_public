@@ -68,5 +68,6 @@ service PokServer {
     RoundResult useSkill(1:i64 fight_id, 2:string skillName)
 
     string savePokemon(1:string private_id, 2:Pokemon client_pokemon, 3:string comment)
+    string getSavedPoksTable()
 }
 

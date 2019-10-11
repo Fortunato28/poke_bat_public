@@ -29,6 +29,20 @@ ClientController::~ClientController()
 {
 }
 
+const std::string ClientController::getSavedPoksTable()
+{
+
+    transport_->open();
+
+    string result;
+    thrift_client_->getSavedPoksTable(result);
+
+    transport_->close();
+
+    return result;
+
+}
+
 string ClientController::savePokemon(const string& private_id, const Pokemon& c_pok, const string& comment)
 {
 

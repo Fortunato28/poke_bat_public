@@ -26,6 +26,8 @@ public:
 
     std::string savePokemon(const std::string& private_id, const Pokemon& c_pok, const std::string& comment);
 
+    const std::string getSavedPoksTable();
+
 private:
     // Простите, но это синглтон
     ClientController(const ClientController& other) = delete;

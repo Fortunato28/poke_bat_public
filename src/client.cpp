@@ -145,6 +145,12 @@ void save_pokemon(Pokemon& c_pok)
     cout << result;
 }
 
+void show_saved_poks()
+{
+    ClientController thrift_client;
+    cout << thrift_client.getSavedPoksTable();
+}
+
 void client_run()
 {
     Pokemon c_pok;
@@ -157,6 +163,7 @@ void client_run()
                   << "To start fight press 1;\n"
                   << "To show your current pokemon press 2;\n"
                   << "To save your current pokemon press 3;\n"
+                  << "To show table with saved pokemons press 4;\n"
                   << "To exit the game press 0;\n";
         int choice;
         std::cin >> choice;
@@ -177,6 +184,10 @@ void client_run()
                 break;
             case 3:
                 save_pokemon(c_pok);
+                std::cout << "=================================\n";
+                break;
+            case 4:
+                show_saved_poks();
                 std::cout << "=================================\n";
                 break;
             case 0:
