@@ -25,8 +25,9 @@ public:
     Pokemon GetPokemon(size_t complexity);
     void UpdatePokemon(std::string name, size_t complexity);
     void RemovePokemon();
-private:
+    const std::string GetSavedPoks();
 
+private:
     void CreateTable();
 
     // Данные по базе

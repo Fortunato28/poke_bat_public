@@ -35,9 +35,7 @@ std::string get_pub_id(const std::string& private_id)
 
 void PokServerHandler::getSavedPoksTable(std::string& _return)
 {
-    printf("HERE %s\n", "WORKED TABLE!");
-
-    _return = " IT really worked!\n";
+    _return = dbManager_.GetSavedPoks();
 }
 
 void PokServerHandler::savePokemon(std::string& _return, const std::string& private_id, const Pokemon& client_pokemon, const std::string& comment)

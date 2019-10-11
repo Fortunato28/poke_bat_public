@@ -74,6 +74,42 @@ DBManager::~DBManager()
     }
 }
 
+const std::string DBManager::GetSavedPoks()
+{
+    string result;
+    string query = "SELECT pub_id, name, type, HP, attack, defense, spell_attack, spell_defense, LVL FROM " + table_name + ";";
+
+    sql::ResultSet* res(stmt_->executeQuery(query));
+
+    // TODO в идеале тут бы зафудзячить оглавление для таблицы, но хз, как его выравнивать
+    result += "| public_id | name | type | HP | attack | defense | spell_attack | spell_defense | LVL |\n";
+    while(res->next())
+    {
+        result += " |";
+        result += res->getString("pub_id");
+        result += "|";
+        result += res->getString("name");
+        result += " |";
+        result += res->getString("type");
+        result += " |";
+        result += res->getString("HP");
+        result += " |";
+        result += res->getString("attack");
+        result += " |";
+        result += res->getString("defense");
+        result += " |";
+        result += res->getString("spell_attack");
+        result += " |";
+        result += res->getString("spell_defense");
+        result += " |";
+        result += res->getString("LVL");
+        result += " |\n";
+    }
+
+    result += '\n';
+    return result;
+}
+
 void DBManager::CreateTable()
 {
     stmt_->execute("CREATE DATABASE IF NOT EXISTS poke_bat;");
