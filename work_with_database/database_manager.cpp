@@ -74,39 +74,78 @@ DBManager::~DBManager()
     }
 }
 
+void level_off_column(vector<string>& table, const vector<size_t>& realColumnsLens, const  size_t longestColumn)
+{
+    for(size_t i = 0; i < table.size(); ++i)
+    {
+        auto& row = table[i];
+        auto amountOfSpaces = longestColumn - realColumnsLens[i];
+        string added_spaces(amountOfSpaces, ' ');
+        row = row.substr(0, realColumnsLens[i]) + added_spaces + row.substr(realColumnsLens[i]);
+    }
+}
+
+void level_off_table(vector<string>& table)
+{
+    size_t longestColumn = 0;
+    vector<size_t> realColumnsLens;
+    for(auto& row: table)
+    {
+        auto currentColumnLen = row.find('|', 1);
+        if(currentColumnLen > longestColumn)
+        {
+            longestColumn = currentColumnLen;
+        }
+
+        realColumnsLens.emplace_back(currentColumnLen);
+    }
+
+    level_off_column(table, realColumnsLens, longestColumn);
+}
+
 const std::string DBManager::GetSavedPoks()
 {
-    string result;
     string query = "SELECT pub_id, name, type, HP, attack, defense, spell_attack, spell_defense, LVL FROM " + table_name + ";";
 
     sql::ResultSet* res(stmt_->executeQuery(query));
 
-    // TODO в идеале тут бы зафудзячить оглавление для таблицы, но хз, как его выравнивать
-    result += "| public_id | name | type | HP | attack | defense | spell_attack | spell_defense | LVL |\n";
+    vector<string> table;
+    string result;
+    table.push_back("| public_id | name | type | HP | attack | defense | spell_attack | spell_defense | LVL |\n");
     while(res->next())
     {
-        result += " |";
-        result += res->getString("pub_id");
-        result += "|";
-        result += res->getString("name");
-        result += " |";
-        result += res->getString("type");
-        result += " |";
-        result += res->getString("HP");
-        result += " |";
-        result += res->getString("attack");
-        result += " |";
-        result += res->getString("defense");
-        result += " |";
-        result += res->getString("spell_attack");
-        result += " |";
-        result += res->getString("spell_defense");
-        result += " |";
-        result += res->getString("LVL");
-        result += " |\n";
+        string row;
+        row += "|";
+        row += res->getString("pub_id");
+        row += "|";
+        row += res->getString("name");
+        row += " |";
+        row += res->getString("type");
+        row += " |";
+        row += res->getString("HP");
+        row += " |";
+        row += res->getString("attack");
+        row += " |";
+        row += res->getString("defense");
+        row += " |";
+        row += res->getString("spell_attack");
+        row += " |";
+        row += res->getString("spell_defense");
+        row += " |";
+        row += res->getString("LVL");
+        row += " |\n";
+
+        table.push_back(row);
     }
 
-    result += '\n';
+    level_off_table(table);
+
+    for(auto& row: table)
+    {
+        result += row;
+    }
+
+    delete res;
     return result;
 }
 
