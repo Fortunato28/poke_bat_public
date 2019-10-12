@@ -74,38 +74,79 @@ DBManager::~DBManager()
     }
 }
 
-void level_off_column(vector<string>& table, const vector<size_t>& realColumnsLens, const  size_t longestColumn)
+void level_off_column(vector<string>& table, const vector<size_t>& realColumnsLens, size_t& longestColumn, size_t columnStart)
 {
     for(size_t i = 0; i < table.size(); ++i)
     {
         auto& row = table[i];
         auto amountOfSpaces = longestColumn - realColumnsLens[i];
+        //if((longestColumn - realColumnsLens[i]) < 2)
+        //{
+        //    amountOfSpaces = 2;
+        //    longestColumn += 2;
+        //}
         auto beginAmountOfSpaces = amountOfSpaces / 2;
+        //if(columnStart)
+        //{
+        //    printf("amount %lu\n", amountOfSpaces);
+        //    printf("begin %lu\n", beginAmountOfSpaces);
+        //    printf("after %lu\n", amountOfSpaces - beginAmountOfSpaces);
+
+        //}
         string beginAddedSpaces(beginAmountOfSpaces, ' ');
         string endAddedSpaces(amountOfSpaces - beginAmountOfSpaces, ' ');
-        row =  row.substr(0, 1) +
+        // TODO delete отладочное
+        if(columnStart > 0)
+        {
+            //printf("longestColumn%lu\n", longestColumn);
+            //printf("REALCOL Lens%lu\n", realColumnsLens[i]);
+
+            //printf("HERE %s", row.substr(0, columnStart).c_str());
+            //printf("%s", row.substr(columnStart, 1).c_str());
+            //printf("%s", beginAddedSpaces.c_str());
+            //printf("%s", row.substr(columnStart + 1, realColumnsLens[i] - 1).c_str());
+            //printf("%s", (endAddedSpaces).c_str());
+            //printf("%s", row.substr(columnStart + realColumnsLens[i]).c_str());
+            //printf("\n");
+        }
+        row =  row.substr(0, columnStart) +
+               row.substr(columnStart, 1) +
+               " " +
                beginAddedSpaces +
-               row.substr(1, realColumnsLens[i] - 1) +
-               endAddedSpaces + row.substr(realColumnsLens[i]);
+               row.substr(columnStart + 1, realColumnsLens[i] - 1) +
+               endAddedSpaces +
+               " " +
+               row.substr(columnStart + realColumnsLens[i]);
     }
+    longestColumn += 2; // Два дополнительных пробела
 }
 
 void level_off_table(vector<string>& table)
 {
-    size_t longestColumn = 0;
+    size_t columnStart = 0;
+    size_t prevColumnWidth = 0;
     vector<size_t> realColumnsLens;
-    for(auto& row: table)
+    for(size_t i = 0; i < 2; ++i)
     {
-        auto currentColumnLen = row.find('|', 1);
-        if(currentColumnLen > longestColumn)
+        size_t longestColumn = 0;
+        for(auto& row: table)
         {
-            longestColumn = currentColumnLen;
+            auto absCurrentColumnLen = row.find('|', columnStart + 1);
+            auto relativeCurrentColumnLen = absCurrentColumnLen - prevColumnWidth;
+            if(relativeCurrentColumnLen > longestColumn)
+            {
+                longestColumn = relativeCurrentColumnLen;
+            }
+
+            realColumnsLens.push_back(relativeCurrentColumnLen);
         }
 
-        realColumnsLens.emplace_back(currentColumnLen);
+        level_off_column(table, realColumnsLens, longestColumn, columnStart);
+        // Все столбцы выровнены по этой ширине
+        columnStart = longestColumn;
+        prevColumnWidth = longestColumn;
+        realColumnsLens.clear();
     }
-
-    level_off_column(table, realColumnsLens, longestColumn);
 }
 
 const std::string DBManager::GetSavedPoks()
@@ -116,7 +157,7 @@ const std::string DBManager::GetSavedPoks()
 
     vector<string> table;
     string result;
-    table.push_back("| public_id | name | type | HP | attack | defense | spell_attack | spell_defense | LVL |\n");
+    //table.push_back("| public_id | name | type | HP | attack | defense | spell_attack | spell_defense | LVL |\n");
     while(res->next())
     {
         string row;
@@ -124,21 +165,21 @@ const std::string DBManager::GetSavedPoks()
         row += res->getString("pub_id");
         row += "|";
         row += res->getString("name");
-        row += " |";
+        row += "|";
         row += res->getString("type");
-        row += " |";
+        row += "|";
         row += res->getString("HP");
-        row += " |";
+        row += "|";
         row += res->getString("attack");
-        row += " |";
+        row += "|";
         row += res->getString("defense");
-        row += " |";
+        row += "|";
         row += res->getString("spell_attack");
-        row += " |";
+        row += "|";
         row += res->getString("spell_defense");
-        row += " |";
+        row += "|";
         row += res->getString("LVL");
-        row += " |\n";
+        row += "|\n";
 
         table.push_back(row);
     }
