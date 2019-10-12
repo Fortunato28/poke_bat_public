@@ -63,7 +63,6 @@ DBManager::DBManager(const std::string host, const std::string user, const std::
 
 DBManager::~DBManager()
 {
-    // TODO is it safe?
     if(con_)
     {
         delete con_;
@@ -74,16 +73,19 @@ DBManager::~DBManager()
     }
 }
 
+// Выровнять конкретный столбец таблицы
 void level_off_column(vector<string>& table, const vector<size_t>& realColumnsLens, size_t& longestColumn, size_t columnStart)
 {
     for(size_t i = 0; i < table.size(); ++i)
     {
+        // Вычисляем пробельчики
         auto& row = table[i];
         auto amountOfSpaces = longestColumn - realColumnsLens[i];
         auto beginAmountOfSpaces = amountOfSpaces / 2;
         string beginAddedSpaces(beginAmountOfSpaces, ' ');
         string endAddedSpaces(amountOfSpaces - beginAmountOfSpaces, ' ');
 
+        // Ниндзя-нарезка результирующей строки
         row =  row.substr(0, columnStart) +
                row.substr(columnStart, 1) +
                " " +
@@ -96,12 +98,14 @@ void level_off_column(vector<string>& table, const vector<size_t>& realColumnsLe
     longestColumn += 2; // Два дополнительных пробела
 }
 
+// Выравнивание таблицы. Рекомендую ничего не трогать, а то поедет и чекер загрустит.
 void level_off_table(vector<string>& table)
 {
     size_t columnStart = 0;
     size_t prevColumnWidth = 0;
     vector<size_t> realColumnsLens;
-    for(size_t i = 0; i < 9; ++i)
+    auto columnsAmount = 9;
+    for(size_t i = 0; i < columnsAmount; ++i)
     {
         size_t longestColumn = 0;
         for(auto& row: table)
@@ -118,7 +122,8 @@ void level_off_table(vector<string>& table)
         }
 
         level_off_column(table, realColumnsLens, longestColumn, columnStart);
-        // Все столбцы выровнены по этой ширине
+
+        // Зададим начало следующего столбца
         columnStart += longestColumn;
         prevColumnWidth = longestColumn;
         realColumnsLens.clear();
@@ -161,10 +166,10 @@ const std::string DBManager::GetSavedPoks()
 
     level_off_table(table);
 
+    // Наполнение результирующей строки
     string separatorRow(table[0].length() - 1, '-');
     separatorRow += "\n";
     table.insert(std::next(table.begin()), separatorRow);
-    // Наполнение результирующей строки
     string result;
     result += separatorRow;
     for(auto& row: table)
@@ -246,7 +251,6 @@ void DBManager::SavePokemon(const std::string& private_id,
     stmt_->execute(query);
 }
 
-// TODO если костыль сработает, то вынести отдельно
 PokemonSkill parseStringFromDB(const std::string& str)
 {
     string skillData = str;
