@@ -80,8 +80,13 @@ void level_off_column(vector<string>& table, const vector<size_t>& realColumnsLe
     {
         auto& row = table[i];
         auto amountOfSpaces = longestColumn - realColumnsLens[i];
-        string added_spaces(amountOfSpaces, ' ');
-        row = row.substr(0, realColumnsLens[i]) + added_spaces + row.substr(realColumnsLens[i]);
+        auto beginAmountOfSpaces = amountOfSpaces / 2;
+        string beginAddedSpaces(beginAmountOfSpaces, ' ');
+        string endAddedSpaces(amountOfSpaces - beginAmountOfSpaces, ' ');
+        row =  row.substr(0, 1) +
+               beginAddedSpaces +
+               row.substr(1, realColumnsLens[i] - 1) +
+               endAddedSpaces + row.substr(realColumnsLens[i]);
     }
 }
 
