@@ -69,11 +69,11 @@ catch (TException& tx)
     cout << "ERROR: " << tx.what() << endl;
 }
 
-void ClientController::startFight(FightData& _return, const int64_t complexity, const Pokemon& clientPokemon) try
+void ClientController::startFight(FightData& _return, const string& pub_id, const Pokemon& clientPokemon) try
 {
     transport_->open();
 
-    thrift_client_->startFight(_return, complexity, clientPokemon);
+    thrift_client_->startFight(_return, pub_id, clientPokemon);
     fight_id_ = _return.fight_id;
 
     transport_->close();

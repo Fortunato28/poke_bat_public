@@ -21,7 +21,7 @@ class PokServerHandler : virtual public PokServerIf
 
   void getConfig(std::string& _return);
 
-  void startFight(FightData& _return, const int64_t complexity, const Pokemon& clientPokemon);
+  void startFight(FightData& _return, const std::string& pub_id, const Pokemon& clientPokemon);
 
   void punch(RoundResult& _return, const int64_t fight_id);
 

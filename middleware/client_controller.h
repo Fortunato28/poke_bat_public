@@ -16,7 +16,7 @@ public:
 
     void getConfig(std::string& _return);
 
-    void startFight(FightData& _return, const int64_t complexity, const Pokemon& clientPokemon);
+    void startFight(FightData& _return, const std::string& complexity, const Pokemon& clientPokemon);
 
     void punch(RoundResult& _return);
 

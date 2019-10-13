@@ -62,7 +62,7 @@ struct FightData {
 service PokServer {
     string getConfig(),
 
-    FightData startFight(1:i64 complexity, 2:Pokemon clientPokemon)
+    FightData startFight(1:string pub_id, 2:Pokemon clientPokemon)
     RoundResult punch(1:i64 fight_id),
     RoundResult defend(1:i64 fight_id),
     RoundResult useSkill(1:i64 fight_id, 2:string skillName)

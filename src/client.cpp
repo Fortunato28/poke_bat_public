@@ -14,30 +14,6 @@ void printRoundData(const RoundResult& result)
     //TODO print info about server pokemon
 }
 
-const int64_t choose_complexity()
-{
-    int64_t result;
-    std::cout << "Choose the complexity of the fight!\n"
-              << "1, 2 or 3.\n";
-    std::cin >> result;
-    std::cout << "=================================\n";
-    switch(result)
-    {
-        case 1:
-            return 1;
-            break;
-        case 2:
-            return 2;
-            break;
-        case 3:
-            return 3;
-            break;
-        default:
-            std::cout << "Your input is bullshit!\n";
-            return 3;
-    }
-}
-
 Pokemon getPokemonFromConfig(ClientController& client)
 {
     clientConfigHandler config_handler;
@@ -69,14 +45,29 @@ bool isFightStopped(const RoundResult& roundResult_)
     return false;
 }
 
+const string choose_opponent()
+{
+    string entered_id;
+    cout << "Enter the ID of the pokemon you wanna fight with:\n";
+    cin.ignore();
+    std::getline(cin, entered_id);
+    return entered_id;
+}
+
 Pokemon start_fight()
 {
-    auto complexity = choose_complexity();
+    auto opponent_pub_id = choose_opponent();
 
     ClientController thrift_client;
     Pokemon clientPokemon = getPokemonFromConfig(thrift_client);
     FightData fightData;
-    thrift_client.startFight(fightData, complexity, clientPokemon);
+    //thrift_client.startFight(fightData, complexity, clientPokemon);
+    thrift_client.startFight(fightData, opponent_pub_id, clientPokemon);
+    if(fightData.pokemon.EXP == -1)
+    {
+        cout << "There are no pokemon with id = " << opponent_pub_id << "\n";
+        return clientPokemon;
+    }
 
     // TODO Функция переименована! Подумать, что и как тут нормально принтовать
     //printPokemonData(fightData.pokemon);

@@ -43,7 +43,8 @@ DBManager::DBManager(const std::string host, const std::string user, const std::
 
         // TODO Это залипуха только для тестирования
         Pokemon testPok;
-        testPok = GetPokemon(3);
+        testPok = GetPokemonToFight("not implemented");
+        // TODO delete
         cout << testPok.skill << endl;
     }
     catch (sql::SQLException &e)
@@ -269,10 +270,10 @@ PokemonSkill parseStringFromDB(const std::string& str)
     return pokemonSkill;
 }
 
-Pokemon DBManager::GetPokemon(size_t level)
+Pokemon DBManager::GetPokemonToFight(const string& pub_id)
 {
     // FIXME Правильно ли я понимаю, что тут возможно инъекция?
-    string getPokemonCommand = "SELECT * FROM " + table_name + " WHERE LVL=" + to_string(level) + ";";
+    string getPokemonCommand = "SELECT * FROM " + table_name + " WHERE pub_id=" + "'" + pub_id + "'" + ";";
         sql::ResultSet* res(stmt_->executeQuery(getPokemonCommand));
 
         Pokemon gottenPokemon;
@@ -294,6 +295,11 @@ Pokemon DBManager::GetPokemon(size_t level)
             // TODO скорее всего, должны быть в другом методе
             printf("HERE %s\n", res->getString(14).c_str());
             printf("HERE %s\n", res->getString(15).c_str());
+        }
+        // Нет такого покемона в базе
+        else
+        {
+            gottenPokemon.__set_EXP(-1);
         }
 
         if(res)

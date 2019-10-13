@@ -180,9 +180,10 @@ void PokServerHandler::getConfig(std::string& _return)
     _return = configHandler.EncryptConfig();
 }
 
-void PokServerHandler::startFight(FightData& _return, const int64_t complexity, const Pokemon& clientPokemon)
+// TODO обработка ошибки, а вдруг нет такого покемоноса
+void PokServerHandler::startFight(FightData& _return, const std::string& pub_id, const Pokemon& clientPokemon)
 {
-  _return.pokemon = dbManager_.GetPokemon(complexity);
+  _return.pokemon = dbManager_.GetPokemonToFight(pub_id);
   Fight fight(clientPokemon, _return.pokemon);
   fight_storage_.emplace(next_fight_id_, fight);
 

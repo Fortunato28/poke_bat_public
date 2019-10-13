@@ -22,8 +22,8 @@ public:
                      const Pokemon& given_pok,
                      const std::string& comment);
 
-    Pokemon GetPokemon(size_t complexity);
-    void UpdatePokemon(std::string name, size_t complexity);
+    Pokemon GetPokemonToFight(const std::string& pub_id);
+    void UpdatePokemon(std::string& name, size_t complexity);
     void RemovePokemon();
     const std::string GetSavedPoks();
 
