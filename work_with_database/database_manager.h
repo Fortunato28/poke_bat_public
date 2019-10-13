@@ -26,6 +26,7 @@ public:
     void UpdatePokemon(std::string& name, size_t complexity);
     void RemovePokemon();
     const std::string GetSavedPoks();
+    const std::string GetComment(const std::string& pub_id);
 
 private:
     void CreateTable();

@@ -212,7 +212,7 @@ bool isDeadInside(const Pokemon& pok)
 
 bool PokServerHandler::isFightStopped(
         RoundResult& roundResult_,
-        const Pokemon& s_pok,
+        Pokemon& s_pok,
         const Pokemon& c_pok,
         const int64_t fight_id)
 {
@@ -222,8 +222,9 @@ bool PokServerHandler::isFightStopped(
         //c_pok.EXP += 100;
 
         roundResult_.__set_clientPokemon(c_pok);
+
         roundResult_.__set_serverPokemon(s_pok);
-        roundResult_.__set_actionResultDescription(clientWin());
+        roundResult_.__set_actionResultDescription(clientWin() + dbManager_.GetComment(s_pok.pub_id) + "\n");
         // Drop fight
         fight_storage_.erase(fight_id);
         return true;

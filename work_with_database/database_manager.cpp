@@ -270,10 +270,21 @@ PokemonSkill parseStringFromDB(const std::string& str)
     return pokemonSkill;
 }
 
+const std::string DBManager::GetComment(const string& pub_id)
+{
+    const string query = "SELECT comment FROM saved_pokemons WHERE pub_id='" + pub_id + "';";
+    unique_ptr<sql::ResultSet> res(stmt_->executeQuery(query));
+    if(res->next())
+    {
+        auto result = res->getString("comment");
+        return result;
+    }
+    return {};
+}
+
 Pokemon DBManager::GetPokemonToFight(const string& pub_id)
 {
-    // FIXME Правильно ли я понимаю, что тут возможно инъекция?
-    string getPokemonCommand = "SELECT * FROM " + table_name + " WHERE pub_id=" + "'" + pub_id + "'" + ";";
+    const string getPokemonCommand = "SELECT * FROM " + table_name + " WHERE pub_id=" + "'" + pub_id + "'" + ";";
         sql::ResultSet* res(stmt_->executeQuery(getPokemonCommand));
 
         Pokemon gottenPokemon;
@@ -290,11 +301,7 @@ Pokemon DBManager::GetPokemonToFight(const string& pub_id)
             gottenPokemon.__set_EXP(res->getInt(10));
             gottenPokemon.__set_LVL(res->getInt(11));
             gottenPokemon.__set_skill(parseStringFromDB(res->getString(12)));
-            // TODO что-то странное, подумать-передумать
-            gottenPokemon.__set_flag(res->getString(13));
-            // TODO скорее всего, должны быть в другом методе
-            printf("HERE %s\n", res->getString(14).c_str());
-            printf("HERE %s\n", res->getString(15).c_str());
+            gottenPokemon.__set_pub_id(res->getString("pub_id"));
         }
         // Нет такого покемона в базе
         else
