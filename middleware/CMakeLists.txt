@@ -21,6 +21,7 @@ set(THRIFT_GENERATED
     )
 set(MIDDLEWARE_SOURCES
     client_controller.cpp
+    utilities.cpp
     )
 
 add_library(middleware ${MIDDLEWARE_SOURCES} ${THRIFT_GENERATED})
