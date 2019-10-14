@@ -180,6 +180,30 @@ void PokServerHandler::getConfig(std::string& _return)
     _return = configHandler.EncryptConfig();
 }
 
+size_t fibonacci(size_t border)
+{
+    size_t t1 = 0;
+    size_t t2 = 1;
+    size_t nextTerm = 0;
+    for (int i = 1; i <= border; ++i)
+    {
+        // Prints the first two terms.
+        if(i == 1)
+        {
+            continue;
+        }
+        if(i == 2)
+        {
+            continue;
+        }
+        nextTerm = t1 + t2;
+        t1 = t2;
+        t2 = nextTerm;
+
+    }
+    return t2;
+}
+
 // TODO обработка ошибки, а вдруг нет такого покемоноса
 void PokServerHandler::startFight(FightData& _return, const std::string& pub_id, const Pokemon& clientPokemon)
 {
@@ -210,16 +234,40 @@ bool isDeadInside(const Pokemon& pok)
     return pok.HP <= 0 ? true : false;
 }
 
+void PokServerHandler::lvlUp(Fight& current_fight)
+{
+    auto& c_pok = current_fight.getClientPok();
+
+    c_pok.HP = current_fight.GetDefaultClienHP() + 15;
+    c_pok.attack += 3;
+    c_pok.defense += 3;
+    c_pok.spell_attack += 9;
+    c_pok.spell_defense += 9;
+    c_pok.LVL++;
+}
+
+bool PokServerHandler::isLvlUp(Pokemon& pok)
+{
+    return (pok.EXP >= fibonacci(pok.LVL + 1)) ? true : false;
+}
+
 bool PokServerHandler::isFightStopped(
         RoundResult& roundResult_,
-        Pokemon& s_pok,
-        const Pokemon& c_pok,
+        Fight& current_fight,
         const int64_t fight_id)
 {
+
+    auto& c_pok = current_fight.getClientPok();
+    auto& s_pok = current_fight.getServerPok();
+
     if(isDeadInside(s_pok))
     {
         //TODO calculate exp according to s_pok level
-        //c_pok.EXP += 100;
+        c_pok.EXP += s_pok.LVL * 100;
+        if(isLvlUp(c_pok))
+        {
+            lvlUp(current_fight);
+        }
 
         roundResult_.__set_clientPokemon(c_pok);
 
@@ -231,6 +279,7 @@ bool PokServerHandler::isFightStopped(
     }
     if(isDeadInside(c_pok))
     {
+        //TODO прокачка серверного покемона
         roundResult_.__set_clientPokemon(c_pok);
         roundResult_.__set_serverPokemon(s_pok);
         roundResult_.__set_actionResultDescription(serverWin());
@@ -255,14 +304,14 @@ void PokServerHandler::punch(RoundResult& _return, const int64_t fight_id)
 
     current_fight.decreaseServerHPDueToPunch();
 
-    if(isFightStopped(_return, s_pok, c_pok, fight_id))
+    if(isFightStopped(_return, current_fight, fight_id))
     {
         return;
     }
 
     serverAction(current_fight, _return);
 
-    if(isFightStopped(_return, s_pok, c_pok, fight_id))
+    if(isFightStopped(_return, current_fight, fight_id))
     {
         return;
     }
@@ -287,7 +336,7 @@ void PokServerHandler::defend(RoundResult& _return, const int64_t fight_id)
 
     serverAction(current_fight, _return);
 
-    if(isFightStopped(_return, s_pok, c_pok, fight_id))
+    if(isFightStopped(_return, current_fight, fight_id))
     {
         return;
     }
@@ -334,7 +383,7 @@ void PokServerHandler::useSkill(RoundResult& _return, const int64_t fight_id, co
                 // Decrease server pok HP
                 current_fight.decreaseServerHPDueToSkill();
 
-                if(isFightStopped(_return, s_pok, c_pok, fight_id))
+                if(isFightStopped(_return, current_fight, fight_id))
                 {
                     return;
                 }
@@ -345,7 +394,7 @@ void PokServerHandler::useSkill(RoundResult& _return, const int64_t fight_id, co
 
     serverAction(current_fight, _return);
 
-    if(isFightStopped(_return, s_pok, c_pok, fight_id))
+    if(isFightStopped(_return, current_fight, fight_id))
     {
         return;
     }

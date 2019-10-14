@@ -49,6 +49,11 @@ Pokemon& Fight::getServerPok()
     return serverState_.pokemon_;
 }
 
+uint64_t Fight::GetDefaultClienHP()
+{
+    return clientState_.defaultHP_;
+}
+
 void Fight::decreaseClientHPDueToPunch()
 {
     auto& s_pok = serverState_.pokemon_;

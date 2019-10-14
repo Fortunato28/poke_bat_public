@@ -41,6 +41,7 @@ public:
     bool isServerBuffed();
     bool isClientDebuffed();
     bool isLastActionPunch();
+    uint64_t GetDefaultClienHP();
 private:
 
     class PokemonState

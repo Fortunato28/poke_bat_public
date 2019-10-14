@@ -36,7 +36,10 @@ class PokServerHandler : virtual public PokServerIf
   void getSavedPoksTable(std::string& _return);
 
 private:
-  bool isFightStopped(RoundResult& roundResult_, Pokemon& server, const Pokemon& client, const int64_t fight_id);
+  bool isFightStopped(RoundResult& roundResult_, Fight& current_fight, const int64_t fight_id);
+
+  void lvlUp(Fight& current_fight);
+  bool isLvlUp(Pokemon& pok);
 
   uint64_t next_fight_id_;
   std::map<uint64_t, Fight> fight_storage_;
