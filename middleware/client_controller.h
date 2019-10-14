@@ -16,13 +16,17 @@ public:
 
     void getConfig(std::string& _return);
 
-    void startFight(FightData& _return, const int64_t complexity, const Pokemon& clientPokemon);
+    void startFight(FightData& _return, const std::string& complexity, const Pokemon& clientPokemon);
 
     void punch(RoundResult& _return);
 
     void defend(RoundResult& _return);
 
     void useSkill(RoundResult& _return, const std::string& skillName);
+
+    std::string savePokemon(const std::string& private_id, const Pokemon& c_pok, const std::string& comment);
+
+    const std::string getSavedPoksTable();
 
 private:
     // Простите, но это синглтон

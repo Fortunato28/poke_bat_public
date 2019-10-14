@@ -46,6 +46,7 @@ struct Pokemon {
     10: required i64 LVL;
     11: required PokemonSkill skill;
     12: required string flag;
+    13: required string pub_id;
 }
 
 struct RoundResult {
@@ -62,9 +63,12 @@ struct FightData {
 service PokServer {
     string getConfig(),
 
-    FightData startFight(1:i64 complexity, 2:Pokemon clientPokemon)
+    FightData startFight(1:string pub_id, 2:Pokemon clientPokemon)
     RoundResult punch(1:i64 fight_id),
     RoundResult defend(1:i64 fight_id),
     RoundResult useSkill(1:i64 fight_id, 2:string skillName)
+
+    string savePokemon(1:string private_id, 2:Pokemon client_pokemon, 3:string comment)
+    string getSavedPoksTable()
 }
 

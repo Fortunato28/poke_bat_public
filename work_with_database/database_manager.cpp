@@ -29,20 +29,22 @@ DBManager::DBManager(const std::string host, const std::string user, const std::
         sql::mysql::MySQL_Driver* driver = sql::mysql::get_driver_instance();
 
         ///* Using the Driver to create a connection */
-        printf("HERE %s\n", "BEFORE CONNECTION");
         con_ = driver->connect(host_, user_, pass_);
-        printf("\n\nCONNECTION %d\n\n", con_->isValid());
+        if(con_->isValid())
+        {
+            printf("Connected to database succesfully\n");
+        }
+        else throw::runtime_error("Cannot connect to database!");
         con_->setSchema(db_name_);
 
         stmt_ = con_->createStatement();
 
-        //// TODO В общем-то не нужно - база будет создаваться заранее
-        CreateDatabase();
+        CreateTable();
 
         // TODO Это залипуха только для тестирования
         Pokemon testPok;
-        AddPokemon(testPok);
-        testPok = GetPokemon(3);
+        testPok = GetPokemonToFight("not implemented");
+        // TODO delete
         cout << testPok.skill << endl;
     }
     catch (sql::SQLException &e)
@@ -62,7 +64,6 @@ DBManager::DBManager(const std::string host, const std::string user, const std::
 
 DBManager::~DBManager()
 {
-    // TODO is it safe?
     if(con_)
     {
         delete con_;
@@ -73,12 +74,120 @@ DBManager::~DBManager()
     }
 }
 
-void DBManager::CreateDatabase()
+// Выровнять конкретный столбец таблицы
+void level_off_column(vector<string>& table, const vector<size_t>& realColumnsLens, size_t& longestColumn, size_t columnStart)
+{
+    for(size_t i = 0; i < table.size(); ++i)
+    {
+        // Вычисляем пробельчики
+        auto& row = table[i];
+        auto amountOfSpaces = longestColumn - realColumnsLens[i];
+        auto beginAmountOfSpaces = amountOfSpaces / 2;
+        string beginAddedSpaces(beginAmountOfSpaces, ' ');
+        string endAddedSpaces(amountOfSpaces - beginAmountOfSpaces, ' ');
+
+        // Ниндзя-нарезка результирующей строки
+        row =  row.substr(0, columnStart) +
+               row.substr(columnStart, 1) +
+               " " +
+               beginAddedSpaces +
+               row.substr(columnStart + 1, realColumnsLens[i] - 1) +
+               endAddedSpaces +
+               " " +
+               row.substr(columnStart + realColumnsLens[i]);
+    }
+    longestColumn += 2; // Два дополнительных пробела
+}
+
+// Выравнивание таблицы. Рекомендую ничего не трогать, а то поедет и чекер загрустит.
+void level_off_table(vector<string>& table)
+{
+    size_t columnStart = 0;
+    size_t prevColumnWidth = 0;
+    vector<size_t> realColumnsLens;
+    auto columnsAmount = 9;
+    for(size_t i = 0; i < columnsAmount; ++i)
+    {
+        size_t longestColumn = 0;
+        for(auto& row: table)
+        {
+            auto absCurrentColumnLen = row.find('|', columnStart + 1);
+            auto relativeCurrentColumnLen = absCurrentColumnLen - columnStart;
+
+            if(relativeCurrentColumnLen > longestColumn)
+            {
+                longestColumn = relativeCurrentColumnLen;
+            }
+
+            realColumnsLens.push_back(relativeCurrentColumnLen);
+        }
+
+        level_off_column(table, realColumnsLens, longestColumn, columnStart);
+
+        // Зададим начало следующего столбца
+        columnStart += longestColumn;
+        prevColumnWidth = longestColumn;
+        realColumnsLens.clear();
+    }
+}
+
+const std::string DBManager::GetSavedPoks()
+{
+    string query = "SELECT pub_id, name, type, HP, attack, defense, spell_attack, spell_defense, LVL FROM " + table_name + ";";
+
+    sql::ResultSet* res(stmt_->executeQuery(query));
+
+    vector<string> table;
+    table.push_back("|public_id|name|type|HP|attack|defense|spell_attack|spell_defense|LVL|\n");
+    while(res->next())
+    {
+        string row;
+        row += "|";
+        row += res->getString("pub_id");
+        row += "|";
+        row += res->getString("name");
+        row += "|";
+        row += res->getString("type");
+        row += "|";
+        row += res->getString("HP");
+        row += "|";
+        row += res->getString("attack");
+        row += "|";
+        row += res->getString("defense");
+        row += "|";
+        row += res->getString("spell_attack");
+        row += "|";
+        row += res->getString("spell_defense");
+        row += "|";
+        row += res->getString("LVL");
+        row += "|\n";
+
+        table.push_back(row);
+    }
+
+    level_off_table(table);
+
+    // Наполнение результирующей строки
+    string separatorRow(table[0].length() - 1, '-');
+    separatorRow += "\n";
+    table.insert(std::next(table.begin()), separatorRow);
+    string result;
+    result += separatorRow;
+    for(auto& row: table)
+    {
+        result += row;
+    }
+    result += separatorRow;
+
+    delete res;
+    return result;
+}
+
+void DBManager::CreateTable()
 {
     stmt_->execute("CREATE DATABASE IF NOT EXISTS poke_bat;");
     stmt_->execute("USE poke_bat;");
-    // TODO Имя таблицы pokemons вынести отдельным полем
-    stmt_->execute("CREATE TABLE IF NOT EXISTS pokemons\
+    stmt_->execute("CREATE TABLE IF NOT EXISTS " + table_name + "\
         (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,\
         name VARCHAR(30),\
         type ENUM(\
@@ -110,17 +219,39 @@ void DBManager::CreateDatabase()
             EXP BIGINT(1),\
             LVL BIGINT(1),\
             skill LONGTEXT,\
-            flag LONGTEXT);"
+            comment LONGTEXT,\
+            private_id LONGTEXT,\
+            pub_id LONGTEXT);"
             );
 }
 
-void DBManager::AddPokemon(Pokemon& given_pok)
+void DBManager::SavePokemon(const std::string& private_id,
+                            const std::string& pub_id,
+                            const Pokemon& pok,
+                            const std::string& comment)
 {
-    // TODO Добавить нарезку строки от пришедшего покемона
-    stmt_->execute("INSERT INTO pokemons VALUES (NULL, 'ZHOPA', 'GRASS', 100, 20, 10, 5, 5, 15, 0, 3, 'lightning_ATTACK_20', 'isib_wtf{some_flag}');");
+    // Sorry about this shit
+    string query = "INSERT INTO " +
+            table_name +
+            " VALUES (NULL, " +
+            "'" + pok.name + "', " +
+            "'" + utilities::get_string_poketype(pok.type) + "', " +
+            "'" + to_string(pok.HP) + "', " +
+            "'" + to_string(pok.attack) + "', " +
+            "'" + to_string(pok.defense) + "', " +
+            "'" + to_string(pok.spell_attack) + "', " +
+            "'" + to_string(pok.spell_defense) + "', " +
+            "'" + to_string(pok.speed) + "', " +
+            "'" + to_string(pok.EXP) + "', " +
+            "'" + to_string(pok.LVL) + "', " +
+            "'" + pok.skill.name + "_" + utilities::get_string_pokeskilltype(pok.skill.type) + "_" + to_string(pok.skill.amount) + "', " +
+            "'" + comment + "', " +
+            "'" + private_id + "', " +
+            "'" + pub_id + "');";
+
+    stmt_->execute(query);
 }
 
-// TODO если костыль сработает, то вынести отдельно
 PokemonSkill parseStringFromDB(const std::string& str)
 {
     string skillData = str;
@@ -139,10 +270,21 @@ PokemonSkill parseStringFromDB(const std::string& str)
     return pokemonSkill;
 }
 
-Pokemon DBManager::GetPokemon(size_t level)
+const std::string DBManager::GetComment(const string& pub_id)
 {
-    // FIXME Правильно ли я понимаю, что тут возможно инъекция?
-    string getPokemonCommand = "SELECT * FROM pokemons WHERE LVL=" + to_string(level) + ";";
+    const string query = "SELECT comment FROM saved_pokemons WHERE pub_id='" + pub_id + "';";
+    unique_ptr<sql::ResultSet> res(stmt_->executeQuery(query));
+    if(res->next())
+    {
+        auto result = res->getString("comment");
+        return result;
+    }
+    return {};
+}
+
+Pokemon DBManager::GetPokemonToFight(const string& pub_id)
+{
+    const string getPokemonCommand = "SELECT * FROM " + table_name + " WHERE pub_id=" + "'" + pub_id + "'" + ";";
         sql::ResultSet* res(stmt_->executeQuery(getPokemonCommand));
 
         Pokemon gottenPokemon;
@@ -159,8 +301,12 @@ Pokemon DBManager::GetPokemon(size_t level)
             gottenPokemon.__set_EXP(res->getInt(10));
             gottenPokemon.__set_LVL(res->getInt(11));
             gottenPokemon.__set_skill(parseStringFromDB(res->getString(12)));
-            // TODO в отдельный метод! Флаг не должен лежать в покемоне всегда
-            gottenPokemon.__set_flag(res->getString(13));
+            gottenPokemon.__set_pub_id(res->getString("pub_id"));
+        }
+        // Нет такого покемона в базе
+        else
+        {
+            gottenPokemon.__set_EXP(-1);
         }
 
         if(res)
@@ -172,7 +318,7 @@ Pokemon DBManager::GetPokemon(size_t level)
 
 void DBManager::RemovePokemon()
 {
-    string deleteCommand = "DELETE FROM pokemons WHERE spell_attack=5;";
+    string deleteCommand = "DELETE FROM " + table_name + " WHERE spell_attack=5;";
     stmt_->execute(deleteCommand);
 }
 

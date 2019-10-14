@@ -21,7 +21,7 @@ class PokServerHandler : virtual public PokServerIf
 
   void getConfig(std::string& _return);
 
-  void startFight(FightData& _return, const int64_t complexity, const Pokemon& clientPokemon);
+  void startFight(FightData& _return, const std::string& pub_id, const Pokemon& clientPokemon);
 
   void punch(RoundResult& _return, const int64_t fight_id);
 
@@ -31,8 +31,12 @@ class PokServerHandler : virtual public PokServerIf
 
   Fight& findFight(const int64_t &fight_id);
 
+  void savePokemon(std::string& _return, const std::string& private_id, const Pokemon& client_pokemon, const std::string& comment);
+
+  void getSavedPoksTable(std::string& _return);
+
 private:
-  bool isFightStopped(RoundResult& roundResult_, const Pokemon& server, const Pokemon& client, const int64_t fight_id);
+  bool isFightStopped(RoundResult& roundResult_, Pokemon& server, const Pokemon& client, const int64_t fight_id);
 
   uint64_t next_fight_id_;
   std::map<uint64_t, Fight> fight_storage_;

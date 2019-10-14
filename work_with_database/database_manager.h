@@ -17,15 +17,19 @@ public:
     DBManager(const std::string host, const std::string user, const std::string pass, const std::string db_name);
     ~DBManager();
 
-    void AddPokemon(Pokemon& given_pok);
+    void SavePokemon(const std::string& private_id,
+                     const std::string& pub_id,
+                     const Pokemon& given_pok,
+                     const std::string& comment);
 
-    Pokemon GetPokemon(size_t complexity);
-    void UpdatePokemon(std::string name, size_t complexity);
+    Pokemon GetPokemonToFight(const std::string& pub_id);
+    void UpdatePokemon(std::string& name, size_t complexity);
     void RemovePokemon();
-private:
+    const std::string GetSavedPoks();
+    const std::string GetComment(const std::string& pub_id);
 
-    // Тестовый метод, по факту при работе сервиса ничего создаваться не должно
-    void CreateDatabase();
+private:
+    void CreateTable();
 
     // Данные по базе
     const std::string host_;
@@ -36,5 +40,7 @@ private:
     // Держалки коннекта к базе
     sql::Statement* stmt_;
     sql::Connection* con_;
+
+    const std::string table_name = "saved_pokemons";
 };
 } // namespace

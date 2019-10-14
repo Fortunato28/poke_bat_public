@@ -10,7 +10,7 @@
 #include "gen-cpp/PokServer.h"
 #include "fight.h"
 #include "server_config_handler.h"
-#include "conf.h"
+#include "db_conf.h"
 
 using namespace ::apache::thrift;
 using namespace ::apache::thrift::protocol;
@@ -24,6 +24,26 @@ PokServerHandler::PokServerHandler()
     : next_fight_id_(0),
       dbManager_(host, user, pass, db)
 {
+}
+
+// TODO implement!
+std::string get_pub_id(const std::string& private_id)
+{
+
+    return {"not implemented"};
+}
+
+void PokServerHandler::getSavedPoksTable(std::string& _return)
+{
+    _return = dbManager_.GetSavedPoks();
+}
+
+void PokServerHandler::savePokemon(std::string& _return, const std::string& private_id, const Pokemon& client_pokemon, const std::string& comment)
+{
+    std::string pub_id = get_pub_id(private_id);
+    dbManager_.SavePokemon(private_id, pub_id, client_pokemon, comment);
+
+    _return = "Your pokemon was successfully saved!\n";
 }
 
 Fight& PokServerHandler::findFight(const int64_t &fight_id)
@@ -160,9 +180,10 @@ void PokServerHandler::getConfig(std::string& _return)
     _return = configHandler.EncryptConfig();
 }
 
-void PokServerHandler::startFight(FightData& _return, const int64_t complexity, const Pokemon& clientPokemon)
+// TODO обработка ошибки, а вдруг нет такого покемоноса
+void PokServerHandler::startFight(FightData& _return, const std::string& pub_id, const Pokemon& clientPokemon)
 {
-  _return.pokemon = dbManager_.GetPokemon(complexity);
+  _return.pokemon = dbManager_.GetPokemonToFight(pub_id);
   Fight fight(clientPokemon, _return.pokemon);
   fight_storage_.emplace(next_fight_id_, fight);
 
@@ -191,7 +212,7 @@ bool isDeadInside(const Pokemon& pok)
 
 bool PokServerHandler::isFightStopped(
         RoundResult& roundResult_,
-        const Pokemon& s_pok,
+        Pokemon& s_pok,
         const Pokemon& c_pok,
         const int64_t fight_id)
 {
@@ -201,8 +222,9 @@ bool PokServerHandler::isFightStopped(
         //c_pok.EXP += 100;
 
         roundResult_.__set_clientPokemon(c_pok);
+
         roundResult_.__set_serverPokemon(s_pok);
-        roundResult_.__set_actionResultDescription(clientWin());
+        roundResult_.__set_actionResultDescription(clientWin() + dbManager_.GetComment(s_pok.pub_id) + "\n");
         // Drop fight
         fight_storage_.erase(fight_id);
         return true;
