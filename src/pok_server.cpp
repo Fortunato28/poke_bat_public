@@ -177,7 +177,7 @@ void serverAction(Fight& current_fight, RoundResult& _return)
 void PokServerHandler::getConfig(std::string& _return)
 {
     serverConfigHandler configHandler;
-    _return = configHandler.EncryptConfig();
+    _return = configHandler.SignConfig();
 }
 
 size_t fibonacci(size_t border)
@@ -207,12 +207,19 @@ size_t fibonacci(size_t border)
 // TODO обработка ошибки, а вдруг нет такого покемоноса
 void PokServerHandler::startFight(FightData& _return, const std::string& pub_id, const Pokemon& clientPokemon)
 {
-  _return.pokemon = dbManager_.GetPokemonToFight(pub_id);
-  Fight fight(clientPokemon, _return.pokemon);
-  fight_storage_.emplace(next_fight_id_, fight);
+    serverConfigHandler configHandler;
+    if (!configHandler.isSignatureValid(clientPokemon))
+    {
+        _return.__set_fight_id(-1);
+        return;
+    }
 
-  _return.__set_fight_id(next_fight_id_);
-  ++next_fight_id_;
+    _return.pokemon = dbManager_.GetPokemonToFight(pub_id);
+    Fight fight(clientPokemon, _return.pokemon);
+    fight_storage_.emplace(next_fight_id_, fight);
+
+    _return.__set_fight_id(next_fight_id_);
+    ++next_fight_id_;
 }
 
 std::string clientWin()
@@ -224,7 +231,7 @@ std::string clientWin()
 
 std::string serverWin()
 {
-    return {"Try harder nex time, loser!\n"
+    return {"Try harder next time, loser!\n"
             "You lost the battle!\n"
             "Your pokemon is dead inside!\n"};
 }

@@ -4,13 +4,10 @@
 */
 
 #include <fstream>
-#include <map>
+#include <sstream>
 #include <functional>
 
 #include <libconfig.h++>
-#include <gcrypt.h>
-#include <dirent.h>
-
 #include "gen-cpp/interfaces_types.h"
 
 class clientConfigHandler
@@ -21,7 +18,6 @@ public:
     void GetDefaultConfig(std::function<void(std::string&)> callback_to_get_from_server);
     void SaveConfigToFile();
     void LoadConfigFromFile();
-    void DecryptConfig();
     poke_bat::middleware::Pokemon ParseConfig();
 private:
     std::string configContent_;
