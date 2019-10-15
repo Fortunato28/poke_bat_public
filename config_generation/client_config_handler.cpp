@@ -2,6 +2,7 @@
 #include "utilities.h"
 
 using namespace poke_bat::middleware;
+using namespace libconfig;
 
 clientConfigHandler::clientConfigHandler()
 {
@@ -54,7 +55,7 @@ void clientConfigHandler::LoadConfigFromFile()
 
 Pokemon clientConfigHandler::ParseConfig()
 {
-    libconfig::Config cfg;
+    Config cfg;
     Pokemon pokemon;
     
     try
@@ -120,4 +121,52 @@ Pokemon clientConfigHandler::ParseConfig()
     }
 
     return pokemon;
+}
+
+void clientConfigHandler::UpdateConfig(Pokemon pokemon)
+{
+    Config cfg;
+
+    try
+    {
+        cfg.readFile(configFileName_.c_str());
+
+        Setting& _HP = cfg.lookup("pokemon.HP");
+        _HP = int(pokemon.HP);
+
+        Setting& _attack = cfg.lookup("pokemon.Attack");
+        _attack = int(pokemon.attack);
+
+        Setting& _defense = cfg.lookup("pokemon.Defense");
+        _defense = int(pokemon.defense);
+
+        Setting& _sp_atk = cfg.lookup("pokemon.Sp_Atk");
+        _sp_atk = int(pokemon.spell_attack);
+
+        Setting& _sp_def = cfg.lookup("pokemon.Sp_Def");
+        _sp_def = int(pokemon.spell_defense);
+
+        Setting& _EXP = cfg.lookup("pokemon.EXP");
+        _EXP = int(pokemon.EXP);
+
+        Setting& _LVL = cfg.lookup("pokemon.LVL");
+        _LVL = int(pokemon.LVL);
+
+        Setting& _key = cfg.lookup("signature.key");
+        _key = pokemon.flag;
+
+        cfg.writeFile(configFileName_.c_str());
+    }
+    catch (const libconfig::ParseException &pex)
+    {
+        throw std::runtime_error("String parsing error!");
+    }
+    catch (const libconfig::SettingNotFoundException &nfex)
+    {
+        throw std::runtime_error("Label searching error!");
+    }
+    catch (const libconfig::SettingTypeException &sex)
+    {
+        throw std::runtime_error("Parameter type error!");
+    }
 }

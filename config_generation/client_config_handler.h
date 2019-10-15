@@ -19,6 +19,7 @@ public:
     void SaveConfigToFile();
     void LoadConfigFromFile();
     poke_bat::middleware::Pokemon ParseConfig();
+    void UpdateConfig(poke_bat::middleware::Pokemon pokemon);
 private:
     std::string configContent_;
     std::string configFileName_;

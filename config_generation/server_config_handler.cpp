@@ -15,9 +15,81 @@ void bindValue(std::string& content,
     content.replace(position, what.length(), whithWhat);
 }
 
+std::string formConfigByPokemon(Pokemon& pokemon)
+{
+    //get pokemon stats
+    std::string name = pokemon.name;
+    std::string type = utilities::get_string_poketype(pokemon.type);
+    std::string HP = std::to_string(pokemon.HP);
+    std::string Attack = std::to_string(pokemon.attack);
+    std::string Defense = std::to_string(pokemon.defense);
+    std::string Sp_Atk = std::to_string(pokemon.spell_attack);
+    std::string Sp_Def = std::to_string(pokemon.spell_defense);
+    std::string Speed = std::to_string(pokemon.speed);
+    std::string EXP = std::to_string(pokemon.EXP);
+    std::string LVL = std::to_string(pokemon.LVL);
+    std::string skills_name = pokemon.skill.name;
+    std::string skills_type = utilities::get_string_pokeskilltype(pokemon.skill.type);
+    std::string skills_amount = std::to_string(pokemon.skill.amount);
+
+    //form a string
+    std::string formedContent = "pokemon:\n"
+        "{\n"
+            "\tname = \"/!\";\n"
+            "\ttype = \"/!\";\n"
+            "\tHP = /!;\n"
+            "\tAttack = /!;\n"
+            "\tDefense = /!;\n"
+            "\tSp_Atk = /!;\n"
+            "\tSp_Def = /!;\n"
+            "\tSpeed = /!;\n"
+            "\tEXP = /!;\n"
+            "\tLVL = /!;\n"
+            "\tskills = ( (\"/!\","
+                        "\"/!\","
+                        "/!) );\n"
+        "};\n"
+        "signature:\n"
+        "{\n"
+            "\tkey = \"\"\n"
+        "};";
+
+    bindValue(formedContent, "/!", name);
+    bindValue(formedContent, "/!", type);
+    bindValue(formedContent, "/!", HP);
+    bindValue(formedContent, "/!", Attack);
+    bindValue(formedContent, "/!", Defense);
+    bindValue(formedContent, "/!", Sp_Atk);
+    bindValue(formedContent, "/!", Sp_Def);
+    bindValue(formedContent, "/!", Speed);
+    bindValue(formedContent, "/!", EXP);
+    bindValue(formedContent, "/!", LVL);
+    bindValue(formedContent, "/!", skills_name);
+    bindValue(formedContent, "/!", skills_type);
+    bindValue(formedContent, "/!", skills_amount);
+
+    return formedContent;
+}
+
+/**************************************************************/
+
 serverConfigHandler::serverConfigHandler()
 {
     std::string salt = "GonnaHASH'emall";
+}
+
+std::string serverConfigHandler::takeSignature(std::string content)
+{
+    std::string forHash = content + salt;
+
+    std::vector<unsigned char> hash(picosha2::k_digest_size);
+    picosha2::hash256(forHash.begin(), forHash.end(),
+                      hash.begin(), hash.end());
+
+    std::string signature = picosha2::bytes_to_hex_string(hash.begin(),
+                                                          hash.end());
+
+    return signature;
 }
 
 std::string serverConfigHandler::SignConfig()
@@ -43,14 +115,8 @@ std::string serverConfigHandler::SignConfig()
             "\tkey = \"\"\n"
         "};";
 
-    std::string forHash = content + salt;
+    std::string signature = takeSignature(content);
 
-    std::vector<unsigned char> hash(picosha2::k_digest_size);
-    picosha2::hash256(forHash.begin(), forHash.end(),
-                      hash.begin(), hash.end());
-
-    std::string signature = picosha2::bytes_to_hex_string(hash.begin(),
-                                                          hash.end());
     size_t position = content.find_last_of('\"');
     content.insert(position, signature);
 
@@ -59,67 +125,13 @@ std::string serverConfigHandler::SignConfig()
 
 bool serverConfigHandler::isSignatureValid(Pokemon pokemon)
 {
-    //get pokemon stats
-    std::string name = pokemon.name;
-    std::string type = utilities::get_string_poketype(pokemon.type);
-    std::string HP = std::to_string(pokemon.HP);
-    std::string Attack = std::to_string(pokemon.attack);
-    std::string Defense = std::to_string(pokemon.defense);
-    std::string Sp_Atk = std::to_string(pokemon.spell_attack);
-    std::string Sp_Def = std::to_string(pokemon.spell_defense);
-    std::string Speed = std::to_string(pokemon.speed);
-    std::string EXP = std::to_string(pokemon.EXP);
-    std::string LVL = std::to_string(pokemon.LVL);
-    std::string skills_name = pokemon.skill.name;
-    std::string skills_type = utilities::get_string_pokeskilltype(pokemon.skill.type);
-    std::string skills_amount = std::to_string(pokemon.skill.amount);
-
-    //form a string
-    std::string gottenContent = "pokemon:\n"
-        "{\n"
-            "\tname = \"/!\";\n"
-            "\ttype = \"/!\";\n"
-            "\tHP = /!;\n"
-            "\tAttack = /!;\n"
-            "\tDefense = /!;\n"
-            "\tSp_Atk = /!;\n"
-            "\tSp_Def = /!;\n"
-            "\tSpeed = /!;\n"
-            "\tEXP = /!;\n"
-            "\tLVL = /!;\n"
-            "\tskills = ( (\"/!\","
-                        "\"/!\","
-                        "/!) );\n"
-        "};\n"
-        "signature:\n"
-        "{\n"
-            "\tkey = \"\"\n"
-        "};";
-
-    bindValue(gottenContent, "/!", name);
-    bindValue(gottenContent, "/!", type);
-    bindValue(gottenContent, "/!", HP);
-    bindValue(gottenContent, "/!", Attack);
-    bindValue(gottenContent, "/!", Defense);
-    bindValue(gottenContent, "/!", Sp_Atk);
-    bindValue(gottenContent, "/!", Sp_Def);
-    bindValue(gottenContent, "/!", Speed);
-    bindValue(gottenContent, "/!", EXP);
-    bindValue(gottenContent, "/!", LVL);
-    bindValue(gottenContent, "/!", skills_name);
-    bindValue(gottenContent, "/!", skills_type);
-    bindValue(gottenContent, "/!", skills_amount);
+    std::string gottenContent = formConfigByPokemon(pokemon);
 
     //take a signature
     std::string gottenSignature = pokemon.flag;
 
     //take a basic signature
-    std::string forBasicHash = gottenContent + salt;
-    std::vector<unsigned char> basicHash(picosha2::k_digest_size);
-    picosha2::hash256(forBasicHash.begin(), forBasicHash.end(),
-                      basicHash.begin(), basicHash.end());
-    std::string basicSignature = picosha2::bytes_to_hex_string(
-                      basicHash.begin(), basicHash.end());
+    std::string basicSignature = takeSignature(gottenContent);
 
     //match 'em
     if (gottenSignature == basicSignature)
@@ -130,4 +142,13 @@ bool serverConfigHandler::isSignatureValid(Pokemon pokemon)
     {
         return false;
     }
+}
+
+void serverConfigHandler::ResignPokemon(Pokemon& pokemon)
+{
+    std::string pokemonContent = formConfigByPokemon(pokemon);
+
+    std::string newSignature = takeSignature(pokemonContent);
+
+    pokemon.flag = newSignature;
 }

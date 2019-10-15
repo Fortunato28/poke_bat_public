@@ -149,6 +149,7 @@ void show_saved_poks()
 
 void client_run()
 {
+    clientConfigHandler config_handler;
     Pokemon c_pok;
     //TODO nice Pikachu output
     std::cout << "Welcome to PokeBattle!\n";
@@ -169,6 +170,7 @@ void client_run()
             case 1:
                 std::cout << "Fight is started!\n";
                 c_pok = start_fight();
+                config_handler.UpdateConfig(c_pok);
                 std::cout << "Fight is over!\n";
                 std::cout << "=================================\n";
                 break;
