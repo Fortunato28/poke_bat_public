@@ -36,6 +36,8 @@ class PokServerHandler : virtual public PokServerIf
 
   void getSavedPoksTable(std::string& _return);
 
+  void getSavedPokByPrivateID(Pokemon& _return, const std::string& private_id);
+
 private:
   bool isFightStopped(RoundResult& roundResult_, Fight& current_fight, const int64_t fight_id);
 

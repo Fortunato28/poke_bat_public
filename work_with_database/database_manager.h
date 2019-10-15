@@ -27,6 +27,7 @@ public:
     void RemovePokemon();
     const std::string GetSavedPoks();
     const std::string GetComment(const std::string& pub_id);
+    Pokemon GetPokByPrivateID(const std::string& private_id);
 
 private:
     void CreateTable();

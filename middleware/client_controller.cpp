@@ -40,7 +40,19 @@ const std::string ClientController::getSavedPoksTable()
     transport_->close();
 
     return result;
+}
 
+const Pokemon ClientController::getSavedPokByPrivateID(const std::string& private_id)
+{
+
+    transport_->open();
+
+    Pokemon result;
+    thrift_client_->getSavedPokByPrivateID(result, private_id);
+
+    transport_->close();
+
+    return result;
 }
 
 string ClientController::savePokemon(const string& private_id, const Pokemon& c_pok, const string& comment)

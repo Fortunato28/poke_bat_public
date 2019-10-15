@@ -70,5 +70,6 @@ service PokServer {
 
     string savePokemon(1:string private_id, 2:Pokemon client_pokemon, 3:string comment)
     string getSavedPoksTable()
+    Pokemon getSavedPokByPrivateID(1:string private_id)
 }
 

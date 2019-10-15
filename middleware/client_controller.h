@@ -28,6 +28,8 @@ public:
 
     const std::string getSavedPoksTable();
 
+    const Pokemon getSavedPokByPrivateID(const std::string& private_id);
+
 private:
     // Простите, но это синглтон
     ClientController(const ClientController& other) = delete;
