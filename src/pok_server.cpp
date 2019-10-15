@@ -39,6 +39,13 @@ void PokServerHandler::getSavedPoksTable(std::string& _return)
 
 void PokServerHandler::savePokemon(std::string& _return, const std::string& private_id, const Pokemon& client_pokemon, const std::string& comment)
 {
+    if (!configHandler.isSignatureValid(client_pokemon))
+    {
+        _return = "Can't save your pokemon!\n"
+                  "Your pokemon signature isn't valid!\n";
+        return;
+    }
+
     std::string pub_id = get_pub_id(private_id);
     dbManager_.SavePokemon(private_id, pub_id, client_pokemon, comment);
 
