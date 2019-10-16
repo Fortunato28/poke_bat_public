@@ -1,13 +1,21 @@
 cmake_minimum_required(VERSION 3.7) # Проверка версии CMake.
 
-# TODO Add complitaion flags and so on
+set (POKEBAT_INCLUDE_DIRS "")
+list (APPEND POKEBAT_INCLUDE_DIRS "mysql-connector")
+list (APPEND POKEBAT_INCLUDE_DIRS "mysql-connector/driver")
+list (APPEND POKEBAT_INCLUDE_DIRS "mysql-connector/cppconn")
+list (APPEND POKEBAT_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR}/mysql-connector/cppconn)
+list (APPEND POKEBAT_INCLUDE_DIRS "middleware")
 
+# TODO Add complitaion flags and so on
+add_subdirectory(mysql-connector)
 add_subdirectory(work_with_database)
 add_subdirectory(config_generation)
 add_subdirectory(middleware)
 
-include_directories(middleware
+include_directories(
                     ${CMAKE_BINARY_DIR}
+                    ${POKEBAT_INCLUDE_DIRS}
                     work_with_database
                     config_generation
                     include/
