@@ -11,7 +11,7 @@ using FightData = poke_bat::middleware::FightData;
 class ClientController
 {
 public:
-    ClientController();
+    ClientController(const std::string& server_address);
     ~ClientController();
 
     void getConfig(std::string& _return);

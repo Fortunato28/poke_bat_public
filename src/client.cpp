@@ -7,6 +7,8 @@
 
 using namespace std;
 
+static string server_address_;
+
 void printPokemon(const Pokemon& pok)
 {
     // TODO implement
@@ -65,7 +67,7 @@ Pokemon start_fight()
 {
     auto opponent_pub_id = choose_opponent();
 
-    ClientController thrift_client;
+    ClientController thrift_client(server_address_);
     Pokemon clientPokemon = getPokemonFromConfig(thrift_client);
     FightData fightData;
     //thrift_client.startFight(fightData, complexity, clientPokemon);
@@ -130,7 +132,7 @@ Pokemon start_fight()
 
 void save_pokemon(Pokemon& c_pok)
 {
-    ClientController thrift_client;
+    ClientController thrift_client(server_address_);
     // Клиентского покемона ещё и нет вовсе (боя ещё не было)
     if(c_pok.name == "")
     {
@@ -151,7 +153,7 @@ void save_pokemon(Pokemon& c_pok)
 
 void show_saved_poks()
 {
-    ClientController thrift_client;
+    ClientController thrift_client(server_address_);
     cout << thrift_client.getSavedPoksTable();
 }
 
@@ -162,7 +164,7 @@ void show_pok_by_private_id()
     cin.ignore();
     std::getline(cin, entered_private_id);
 
-    ClientController thrift_client;
+    ClientController thrift_client(server_address_);
     Pokemon gottenPokemon = thrift_client.getSavedPokByPrivateID(entered_private_id);
 
     if(gottenPokemon.EXP == -1)
@@ -176,6 +178,7 @@ void show_pok_by_private_id()
 
 void client_run()
 {
+    printf("HERE %s\n", server_address_.c_str());
     clientConfigHandler config_handler;
     Pokemon c_pok;
     //TODO nice Pikachu output
@@ -226,11 +229,9 @@ void client_run()
     }
 }
 
-
-int main()
+int main(int argc, char* argv[])
 {
-    //TODO get the IP of the server
-    //TODO throw it in thrift client
+    server_address_ = argv[1];
     client_run();
     return 0;
 }
