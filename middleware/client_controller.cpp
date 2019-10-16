@@ -14,55 +14,50 @@ using namespace apache::thrift::protocol;
 using namespace apache::thrift::transport;
 using namespace poke_bat::middleware;
 
-ClientController::ClientController()
+ClientController::ClientController(const std::string& server_address)
 {
-    shared_ptr<TSocket> socket(new TSocket(host_, port_));
+    shared_ptr<TSocket> socket(new TSocket(server_address, port_));
     //shared_ptr<TTransport> transport(new TFramedTransport(socket));
     transport_ = make_shared<TFramedTransport>(socket);
     shared_ptr<TProtocol> protocol(new TBinaryProtocol(transport_));
     thrift_client_ = make_unique<PokServerClient>(protocol);
 
-    // TODO по-хорошему, соедиенение должно открываться здесь, а закрываться в деструкторе
+    transport_->open();
 }
 
 ClientController::~ClientController()
 {
+    transport_->close();
 }
 
 const std::string ClientController::getSavedPoksTable()
 {
 
-    transport_->open();
-
     string result;
     thrift_client_->getSavedPoksTable(result);
 
-    transport_->close();
+    return result;
+}
+
+const Pokemon ClientController::getSavedPokByPrivateID(const std::string& private_id)
+{
+    Pokemon result;
+    thrift_client_->getSavedPokByPrivateID(result, private_id);
 
     return result;
-
 }
 
 string ClientController::savePokemon(const string& private_id, const Pokemon& c_pok, const string& comment)
 {
-
-    transport_->open();
-
     string result;
     thrift_client_->savePokemon(result, private_id, c_pok, comment);
-
-    transport_->close();
 
     return result;
 }
 
 void ClientController::getConfig(std::string& _return) try
 {
-    transport_->open();
-
     thrift_client_->getConfig(_return);
-
-    transport_->close();
 }
 catch (TException& tx)
 {
@@ -71,12 +66,8 @@ catch (TException& tx)
 
 void ClientController::startFight(FightData& _return, const string& pub_id, const Pokemon& clientPokemon) try
 {
-    transport_->open();
-
     thrift_client_->startFight(_return, pub_id, clientPokemon);
     fight_id_ = _return.fight_id;
-
-    transport_->close();
 }
 catch (TException& tx)
 {
@@ -85,11 +76,7 @@ catch (TException& tx)
 
 void ClientController::punch(RoundResult& _return) try
 {
-    transport_->open();
-
     thrift_client_->punch(_return, fight_id_);
-
-    transport_->close();
 }
 catch (TException& tx)
 {
@@ -98,11 +85,7 @@ catch (TException& tx)
 
 void ClientController::defend(RoundResult& _return) try
 {
-    transport_->open();
-
     thrift_client_->defend(_return, fight_id_);
-
-    transport_->close();
 }
 catch (TException& tx)
 {
@@ -111,11 +94,7 @@ catch (TException& tx)
 
 void ClientController::useSkill(RoundResult& _return, const std::string& skillName) try
 {
-    transport_->open();
-
     thrift_client_->useSkill(_return, fight_id_, skillName);
-
-    transport_->close();
 }
 catch (TException& tx)
 {

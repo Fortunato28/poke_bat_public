@@ -16,6 +16,25 @@ using namespace poke_bat::middleware;
 
 namespace work_with_datbase {
 
+PokemonSkill parseStringFromDB(const std::string& str)
+{
+    string skillData = str;
+    auto skillName = skillData.substr(0, skillData.find('_'));
+    skillData.erase(0, skillName.length() + 1);
+
+    auto skillType = skillData.substr(0, skillData.find('_'));
+    skillData.erase(0, skillType.length() + 1);
+
+    auto skillAmount = skillData;
+
+    PokemonSkill pokemonSkill;
+    pokemonSkill.__set_name(skillName);
+    pokemonSkill.__set_type(utilities::get_enum_pokeskilltype(skillType));
+    pokemonSkill.__set_amount(atoi(skillAmount.c_str()));
+    return pokemonSkill;
+}
+
+
 DBManager::DBManager(const std::string host, const std::string user, const std::string pass, const std::string db_name):
     host_(host),
     user_(user),
@@ -183,6 +202,42 @@ const std::string DBManager::GetSavedPoks()
     return result;
 }
 
+Pokemon DBManager::GetPokByPrivateID(const std::string& private_id)
+{
+    string query = "SELECT * FROM " + table_name + " WHERE private_id='" + private_id + "';";
+
+    sql::ResultSet* res(stmt_->executeQuery(query));
+
+    Pokemon gottenPokemon;
+    if(res->next())
+    {
+        gottenPokemon.__set_name(res->getString("name"));
+        gottenPokemon.__set_type(utilities::get_enum_poketype(res->getString("type")));
+        gottenPokemon.__set_HP(res->getInt("HP"));
+        gottenPokemon.__set_attack(res->getInt("attack"));
+        gottenPokemon.__set_defense(res->getInt("defense"));
+        gottenPokemon.__set_spell_attack(res->getInt("spell_attack"));
+        gottenPokemon.__set_spell_defense(res->getInt("spell_defense"));
+        gottenPokemon.__set_speed(res->getInt("speed"));
+        gottenPokemon.__set_EXP(res->getInt("EXP"));
+        gottenPokemon.__set_LVL(res->getInt("LVL"));
+        gottenPokemon.__set_skill(parseStringFromDB(res->getString("skill")));
+        gottenPokemon.__set_pub_id(res->getString("pub_id"));
+        gottenPokemon.__set_flag(res->getString("comment"));
+    }
+    // Нет такого покемона в базе
+    else
+    {
+        gottenPokemon.__set_EXP(-1);
+    }
+
+    if(res)
+    {
+        delete res;
+    }
+    return gottenPokemon;
+}
+
 void DBManager::CreateTable()
 {
     stmt_->execute("CREATE DATABASE IF NOT EXISTS poke_bat;");
@@ -225,11 +280,17 @@ void DBManager::CreateTable()
             );
 }
 
-void DBManager::SavePokemon(const std::string& private_id,
+string DBManager::SavePokemon(const std::string& private_id,
                             const std::string& pub_id,
                             const Pokemon& pok,
                             const std::string& comment)
 {
+    Pokemon isPokExists = GetPokByPrivateID(private_id);
+    if(isPokExists.EXP != -1)
+    {
+        string alreadyExist = "Pokemon with that id already exists!\nLittle more information about it: ";
+        return alreadyExist + isPokExists.flag + "\n";
+    }
     // Sorry about this shit
     string query = "INSERT INTO " +
             table_name +
@@ -250,24 +311,8 @@ void DBManager::SavePokemon(const std::string& private_id,
             "'" + pub_id + "');";
 
     stmt_->execute(query);
-}
 
-PokemonSkill parseStringFromDB(const std::string& str)
-{
-    string skillData = str;
-    auto skillName = skillData.substr(0, skillData.find('_'));
-    skillData.erase(0, skillName.length() + 1);
-
-    auto skillType = skillData.substr(0, skillData.find('_'));
-    skillData.erase(0, skillType.length() + 1);
-
-    auto skillAmount = skillData;
-
-    PokemonSkill pokemonSkill;
-    pokemonSkill.__set_name(skillName);
-    pokemonSkill.__set_type(utilities::get_enum_pokeskilltype(skillType));
-    pokemonSkill.__set_amount(atoi(skillAmount.c_str()));
-    return pokemonSkill;
+    return {"Your pokemon was successfully saved!\n"};
 }
 
 const std::string DBManager::GetComment(const string& pub_id)

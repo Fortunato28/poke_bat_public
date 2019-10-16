@@ -17,7 +17,7 @@ public:
     DBManager(const std::string host, const std::string user, const std::string pass, const std::string db_name);
     ~DBManager();
 
-    void SavePokemon(const std::string& private_id,
+    std::string SavePokemon(const std::string& private_id,
                      const std::string& pub_id,
                      const Pokemon& given_pok,
                      const std::string& comment);
@@ -27,6 +27,7 @@ public:
     void RemovePokemon();
     const std::string GetSavedPoks();
     const std::string GetComment(const std::string& pub_id);
+    Pokemon GetPokByPrivateID(const std::string& private_id);
 
 private:
     void CreateTable();

@@ -11,7 +11,7 @@ using FightData = poke_bat::middleware::FightData;
 class ClientController
 {
 public:
-    ClientController();
+    ClientController(const std::string& server_address);
     ~ClientController();
 
     void getConfig(std::string& _return);
@@ -27,6 +27,8 @@ public:
     std::string savePokemon(const std::string& private_id, const Pokemon& c_pok, const std::string& comment);
 
     const std::string getSavedPoksTable();
+
+    const Pokemon getSavedPokByPrivateID(const std::string& private_id);
 
 private:
     // Простите, но это синглтон

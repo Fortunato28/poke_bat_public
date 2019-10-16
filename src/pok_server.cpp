@@ -37,6 +37,11 @@ void PokServerHandler::getSavedPoksTable(std::string& _return)
     _return = dbManager_.GetSavedPoks();
 }
 
+void PokServerHandler::getSavedPokByPrivateID(Pokemon& _return, const std::string& private_id)
+{
+    _return = dbManager_.GetPokByPrivateID(private_id);
+}
+
 void PokServerHandler::savePokemon(std::string& _return, const std::string& private_id, const Pokemon& client_pokemon, const std::string& comment)
 {
     if (!configHandler.isSignatureValid(client_pokemon))
@@ -47,9 +52,7 @@ void PokServerHandler::savePokemon(std::string& _return, const std::string& priv
     }
 
     std::string pub_id = get_pub_id(private_id);
-    dbManager_.SavePokemon(private_id, pub_id, client_pokemon, comment);
-
-    _return = "Your pokemon was successfully saved!\n";
+    _return = dbManager_.SavePokemon(private_id, pub_id, client_pokemon, comment);
 }
 
 Fight& PokServerHandler::findFight(const int64_t &fight_id)

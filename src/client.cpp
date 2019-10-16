@@ -7,6 +7,16 @@
 
 using namespace std;
 
+static string server_address_;
+
+void printPokemon(const Pokemon& pok)
+{
+    // TODO implement
+    printf("POKEMON`S NAME = %s\n", pok.name.c_str());
+    printf("PUB ID = %s\n", pok.pub_id.c_str());
+    printf("FLAG = %s\n", pok.flag.c_str());
+}
+
 void printRoundData(const RoundResult& result)
 {
     printf("ACTION DESCRIPTION = %s\n", result.actionResultDescription.c_str());
@@ -57,7 +67,7 @@ Pokemon start_fight()
 {
     auto opponent_pub_id = choose_opponent();
 
-    ClientController thrift_client;
+    ClientController thrift_client(server_address_);
     Pokemon clientPokemon = getPokemonFromConfig(thrift_client);
     FightData fightData;
     //thrift_client.startFight(fightData, complexity, clientPokemon);
@@ -122,7 +132,7 @@ Pokemon start_fight()
 
 void save_pokemon(Pokemon& c_pok)
 {
-    ClientController thrift_client;
+    ClientController thrift_client(server_address_);
     // Клиентского покемона ещё и нет вовсе (боя ещё не было)
     if(c_pok.name == "")
     {
@@ -143,12 +153,32 @@ void save_pokemon(Pokemon& c_pok)
 
 void show_saved_poks()
 {
-    ClientController thrift_client;
+    ClientController thrift_client(server_address_);
     cout << thrift_client.getSavedPoksTable();
+}
+
+void show_pok_by_private_id()
+{
+    string entered_private_id;
+    cout << "Enter the private ID of the pokemon:\n";
+    cin.ignore();
+    std::getline(cin, entered_private_id);
+
+    ClientController thrift_client(server_address_);
+    Pokemon gottenPokemon = thrift_client.getSavedPokByPrivateID(entered_private_id);
+
+    if(gottenPokemon.EXP == -1)
+    {
+        cout << "There are no pokemon with id = " << entered_private_id << "\n";
+        return;
+    }
+
+    printPokemon(gottenPokemon);
 }
 
 void client_run()
 {
+    printf("HERE %s\n", server_address_.c_str());
     clientConfigHandler config_handler;
     Pokemon c_pok;
     //TODO nice Pikachu output
@@ -158,9 +188,10 @@ void client_run()
         //TODO add a nice legend
         std::cout << "Choose your action!\n"
                   << "To start fight press 1;\n"
-                  << "To show your current pokemon press 2;\n"
-                  << "To save your current pokemon press 3;\n"
+                  << "To save your current pokemon press 2;\n"
+                  << "To show your current pokemon press 3;\n"
                   << "To show table with saved pokemons press 4;\n"
+                  << "To show saved pokemons by private id press 5;\n"
                   << "To exit the game press 0;\n";
         int choice;
         std::cin >> choice;
@@ -175,17 +206,21 @@ void client_run()
                 std::cout << "=================================\n";
                 break;
             case 2:
+                save_pokemon(c_pok);
+                std::cout << "=================================\n";
+                break;
+            case 3:
                 // TODO To think about the way how to pass clientPokemon into method below
                 //printPokemonData(clientPokemon);
                 std::cout << "Here will be show_pokemon() method\n";
                 std::cout << "=================================\n";
                 break;
-            case 3:
-                save_pokemon(c_pok);
-                std::cout << "=================================\n";
-                break;
             case 4:
                 show_saved_poks();
+                std::cout << "=================================\n";
+                break;
+            case 5:
+                show_pok_by_private_id();
                 std::cout << "=================================\n";
                 break;
             case 0:
@@ -194,11 +229,9 @@ void client_run()
     }
 }
 
-
-int main()
+int main(int argc, char* argv[])
 {
-    //TODO get the IP of the server
-    //TODO throw it in thrift client
+    server_address_ = argv[1];
     client_run();
     return 0;
 }
