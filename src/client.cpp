@@ -25,7 +25,6 @@ Pokemon getPokemonFromConfig(ClientController& client)
         config_handler.SaveConfigToFile();
     }
     config_handler.LoadConfigFromFile();
-    config_handler.DecryptConfig();
 
     Pokemon client_pokemon = config_handler.ParseConfig();
 
@@ -67,6 +66,12 @@ Pokemon start_fight()
     {
         cout << "There are no pokemon with id = " << opponent_pub_id << "\n";
         return clientPokemon;
+    }
+
+    if (fightData.fight_id == -1)
+    {
+        throw std::runtime_error("Your signature wasn't valid.\n"
+                                 "Now you're going to die!");
     }
 
     // TODO Функция переименована! Подумать, что и как тут нормально принтовать
@@ -144,6 +149,7 @@ void show_saved_poks()
 
 void client_run()
 {
+    clientConfigHandler config_handler;
     Pokemon c_pok;
     //TODO nice Pikachu output
     std::cout << "Welcome to PokeBattle!\n";
@@ -164,6 +170,7 @@ void client_run()
             case 1:
                 std::cout << "Fight is started!\n";
                 c_pok = start_fight();
+                config_handler.UpdateConfig(c_pok);
                 std::cout << "Fight is over!\n";
                 std::cout << "=================================\n";
                 break;

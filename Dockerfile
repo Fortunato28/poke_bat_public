@@ -14,7 +14,7 @@ RUN git checkout 0.12.0 && \
     make install
 
 #dependency installation for config handlers
-RUN apt-get install -y libconfig++-dev libgcrypt20-dev
+RUN apt-get install -y libconfig++-dev
 
 #dependency installation for work with DB
 RUN apt-get install -y wget mysql-client libmysqlclient-dev

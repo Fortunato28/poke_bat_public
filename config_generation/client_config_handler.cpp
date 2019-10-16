@@ -2,6 +2,7 @@
 #include "utilities.h"
 
 using namespace poke_bat::middleware;
+using namespace libconfig;
 
 clientConfigHandler::clientConfigHandler()
 {
@@ -18,7 +19,6 @@ void clientConfigHandler::GetDefaultConfig(std::function<void(std::string&)> cal
 {
     callback_to_get_from_server(configContent_);
     //printf("HERE %lu\n", configContent_.length());
-    //TODO sending a request for the new config, recieving it and saving
 }
 
 void clientConfigHandler::SaveConfigToFile()
@@ -36,109 +36,26 @@ void clientConfigHandler::SaveConfigToFile()
     }
 }
 
-/*
- * Method load_config_from_file() loads data from file in a old fashioned C way
- * because otherwise there is an uncertain lack of encrypted bytes.
- * After reading from file this method converts data into the std::string.
- */
 
 void clientConfigHandler::LoadConfigFromFile()
 {
-    FILE * ptrFile = fopen(configFileName_.c_str(), "rb");
-
-    if (ptrFile ==  NULL)
+    std::ifstream fin(configFileName_);
+    if(fin.is_open())
     {
-        throw std::runtime_error("Can't open file for reading!");
+        std::stringstream ss;
+        ss << fin.rdbuf();
+        configContent_ = ss.str();
+        fin.close();
     }
-
-    fseek(ptrFile, 0, SEEK_END);
-    long iSize = ftell(ptrFile);
-    rewind(ptrFile);
-    char*
-        buffer = (char*) malloc(sizeof(char) * iSize);
-    size_t result = fread(buffer, 1, iSize, ptrFile);
-
-    std::string temp(buffer, result);
-    configContent_ = temp;
-
-    fclose(ptrFile);
-    free(buffer);
-}
-
-void clientConfigHandler::DecryptConfig()
-{ 
-    //conversion data into char 
-    char *bufferContent = new char[configContent_.length() + 1];
-    for (int i = 0; i < configContent_.length(); ++i)
+    else
     {
-        bufferContent[i] = configContent_.c_str()[i];
+        throw std::runtime_error("Can't open file for reading! Try to use sudo.");
     }
-    bufferContent[configContent_.length()] = '\0';
-
-    char password[] = "12345678";
-
-    char salt[] = "12345678";
-
-    gcry_error_t        gcryError;
-    gcry_cipher_hd_t    descriptorPointer;
-    size_t bufferContentLength = configContent_.length();
-    size_t passwordLength = strlen(password);
-    size_t saltLength = strlen(salt);
-    char* buffer = (char*)malloc(bufferContentLength);
-
-    //crypto-descryptor initialisation
-    gcryError = gcry_cipher_open(&descriptorPointer,
-                                 GCRY_CIPHER_DES,
-                                 GCRY_CIPHER_MODE_CBC,
-                                 GCRY_CIPHER_CBC_CTS);
-    if (gcryError) {
-        printf("gcry_cipher_open failed:  %s/%s\n", 
-                gcry_strsource(gcryError), gcry_strerror(gcryError));
-        return;
-    }
-
-    //set key for the decryption
-    gcryError = gcry_cipher_setkey(descriptorPointer, password, passwordLength);
-    if (gcryError) {
-        printf("gcry_cipher_setkey failed:  %s/%s\n", 
-                gcry_strsource(gcryError), gcry_strerror(gcryError));
-        return;
-    }
-
-    //set salt for the decryption
-    gcryError = gcry_cipher_setiv(descriptorPointer, salt, saltLength);
-    if (gcryError) {
-        printf("gcry_cipher_setiv failed:  %s/%s\n", 
-               gcry_strsource(gcryError), gcry_strerror(gcryError));
-        return;
-    }
-
-    //decryption
-    gcryError = gcry_cipher_decrypt(descriptorPointer, 
-                                    buffer, 
-                                    bufferContentLength, 
-                                    bufferContent, 
-                                    bufferContentLength);
-    if (gcryError) {
-        printf("gcry_cipher_encrypt failed:  %s/%s\n", 
-               gcry_strsource(gcryError), gcry_strerror(gcryError));
-        return;
-    }
-
-    //closing crypto-descryptor
-    gcry_cipher_close(descriptorPointer);
-
-    //conversion data back to std::string
-    std::string temp(buffer, bufferContentLength);
-    configContent_ = temp;
-
-    delete [] bufferContent;
-    free(buffer);
 }
 
 Pokemon clientConfigHandler::ParseConfig()
 {
-    libconfig::Config cfg;
+    Config cfg;
     Pokemon pokemon;
     
     try
@@ -173,6 +90,9 @@ Pokemon clientConfigHandler::ParseConfig()
         int LVL = cfg.lookup("pokemon.LVL");       
         pokemon.__set_LVL(LVL);
        
+        std::string flag = cfg.lookup("signature.key");
+        pokemon.__set_flag(flag);
+
         const libconfig::Setting& root = cfg.getRoot();
         const libconfig::Setting& skills = root["pokemon"]["skills"];
         const libconfig::Setting& skill = skills[0];
@@ -186,7 +106,7 @@ Pokemon clientConfigHandler::ParseConfig()
         pokemonSkill.__set_amount(skill_amount);
 
         pokemon.__set_skill(pokemonSkill); 
-    } 
+    }
     catch (const libconfig::ParseException &pex)
     {
         throw std::runtime_error("String parsing error!");
@@ -201,4 +121,52 @@ Pokemon clientConfigHandler::ParseConfig()
     }
 
     return pokemon;
+}
+
+void clientConfigHandler::UpdateConfig(Pokemon pokemon)
+{
+    Config cfg;
+
+    try
+    {
+        cfg.readFile(configFileName_.c_str());
+
+        Setting& _HP = cfg.lookup("pokemon.HP");
+        _HP = int(pokemon.HP);
+
+        Setting& _attack = cfg.lookup("pokemon.Attack");
+        _attack = int(pokemon.attack);
+
+        Setting& _defense = cfg.lookup("pokemon.Defense");
+        _defense = int(pokemon.defense);
+
+        Setting& _sp_atk = cfg.lookup("pokemon.Sp_Atk");
+        _sp_atk = int(pokemon.spell_attack);
+
+        Setting& _sp_def = cfg.lookup("pokemon.Sp_Def");
+        _sp_def = int(pokemon.spell_defense);
+
+        Setting& _EXP = cfg.lookup("pokemon.EXP");
+        _EXP = int(pokemon.EXP);
+
+        Setting& _LVL = cfg.lookup("pokemon.LVL");
+        _LVL = int(pokemon.LVL);
+
+        Setting& _key = cfg.lookup("signature.key");
+        _key = pokemon.flag;
+
+        cfg.writeFile(configFileName_.c_str());
+    }
+    catch (const libconfig::ParseException &pex)
+    {
+        throw std::runtime_error("String parsing error!");
+    }
+    catch (const libconfig::SettingNotFoundException &nfex)
+    {
+        throw std::runtime_error("Label searching error!");
+    }
+    catch (const libconfig::SettingTypeException &sex)
+    {
+        throw std::runtime_error("Parameter type error!");
+    }
 }

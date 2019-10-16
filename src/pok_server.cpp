@@ -9,7 +9,6 @@
 #include "pok_server.h"
 #include "gen-cpp/PokServer.h"
 #include "fight.h"
-#include "server_config_handler.h"
 #include "db_conf.h"
 
 using namespace ::apache::thrift;
@@ -40,6 +39,13 @@ void PokServerHandler::getSavedPoksTable(std::string& _return)
 
 void PokServerHandler::savePokemon(std::string& _return, const std::string& private_id, const Pokemon& client_pokemon, const std::string& comment)
 {
+    if (!configHandler.isSignatureValid(client_pokemon))
+    {
+        _return = "Can't save your pokemon!\n"
+                  "Your pokemon signature isn't valid!\n";
+        return;
+    }
+
     std::string pub_id = get_pub_id(private_id);
     dbManager_.SavePokemon(private_id, pub_id, client_pokemon, comment);
 
@@ -176,8 +182,7 @@ void serverAction(Fight& current_fight, RoundResult& _return)
 
 void PokServerHandler::getConfig(std::string& _return)
 {
-    serverConfigHandler configHandler;
-    _return = configHandler.EncryptConfig();
+    _return = configHandler.SignConfig();
 }
 
 size_t fibonacci(size_t border)
@@ -207,12 +212,18 @@ size_t fibonacci(size_t border)
 // TODO обработка ошибки, а вдруг нет такого покемоноса
 void PokServerHandler::startFight(FightData& _return, const std::string& pub_id, const Pokemon& clientPokemon)
 {
-  _return.pokemon = dbManager_.GetPokemonToFight(pub_id);
-  Fight fight(clientPokemon, _return.pokemon);
-  fight_storage_.emplace(next_fight_id_, fight);
+    if (!configHandler.isSignatureValid(clientPokemon))
+    {
+        _return.__set_fight_id(-1);
+        return;
+    }
 
-  _return.__set_fight_id(next_fight_id_);
-  ++next_fight_id_;
+    _return.pokemon = dbManager_.GetPokemonToFight(pub_id);
+    Fight fight(clientPokemon, _return.pokemon);
+    fight_storage_.emplace(next_fight_id_, fight);
+
+    _return.__set_fight_id(next_fight_id_);
+    ++next_fight_id_;
 }
 
 std::string clientWin()
@@ -224,7 +235,7 @@ std::string clientWin()
 
 std::string serverWin()
 {
-    return {"Try harder nex time, loser!\n"
+    return {"Try harder next time, loser!\n"
             "You lost the battle!\n"
             "Your pokemon is dead inside!\n"};
 }
@@ -238,7 +249,7 @@ void PokServerHandler::lvlUp(Fight& current_fight)
 {
     auto& c_pok = current_fight.getClientPok();
 
-    c_pok.HP = current_fight.GetDefaultClienHP() + 15;
+    c_pok.HP += 15;
     c_pok.attack += 3;
     c_pok.defense += 3;
     c_pok.spell_attack += 9;
@@ -248,7 +259,7 @@ void PokServerHandler::lvlUp(Fight& current_fight)
 
 bool PokServerHandler::isLvlUp(Pokemon& pok)
 {
-    return (pok.EXP >= fibonacci(pok.LVL + 1)) ? true : false;
+    return (pok.EXP >= (fibonacci(pok.LVL + 3) * 100)) ? true : false;
 }
 
 bool PokServerHandler::isFightStopped(
@@ -263,11 +274,13 @@ bool PokServerHandler::isFightStopped(
     if(isDeadInside(s_pok))
     {
         //TODO calculate exp according to s_pok level
+        c_pok.HP = current_fight.GetDefaultClienHP();
         c_pok.EXP += s_pok.LVL * 100;
         if(isLvlUp(c_pok))
         {
             lvlUp(current_fight);
         }
+        configHandler.ResignPokemon(c_pok);
 
         roundResult_.__set_clientPokemon(c_pok);
 

@@ -1,10 +1,6 @@
 cmake_minimum_required(VERSION 3.7)
 
-find_library(LibGCrypt 
-    NAMES libgcrypt.so libgcrypt.a
-    PATHS "/usr/lib/x86_64-linux-gnu")
-
-find_library(LibConfig 
+find_library(LibConfig
     NAMES libconfig++.so libconfig++.a
     PATHS "/usr/lib/x86_64-linux-gnu")
 
@@ -16,6 +12,7 @@ include_directories(../middleware
      /usr/include/mysql
      /usr/include/mysqlx
      /usr/include/jdbc
+     .
      )
 
  set(CONFIG_HANDLER_SOURCES client_config_handler.cpp
@@ -27,5 +24,11 @@ target_link_libraries(config_handler middleware)
 add_library(config_generation main.cpp)
 
 target_link_libraries(config_generation config_handler)
-target_link_libraries(config_generation ${LibGCrypt})
 target_link_libraries(config_generation ${LibConfig})
+
+#TODO remove all below
+
+add_executable(handler_test main.cpp ${CONFIG_HANDLER_SOURCES})
+
+target_link_libraries(handler_test config_handler)
+target_link_libraries(handler_test ${LibConfig})

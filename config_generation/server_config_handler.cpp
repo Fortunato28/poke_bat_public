@@ -1,83 +1,154 @@
 #include "server_config_handler.h"
+#include "utilities.h"
 
-std::string serverConfigHandler::EncryptConfig()
+using namespace poke_bat::middleware;
+
+void bindValue(std::string& content,
+               const std::string what,
+               const std::string whithWhat)
 {
-    char content[] = "pokemon:\n"
+    size_t position = content.find(what);
+    if (position == std::string::npos)
+    {
+        return;
+    }
+    content.replace(position, what.length(), whithWhat);
+}
+
+std::string formConfigByPokemon(Pokemon& pokemon)
+{
+    //get pokemon stats
+    std::string name = pokemon.name;
+    std::string type = utilities::get_string_poketype(pokemon.type);
+    std::string HP = std::to_string(pokemon.HP);
+    std::string Attack = std::to_string(pokemon.attack);
+    std::string Defense = std::to_string(pokemon.defense);
+    std::string Sp_Atk = std::to_string(pokemon.spell_attack);
+    std::string Sp_Def = std::to_string(pokemon.spell_defense);
+    std::string Speed = std::to_string(pokemon.speed);
+    std::string EXP = std::to_string(pokemon.EXP);
+    std::string LVL = std::to_string(pokemon.LVL);
+    std::string skills_name = pokemon.skill.name;
+    std::string skills_type = utilities::get_string_pokeskilltype(pokemon.skill.type);
+    std::string skills_amount = std::to_string(pokemon.skill.amount);
+
+    //form a string
+    std::string formedContent = "pokemon:\n"
+        "{\n"
+            "\tname = \"/!\";\n"
+            "\ttype = \"/!\";\n"
+            "\tHP = /!;\n"
+            "\tAttack = /!;\n"
+            "\tDefense = /!;\n"
+            "\tSp_Atk = /!;\n"
+            "\tSp_Def = /!;\n"
+            "\tSpeed = /!;\n"
+            "\tEXP = /!;\n"
+            "\tLVL = /!;\n"
+            "\tskills = ( (\"/!\","
+                        "\"/!\","
+                        "/!) );\n"
+        "};\n"
+        "signature:\n"
+        "{\n"
+            "\tkey = \"\"\n"
+        "};";
+
+    bindValue(formedContent, "/!", name);
+    bindValue(formedContent, "/!", type);
+    bindValue(formedContent, "/!", HP);
+    bindValue(formedContent, "/!", Attack);
+    bindValue(formedContent, "/!", Defense);
+    bindValue(formedContent, "/!", Sp_Atk);
+    bindValue(formedContent, "/!", Sp_Def);
+    bindValue(formedContent, "/!", Speed);
+    bindValue(formedContent, "/!", EXP);
+    bindValue(formedContent, "/!", LVL);
+    bindValue(formedContent, "/!", skills_name);
+    bindValue(formedContent, "/!", skills_type);
+    bindValue(formedContent, "/!", skills_amount);
+
+    return formedContent;
+}
+
+/**************************************************************/
+
+serverConfigHandler::serverConfigHandler()
+{
+    std::string salt = "GonnaHASH'emall";
+}
+
+std::string serverConfigHandler::takeSignature(std::string content)
+{
+    std::string forHash = content + salt;
+
+    std::vector<unsigned char> hash(picosha2::k_digest_size);
+    picosha2::hash256(forHash.begin(), forHash.end(),
+                      hash.begin(), hash.end());
+
+    std::string signature = picosha2::bytes_to_hex_string(hash.begin(),
+                                                          hash.end());
+
+    return signature;
+}
+
+std::string serverConfigHandler::SignConfig()
+{
+    std::string content = "pokemon:\n"
         "{\n"
             "\tname = \"picachu\";\n"
-            "\ttype = \"electric\";\n"
-            "\tHP = 100;\n"
-            "\tAttack = 10;\n"
-            "\tDefense = 10;\n"
-            "\tSp_Atk = 30;\n"
-            "\tSp_Def = 30;\n"
-            "\tSpeed = 40;\n"
+            "\ttype = \"ELECTRIC\";\n"
+            "\tHP = 35;\n"
+            "\tAttack = 55;\n"
+            "\tDefense = 30;\n"
+            "\tSp_Atk = 50;\n"
+            "\tSp_Def = 40;\n"
+            "\tSpeed = 90;\n"
             "\tEXP = 0;\n"
             "\tLVL = 1;\n"
             "\tskills = ( (\"lightning bow\","
-                        "\"attack\","
+                        "\"ATTACK\","
                         "4) );\n"
+        "};\n"
+        "signature:\n"
+        "{\n"
+            "\tkey = \"\"\n"
         "};";
-    
-    char password[] = "12345678";
 
-    char salt[] = "12345678";
+    std::string signature = takeSignature(content);
 
-    gcry_error_t        gcryError;
-    gcry_cipher_hd_t    descriptorPointer;
-    size_t contentLength = strlen(content);
-    size_t passwordLength = strlen(password);
-    size_t saltLength = strlen(salt);
-    char* buffer = (char*)malloc(contentLength);
+    size_t position = content.find_last_of('\"');
+    content.insert(position, signature);
 
-    //crypto-descryptor initialisation
-    gcryError = gcry_cipher_open(&descriptorPointer,
-                                 GCRY_CIPHER_DES,
-                                 GCRY_CIPHER_MODE_CBC,
-                                 GCRY_CIPHER_CBC_CTS);
-    if (gcryError) {
-        printf("gcry_cipher_open failed:  %s/%s\n",
-                gcry_strsource(gcryError), gcry_strerror(gcryError));
-        return {"Bad crypto-descryptor installation"};
-    }
-
-    //set key for the ecryption
-    gcryError = gcry_cipher_setkey(descriptorPointer, password, passwordLength);
-    if (gcryError) {
-        printf("gcry_cipher_setkey failed:  %s/%s\n",
-                gcry_strsource(gcryError), gcry_strerror(gcryError));
-        return {"Bad key for the encryption"};
-    }
-
-    //set salt for the encryption
-    gcryError = gcry_cipher_setiv(descriptorPointer, salt, saltLength);
-    if (gcryError) {
-        printf("gcry_cipher_setiv failed:  %s/%s\n",
-               gcry_strsource(gcryError), gcry_strerror(gcryError));
-        return {"Bad salt for the encryption"};
-    }
-
-    //encryption
-    gcryError = gcry_cipher_encrypt(descriptorPointer,
-                                    buffer,
-                                    contentLength,
-                                    content,
-                                    contentLength);
-    if (gcryError) {
-        printf("gcry_cipher_encrypt failed:  %s/%s\n",
-               gcry_strsource(gcryError), gcry_strerror(gcryError));
-        return {"Bad encryption, fuck off"};
-    }
-
-    //closing crypto-descryptor
-    gcry_cipher_close(descriptorPointer);
-    
-    //conversion encrypted data to std::string
-    std::string temp(buffer, contentLength);
-    encryptedContent = temp;
-    
-    free(buffer);
-
-    return encryptedContent;
+    return content;
 }
 
+bool serverConfigHandler::isSignatureValid(Pokemon pokemon)
+{
+    std::string gottenContent = formConfigByPokemon(pokemon);
+
+    //take a signature
+    std::string gottenSignature = pokemon.flag;
+
+    //take a basic signature
+    std::string basicSignature = takeSignature(gottenContent);
+
+    //match 'em
+    if (gottenSignature == basicSignature)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+void serverConfigHandler::ResignPokemon(Pokemon& pokemon)
+{
+    std::string pokemonContent = formConfigByPokemon(pokemon);
+
+    std::string newSignature = takeSignature(pokemonContent);
+
+    pokemon.flag = newSignature;
+}
