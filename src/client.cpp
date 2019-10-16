@@ -12,6 +12,7 @@ void printPokemon(const Pokemon& pok)
     // TODO implement
     printf("POKEMON`S NAME = %s\n", pok.name.c_str());
     printf("PUB ID = %s\n", pok.pub_id.c_str());
+    printf("FLAG = %s\n", pok.flag.c_str());
 }
 
 void printRoundData(const RoundResult& result)

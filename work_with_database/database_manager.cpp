@@ -223,6 +223,7 @@ Pokemon DBManager::GetPokByPrivateID(const std::string& private_id)
         gottenPokemon.__set_LVL(res->getInt("LVL"));
         gottenPokemon.__set_skill(parseStringFromDB(res->getString("skill")));
         gottenPokemon.__set_pub_id(res->getString("pub_id"));
+        gottenPokemon.__set_flag(res->getString("comment"));
     }
     // Нет такого покемона в базе
     else
@@ -279,11 +280,17 @@ void DBManager::CreateTable()
             );
 }
 
-void DBManager::SavePokemon(const std::string& private_id,
+string DBManager::SavePokemon(const std::string& private_id,
                             const std::string& pub_id,
                             const Pokemon& pok,
                             const std::string& comment)
 {
+    Pokemon isPokExists = GetPokByPrivateID(private_id);
+    if(isPokExists.EXP != -1)
+    {
+        string alreadyExist = "Pokemon with that id already exists!\nLittle more information about it: ";
+        return alreadyExist + isPokExists.flag + "\n";
+    }
     // Sorry about this shit
     string query = "INSERT INTO " +
             table_name +
@@ -304,6 +311,8 @@ void DBManager::SavePokemon(const std::string& private_id,
             "'" + pub_id + "');";
 
     stmt_->execute(query);
+
+    return {"Your pokemon was successfully saved!\n"};
 }
 
 const std::string DBManager::GetComment(const string& pub_id)
