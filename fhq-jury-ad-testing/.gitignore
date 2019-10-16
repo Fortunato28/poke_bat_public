@@ -1,0 +1,13 @@
+
+jury.d/html/favicon*
+tmp_docker_team1_service2_mysql/*
+tmp_docker_team2_service2_mysql/*
+tmp_docker_jury_mysql/*
+dckr_mysql/*
+team1_service1_db/*
+team2_service1_db/*
+jury.d/html/*
+jury.d/html/js/*
+jury.d/html/index.html
+jury.d/html/images/states/*
+jury.d/html/images/teams/unknown.png

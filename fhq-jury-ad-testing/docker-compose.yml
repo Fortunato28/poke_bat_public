@@ -1,0 +1,87 @@
+version: '3'
+
+services:
+  team1_service2_poke_bat_db:
+    image: mysql:5.7
+    restart: always
+    volumes:
+      - "./tmp_docker_team1_service2_mysql:/var/lib/mysql"
+    environment:
+        MYSQL_ROOT_PASSWORD: '1'
+        MYSQL_USER: 'test'
+        MYSQL_PASS: 'pass'
+        MYSQL_DATABASE: 'poke_bat'
+    networks:
+        - fhqjuryad_net
+
+  team1_service2_poke_bat_server:
+    build: ../
+    image: sibirctf2019/poke_bat_server:0.0.1
+    depends_on:
+      - team1_service2_poke_bat_db
+    restart: always
+    ports:
+      - 3990:3990
+    volumes:
+      - "../:/usr/src/poke_bat"
+    command: bash -c "./build_all.sh && ./_result/server"
+    networks:
+      - fhqjuryad_net
+
+  team2_service2_poke_bat_db:
+    image: mysql:5.7
+    restart: always
+    volumes:
+      - "./tmp_docker_team1_service2_mysql:/var/lib/mysql"
+    environment:
+        MYSQL_ROOT_PASSWORD: '1'
+        MYSQL_USER: 'test'
+        MYSQL_PASS: 'pass'
+        MYSQL_DATABASE: 'poke_bat'
+    networks:
+        - fhqjuryad_net
+
+  team2_service2_poke_bat_server:
+    image: sibirctf2019/poke_bat_server:0.0.1
+    depends_on:
+      - team2_service2_poke_bat_db
+    restart: always
+    ports:
+      - 3991:3990
+    volumes:
+      - "../:/usr/src/poke_bat"
+    command: bash -c "./build_all.sh && ./_result/server"
+    networks:
+      - fhqjuryad_net
+
+  fhqjuryad_db:
+    image: mysql:5.7
+    volumes:
+      - "./tmp_docker_jury_mysql:/var/lib/mysql"
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: KzhyntJxwt
+      MYSQL_DATABASE: fhqjuryad
+      MYSQL_USER: fhqjuryad
+      MYSQL_PASSWORD: fhqjuryad
+    networks:
+      - fhqjuryad_net
+
+  fhqjuryad_jury:
+    depends_on:
+      - fhqjuryad_db
+    build: ./
+    image: fhqjuryad_jury_for_pokebat
+    volumes:
+      - "./jury.d:/usr/share/fhq-jury-ad/jury.d"
+    ports:
+      - "7111:7111"
+    restart: always
+    links:
+      - "fhqjuryad_db"
+    networks:
+      - fhqjuryad_net
+
+networks:
+  fhqjuryad_net:
+    driver: bridge
