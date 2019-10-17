@@ -108,7 +108,7 @@ std::string serverConfigHandler::SignConfig()
             "\tLVL = 1;\n"
             "\tskills = ( (\"lightning bow\","
                         "\"ATTACK\","
-                        "4) );\n"
+                        "5) );\n"
         "};\n"
         "signature:\n"
         "{\n"

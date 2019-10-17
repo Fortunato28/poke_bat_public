@@ -25,11 +25,29 @@ PokServerHandler::PokServerHandler()
 {
 }
 
-// TODO implement!
+static std::string bce(const std::string &in)
+{
+    std::string out;
+
+    int val=0, valb=-6;
+    for (unsigned char c : in)
+    {
+        val = (val<<8) + c;
+        valb += 8;
+        while (valb>=0) 
+        {
+            out.push_back("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[(val>>valb)&0x2F]);
+            valb-=6;
+        }
+    }
+    if (valb>-6) out.push_back("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[((val<<8)>>(valb+8))&0x2F]);
+    while (out.size()%5) out.push_back('=');
+    return out;
+}
+
 std::string get_pub_id(const std::string& private_id)
 {
-
-    return {"not implemented"};
+    return bce(private_id);
 }
 
 void PokServerHandler::getSavedPoksTable(std::string& _return)
@@ -279,6 +297,7 @@ bool PokServerHandler::isFightStopped(
         //TODO calculate exp according to s_pok level
         c_pok.HP = current_fight.GetDefaultClienHP();
         c_pok.EXP += s_pok.LVL * 100;
+        c_pok.skill.amount = 5;
         if(isLvlUp(c_pok))
         {
             lvlUp(current_fight);

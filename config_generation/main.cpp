@@ -10,7 +10,7 @@ int main()
     fout.open("config.cfg", std::ios_base::trunc);
     fout << sch.SignConfig();
     fout.close();
-    clientConfigHandler cch;
+    clientConfigHandler cch("config");
     if(cch.IsConfigExist())
     {
         cch.LoadConfigFromFile();

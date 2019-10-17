@@ -4,9 +4,9 @@
 using namespace poke_bat::middleware;
 using namespace libconfig;
 
-clientConfigHandler::clientConfigHandler()
+clientConfigHandler::clientConfigHandler(std::string server_address)
 {
-    configFileName_ = "config.cfg";
+    configFileName_ = server_address + ".cfg";
 }
 
 bool clientConfigHandler::IsConfigExist()
