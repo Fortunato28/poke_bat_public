@@ -18,15 +18,6 @@ RUN apt-get install -y libconfig++-dev
 
 #dependency installation for work with DB
 RUN apt-get install -y wget mysql-client libmysqlclient-dev
-WORKDIR /usr/share
-RUN git clone https://github.com/mysql/mysql-connector-cpp.git && \
-    cd mysql-connector-cpp && \
-    git checkout 1.1 && \
-    mkdir build && \
-    cd build && \
-    cmake .. && \
-    make && \
-    make install
 ENV LD_LIBRARY_PATH="/usr/local/lib:${LD_LIBRARY_PATH}"
 
 #create a mount point to the source dir
