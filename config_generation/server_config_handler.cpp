@@ -133,9 +133,6 @@ bool serverConfigHandler::isSignatureValid(Pokemon pokemon)
     //take a basic signature
     std::string basicSignature = takeSignature(gottenContent);
 
-    printf("gotten:     %s\n", gottenSignature.c_str());
-    printf("calculated: %s\n", basicSignature.c_str());
-
     //match 'em
     if (gottenSignature == basicSignature)
     {
