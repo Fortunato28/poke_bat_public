@@ -26,7 +26,7 @@ void printRoundData(const RoundResult& result)
 
 Pokemon getPokemonFromConfig(ClientController& client)
 {
-    clientConfigHandler config_handler;
+    clientConfigHandler config_handler(server_address_);
     if(!config_handler.IsConfigExist())
     {
         config_handler.GetDefaultConfig([&client](std::string& encrypted_config){
@@ -179,7 +179,7 @@ void show_pok_by_private_id()
 void client_run()
 {
     printf("HERE %s\n", server_address_.c_str());
-    clientConfigHandler config_handler;
+    clientConfigHandler config_handler(server_address_);
     Pokemon c_pok;
     //TODO nice Pikachu output
     std::cout << "Welcome to PokeBattle!\n";

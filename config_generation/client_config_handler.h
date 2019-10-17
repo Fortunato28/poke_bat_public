@@ -13,7 +13,7 @@
 class clientConfigHandler
 {
 public:
-    clientConfigHandler();
+    clientConfigHandler(std::string server_address);
     bool IsConfigExist();
     void GetDefaultConfig(std::function<void(std::string&)> callback_to_get_from_server);
     void SaveConfigToFile();
