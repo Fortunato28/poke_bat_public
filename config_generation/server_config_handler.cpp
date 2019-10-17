@@ -108,7 +108,7 @@ std::string serverConfigHandler::SignConfig()
             "\tLVL = 1;\n"
             "\tskills = ( (\"lightning bow\","
                         "\"ATTACK\","
-                        "4) );\n"
+                        "5) );\n"
         "};\n"
         "signature:\n"
         "{\n"
@@ -132,6 +132,9 @@ bool serverConfigHandler::isSignatureValid(Pokemon pokemon)
 
     //take a basic signature
     std::string basicSignature = takeSignature(gottenContent);
+
+    printf("gotten:     %s\n", gottenSignature.c_str());
+    printf("calculated: %s\n", basicSignature.c_str());
 
     //match 'em
     if (gottenSignature == basicSignature)

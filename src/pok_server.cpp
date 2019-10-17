@@ -297,6 +297,7 @@ bool PokServerHandler::isFightStopped(
         //TODO calculate exp according to s_pok level
         c_pok.HP = current_fight.GetDefaultClienHP();
         c_pok.EXP += s_pok.LVL * 100;
+        c_pok.skill.amount = 5;
         if(isLvlUp(c_pok))
         {
             lvlUp(current_fight);
