@@ -172,7 +172,7 @@ void serverAction(Fight& current_fight, RoundResult& _return)
         }
         else
         {
-            _return.__set_actionResultDescription( _return.actionResultDescription + " Opponent`s pokemon is tired, so it can only do punch.\n");
+            _return.__set_actionResultDescription( _return.actionResultDescription + "Opponent`s pokemon is tired, so it can only do punch.\n");
             serverPunch(current_fight, _return);
             return;
         }

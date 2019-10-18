@@ -4,6 +4,7 @@
 #include "server_controller.h"
 #include "client_controller.h"
 #include "client_config_handler.h"
+#include "utilities.h"
 
 using namespace std;
 
@@ -11,17 +12,27 @@ static string server_address_;
 
 void printPokemon(const Pokemon& pok)
 {
-    // TODO implement
     printf("POKEMON`S NAME = %s\n", pok.name.c_str());
-    printf("PUB ID = %s\n", pok.pub_id.c_str());
-    printf("FLAG = %s\n", pok.flag.c_str());
+    printf("POKEMON`S TYPE = %s\n", utilities::get_string_poketype(pok.type).c_str());
+    printf("POKEMON`S HP = %ld\n", pok.HP);
+    printf("POKEMON`S ATTACK = %ld\n", pok.attack);
+    printf("POKEMON`S DEFENSE = %ld\n", pok.defense);
+    printf("POKEMON`S SPELL TYPE = %s\n", pok.skill.name.c_str());
+    printf("POKEMON`S SPELL ATTACK = %ld\n", pok.spell_attack);
+    printf("POKEMON`S SPELL DEFENSE = %ld\n", pok.spell_defense);
+    printf("POKEMON`S EXPERIENCE = %ld\n", pok.EXP);
+    printf("POKEMON`S LEVEL = %ld\n", pok.LVL);
 }
 
 void printRoundData(const RoundResult& result)
 {
-    printf("ACTION DESCRIPTION = %s\n", result.actionResultDescription.c_str());
+    printf("Your pokemon:\n");
+    printPokemon(result.clientPokemon);
+    printf("\n");
+    printf("Opponent`s pokemon:\n");
+    printPokemon(result.serverPokemon);
 
-    //TODO print info about server pokemon
+    printf("%s\n", result.actionResultDescription.c_str());
 }
 
 Pokemon getPokemonFromConfig(ClientController& client)
@@ -43,8 +54,6 @@ Pokemon getPokemonFromConfig(ClientController& client)
 
 bool isFightStopped(const RoundResult& roundResult_)
 {
-    printf("CLIENT_POK %ld\n", roundResult_.clientPokemon.HP);
-    printf("SERVER %ld\n", roundResult_.serverPokemon.HP);
     if (roundResult_.clientPokemon.HP <= 0 ||
         roundResult_.serverPokemon.HP <= 0)
     {
@@ -84,21 +93,28 @@ Pokemon start_fight()
                                  "Now you're going to die!");
     }
 
-    // TODO Функция переименована! Подумать, что и как тут нормально принтовать
-    //printPokemonData(fightData.pokemon);
     RoundResult roundResult_;
+    roundResult_.clientPokemon = clientPokemon;
+    roundResult_.serverPokemon = fightData.pokemon;
+    roundResult_.actionResultDescription = "Fight is started!\n";
+    printRoundData(roundResult_);
 
     while(true)
     {
         std::cout << "Press 1 to punch enemy pokemon;\n"
                   << "Press 2 to defend;\n"
                   << "Press 3 to use skill;\n"; 
-        int action = 228;
-        std::cin >> action;
-        std::cout << "=================================\n";
+        //int action = 228;
+        //std::cin >> action;
+        //std::cout << "=================================\n";
 
-        // TODO нормальная валидация!!!! что вводит только цифры. Если не цифры, то идёт нах
-        if(action > 3)
+        int action;
+        string buf;
+        getline(cin, buf);
+        std::istringstream sstr(buf);
+        sstr >> action;
+
+        if(action > 3 || action == 0)
         {
             std::cout << "What are you, fucking immature!?\n"
                 << "Try it again!\n";
@@ -176,6 +192,18 @@ void show_pok_by_private_id()
     printPokemon(gottenPokemon);
 }
 
+void show_current_pok(Pokemon& c_pok)
+{
+    ClientController thrift_client(server_address_);
+    // Клиентского покемона ещё и нет вовсе (боя ещё не было)
+    if(c_pok.name == "")
+    {
+        c_pok = getPokemonFromConfig(thrift_client);
+    }
+
+    printPokemon(c_pok);
+}
+
 void client_run()
 {
     clientConfigHandler config_handler(server_address_);
@@ -184,7 +212,6 @@ void client_run()
     std::cout << "Welcome to PokeBattle!\n";
     while(true)
     {
-        //TODO add a nice legend
         std::cout << "Choose your action!\n"
                   << "To start fight press 1;\n"
                   << "To save your current pokemon press 2;\n"
@@ -198,7 +225,6 @@ void client_run()
         switch(choice)
         {
             case 1:
-                std::cout << "Fight is started!\n";
                 c_pok = start_fight();
                 config_handler.UpdateConfig(c_pok);
                 std::cout << "Fight is over!\n";
@@ -209,9 +235,7 @@ void client_run()
                 std::cout << "=================================\n";
                 break;
             case 3:
-                // TODO To think about the way how to pass clientPokemon into method below
-                //printPokemonData(clientPokemon);
-                std::cout << "Here will be show_pokemon() method\n";
+                show_current_pok(c_pok);
                 std::cout << "=================================\n";
                 break;
             case 4:
@@ -228,9 +252,20 @@ void client_run()
     }
 }
 
+string check_cmd_params(int argc, char* argv[])
+{
+    if(argc != 2)
+    {
+        cout << "Usage:\nclient <server ip>\n";
+        throw std::runtime_error("Bad commandline arguments!");
+    }
+
+    return {argv[1]};
+}
+
 int main(int argc, char* argv[])
 {
-    server_address_ = argv[1];
+    server_address_ = check_cmd_params(argc, argv);
     client_run();
     return 0;
 }
