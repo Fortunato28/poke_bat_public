@@ -1,10 +1,25 @@
 #!/usr/bin/python
 import sys
-import math 
+import math
 import socket
 import random
 import time
 import errno
+import glob
+
+#TODO add pip3 install thrift
+
+sys.path.append('gen-py')
+sys.path.insert(0,
+        glob.glob('/home/keima/.local/lib/python3.7/site-packages*')[0])
+
+from interfaces.PokServer import Client
+from interfaces.ttypes import PokemonType, SkillType, PokemonSkill, Pokemon, RoundResult, FightData
+
+from thrift import Thrift
+from thrift.transport import TSocket
+from thrift.transport import TTransport
+from thrift.protocol import TBinaryProtocol
 
 # put-get flag to service success
 def service_up():
@@ -33,7 +48,7 @@ if len(sys.argv) != 5:
     exit(0)
 
 host = sys.argv[1]
-port = 4441
+port = 3990
 command = sys.argv[2]
 f_id = sys.argv[3]
 flag = sys.argv[4]
@@ -46,18 +61,38 @@ def put_flag():
     # try put
     try:
         # print("try connect " + host + ":" + str(port))
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.settimeout(1)
-        s.connect((host, port))
-        result = s.recv(1024)
-        # print(result)
-        s.send("put" + "\n")
-        result = s.recv(1024)
-        s.send(f_id + "\n")
-        result = s.recv(1024)
-        s.send(flag + "\n")
-        result = s.recv(1024)
-        s.close()
+        transport = TSocket.TSocket(host, port)
+        transport = TTransport.TFramedTransport(transport)
+        protocol = TBinaryProtocol.TBinaryProtocol(transport)
+        client = Client(protocol)
+        transport.open()
+
+        # take pokemon (from file?)
+        PT = PokemonType.NORMAL
+        PS = PokemonSkill()
+        PS.name = 'ONEPUNCH'
+        PS.type = SkillType.ATTACK
+        PS.amount = 5
+        pok = Pokemon('test',
+                      PT,
+                      1,
+                      1,
+                      1,
+                      1,
+                      1,
+                      1,
+                      1,
+                      1,
+                      PS,
+                      'test',
+                      'test'
+                      )
+
+        s = client.savePokemon(f_id, pok, flag)
+        print(s)
+
+        transport.close()
+        #TODO update exceptions to thrift needs
     except socket.timeout:
         service_down()
     except socket.error as serr:
