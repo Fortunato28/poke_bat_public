@@ -2,10 +2,15 @@
 import sys
 import glob
 import getpass
+import os.path
 from hashlib import sha256
 
 sys.path.append('gen-py')
-sys.path.insert(0,
+if (os.path.exists('/usr/local/lib/python3.7/dist-packages*')):
+    sys.path.insert(0,
+        glob.glob('/usr/local/lib/python3.7/dist-packages*')[0])
+else:
+    sys.path.insert(0,
         glob.glob('/home/' + getpass.getuser() + '/.local/lib/python3.7/site-packages*')[0])
 
 from interfaces.PokServer import Client
