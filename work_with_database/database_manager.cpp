@@ -59,12 +59,6 @@ DBManager::DBManager(const std::string host, const std::string user, const std::
         stmt_ = con_->createStatement();
 
         CreateTable();
-
-        // TODO Это залипуха только для тестирования
-        Pokemon testPok;
-        testPok = GetPokemonToFight("not implemented");
-        // TODO delete
-        cout << testPok.skill << endl;
     }
     catch (sql::SQLException &e)
     {

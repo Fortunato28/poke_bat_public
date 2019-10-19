@@ -157,11 +157,12 @@ void save_pokemon(Pokemon& c_pok)
 
     std::cout << "Enter private id to find your pokemon later!\n";
     string private_id;
-    std::cin >> private_id;
+    cin.ignore();
+    getline(cin, private_id);
 
     std::cout << "Enter some comment about your sweety pokemon!\n";
     string comment;
-    std::cin >> comment;
+    getline(cin, comment);
 
     string result = thrift_client.savePokemon(private_id, c_pok, comment);
     cout << result;
@@ -208,7 +209,7 @@ void client_run()
 {
     clientConfigHandler config_handler(server_address_);
     Pokemon c_pok;
-    //TODO nice Pikachu output
+
     std::cout << "Welcome to PokeBattle!\n";
     while(true)
     {

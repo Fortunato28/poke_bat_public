@@ -15,7 +15,7 @@ include_directories(../middleware
      .
      )
 
- set(CONFIG_HANDLER_SOURCES client_config_handler.cpp
+set(CONFIG_HANDLER_SOURCES client_config_handler.cpp
                             server_config_handler.cpp
                             )
 add_library(config_handler ${CONFIG_HANDLER_SOURCES})
@@ -25,10 +25,3 @@ add_library(config_generation main.cpp)
 
 target_link_libraries(config_generation config_handler)
 target_link_libraries(config_generation ${LibConfig})
-
-#TODO remove all below
-
-add_executable(handler_test main.cpp ${CONFIG_HANDLER_SOURCES})
-
-target_link_libraries(handler_test config_handler)
-target_link_libraries(handler_test ${LibConfig})
