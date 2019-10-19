@@ -9,7 +9,7 @@
 #include <sstream>
 #include <regex>        // regex, sregex_token_iterator
 
-ConfFileParser::ConfFileParser(const std::string &sConfigFile) {
+ConfFileParser::ConfFileParser(const std::string sConfigFile) {
     m_sConfigFile = sConfigFile;
 }
 

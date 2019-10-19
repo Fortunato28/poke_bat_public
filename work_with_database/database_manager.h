@@ -14,7 +14,7 @@ using Pokemon = poke_bat::middleware::Pokemon;
 class DBManager
 {
 public:
-    DBManager(const std::string host, const std::string user, const std::string pass, const std::string db_name);
+    DBManager(const std::string host, const int, const std::string user, const std::string pass, const std::string db_name);
     ~DBManager();
 
     std::string SavePokemon(const std::string& private_id,
@@ -34,6 +34,7 @@ private:
 
     // Данные по базе
     const std::string host_;
+    const int port_;
     const std::string user_;
     const std::string pass_;
     const std::string db_name_;

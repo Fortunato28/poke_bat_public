@@ -35,8 +35,9 @@ PokemonSkill parseStringFromDB(const std::string& str)
 }
 
 
-DBManager::DBManager(const std::string host, const std::string user, const std::string pass, const std::string db_name):
+DBManager::DBManager(const std::string host, const int port, const std::string user, const std::string pass, const std::string db_name):
     host_(host),
+    port_(port),
     user_(user),
     pass_(pass),
     db_name_(db_name),

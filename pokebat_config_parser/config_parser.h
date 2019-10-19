@@ -5,7 +5,7 @@
 
 class ConfFileParser {
 	public:
-		ConfFileParser(const std::string &sConfigFile);
+		ConfFileParser(const std::string sConfigFile);
 
         bool parseConfig();
         std::string getStringValueFromConfig(const std::string &sParamName, const std::string &defaultValue);
