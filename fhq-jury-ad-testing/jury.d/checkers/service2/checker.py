@@ -1,17 +1,12 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import sys
-import math
-import socket
-import random
-import time
-import errno
 import glob
-
-#TODO add pip3 install thrift
+import getpass
+from hashlib import sha256
 
 sys.path.append('gen-py')
 sys.path.insert(0,
-        glob.glob('/home/keima/.local/lib/python3.7/site-packages*')[0])
+        glob.glob('/home/' + getpass.getuser() + '/.local/lib/python3.7/site-packages*')[0])
 
 from interfaces.PokServer import Client
 from interfaces.ttypes import PokemonType, SkillType, PokemonSkill, Pokemon, RoundResult, FightData
@@ -20,6 +15,46 @@ from thrift import Thrift
 from thrift.transport import TSocket
 from thrift.transport import TTransport
 from thrift.protocol import TBinaryProtocol
+
+def parse_pokemon(stat_arr):
+    # pokemon type
+    pok_t = stat_arr[1].upper().replace('\n', '')
+    PT = PokemonType()._NAMES_TO_VALUES[pok_t]
+
+    # skill name
+    i1 = 0
+    i2 = stat_arr[8].find('_')
+    s_name = stat_arr[8][i1:i2]
+
+    # skill type
+    i1 = i2 + 1
+    i2 = stat_arr[8].find('_', i1)
+    s_type = stat_arr[8][i1:i2]
+    s_type = SkillType()._NAMES_TO_VALUES[s_type]
+
+    # skill amount
+    i1 = i2 + 1
+    s_amount = int(stat_arr[8][i1:])
+
+    PS = PokemonSkill(s_name, s_type, s_amount)
+
+    pok = Pokemon(
+            stat_arr[0],                #name
+            PT,                         #type
+            int(stat_arr[2]),           #HP
+            int(stat_arr[3]),           #attack
+            int(stat_arr[4]),           #defense
+            int(stat_arr[5]),           #sp_atk
+            int(stat_arr[6]),           #sp_def
+            int(stat_arr[7]),           #speed
+            0,                          #EXP
+            5,                          #LVL
+            PS,                         #skill
+            '',                         #flag
+            '',                         #pub_id
+            )
+
+    return pok
 
 # put-get flag to service success
 def service_up():
@@ -50,7 +85,7 @@ if len(sys.argv) != 5:
 host = sys.argv[1]
 port = 3990
 command = sys.argv[2]
-f_id = sys.argv[3]
+f_id = sha256(sys.argv[3].encode('utf-8')).hexdigest()
 flag = sys.argv[4]
 
 # will be mumble (2) - for test jury
@@ -67,43 +102,28 @@ def put_flag():
         client = Client(protocol)
         transport.open()
 
-        # take pokemon (from file?)
-        PT = PokemonType.NORMAL
-        PS = PokemonSkill()
-        PS.name = 'ONEPUNCH'
-        PS.type = SkillType.ATTACK
-        PS.amount = 5
-        pok = Pokemon('test',
-                      PT,
-                      1,
-                      1,
-                      1,
-                      1,
-                      1,
-                      1,
-                      1,
-                      1,
-                      PS,
-                      'test',
-                      'test'
-                      )
+        stat_arr = []
+        with open('result.cvg') as f:
+            for stat in f.readlines():
+                stat_arr.append(stat)
+
+        # # print(content)
+        # for line in stat_arr[0:9]:
+            # print(line)
+
+        with open('result.cvg', 'w') as f:
+            for line in stat_arr[10:]:
+                f.write(line)
+
+        pok = parse_pokemon(stat_arr)
 
         s = client.savePokemon(f_id, pok, flag)
         print(s)
 
         transport.close()
-        #TODO update exceptions to thrift needs
-    except socket.timeout:
-        service_down()
-    except socket.error as serr:
-        if serr.errno == errno.ECONNREFUSED:
-            service_down()
-        else:
-            print(serr)
-            service_corrupt()
     except Exception as e:
         print(e)
-        service_corrupt()
+        service_down()
 
 def check_flag():
     global host, port, f_id, flag
@@ -111,33 +131,20 @@ def check_flag():
     flag2 = ""
     try:
         # print("try connect " + host + ":" + str(port))
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.settimeout(1)
-        s.connect((host, port))
-        result = s.recv(1024)
-        # print(result)
-        s.send("get\n")
-        result = s.recv(1024)
-        s.send(f_id + "\n")
-        result = s.recv(1024)
-        flag2 = result.strip()
-        flag2 = flag2.split("FOUND FLAG: ");
-        if len(flag2) == 2:
-            flag2 = flag2[1]
-        else:
-            flag2 = ''
-        s.close()
-    except socket.timeout:
-        service_down()
-    except socket.error as serr:
-        if serr.errno == errno.ECONNREFUSED:
-            service_down()
-        else:
-            print(serr)
-            service_corrupt()
+        transport = TSocket.TSocket(host, port)
+        transport = TTransport.TFramedTransport(transport)
+        protocol = TBinaryProtocol.TBinaryProtocol(transport)
+        client = Client(protocol)
+        transport.open()
+
+        s = client.getSavedPokByPrivateID(f_id)
+        flag2 = s.flag
+        # print(flag2)
+
+        transport.close()
     except Exception as e:
         print(e)
-        service_corrupt()
+        service_down()
 
     if flag != flag2:
         service_corrupt()
