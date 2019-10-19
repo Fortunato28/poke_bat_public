@@ -6,12 +6,12 @@ import os.path
 from hashlib import sha256
 
 sys.path.append('gen-py')
-if (os.path.exists('/usr/local/lib/python3.7/dist-packages*')):
+if (os.path.exists('/usr/local/lib/python3.7/dist-packages/')):
     sys.path.insert(0,
-        glob.glob('/usr/local/lib/python3.7/dist-packages*')[0])
-else:
+        glob.glob('/usr/local/lib/python3.7/dist-packages/')[0])
+if (os.path.exists('/home/' + getpass.getuser() + '/.local/lib/python3.7/site-packages/')):
     sys.path.insert(0,
-        glob.glob('/home/' + getpass.getuser() + '/.local/lib/python3.7/site-packages*')[0])
+        glob.glob('/home/' + getpass.getuser() + '/.local/lib/python3.7/site-packages/')[0])
 
 from interfaces.PokServer import Client
 from interfaces.ttypes import PokemonType, SkillType, PokemonSkill, Pokemon, RoundResult, FightData
