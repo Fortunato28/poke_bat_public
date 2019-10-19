@@ -8,7 +8,7 @@ using namespace work_with_datbase;
 
 int main()
 {
-    DBManager db_manager(host, user, pass, db);
+    DBManager db_manager(host, 3306, user, pass, db);
 
     printf("HERE %s\n", "WORKED MINIMAL");
 }

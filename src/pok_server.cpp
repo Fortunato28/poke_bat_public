@@ -9,7 +9,6 @@
 #include "pok_server.h"
 #include "gen-cpp/PokServer.h"
 #include "fight.h"
-#include "db_conf.h"
 
 using namespace ::apache::thrift;
 using namespace ::apache::thrift::protocol;
@@ -19,9 +18,15 @@ using namespace ::apache::thrift::server;
 using namespace ::poke_bat::middleware;
 using namespace work_with_datbase;
 
-PokServerHandler::PokServerHandler() 
+PokServerHandler::PokServerHandler(
+    const std::string &dbhost, 
+    int dbport, 
+    const std::string &dbuser, 
+    const std::string &dbpass, 
+    const std::string &dbname
+) 
     : next_fight_id_(0),
-      dbManager_(host, user, pass, db)
+      dbManager_(dbhost, dbport, dbuser, dbpass, dbname)
 {
 }
 

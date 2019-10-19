@@ -18,7 +18,13 @@ using FightData = poke_bat::middleware::FightData;
 class PokServerHandler : virtual public PokServerIf
 {
  public:
-  PokServerHandler();
+  PokServerHandler(
+    const std::string &dbhost, 
+    int dbport, 
+    const std::string &dbuser, 
+    const std::string &dbpass, 
+    const std::string &dbname
+  );
 
   void getConfig(std::string& _return);
 

@@ -10,7 +10,13 @@ class ServerController
 {
 public:
     // При создании объекта запускается стартует трифт-сервер
-    ServerController();
+    ServerController(
+        const std::string &dbhost, 
+        int dbport, 
+        const std::string &dbuser, 
+        const std::string &dbpass, 
+        const std::string &dbname
+    );
     ~ServerController();
 
 private:

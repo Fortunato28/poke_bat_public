@@ -15,9 +15,14 @@ using namespace ::apache::thrift::concurrency;
 
 using namespace poke_bat::middleware;
 
-ServerController::ServerController()
-{
-    std::shared_ptr<PokServerHandler> handler(new PokServerHandler());
+ServerController::ServerController(
+    const std::string &dbhost, 
+    int dbport, 
+    const std::string &dbuser, 
+    const std::string &dbpass, 
+    const std::string &dbname
+) {
+    std::shared_ptr<PokServerHandler> handler(new PokServerHandler(dbhost, dbport, dbuser, dbpass, dbname));
     std::shared_ptr<TProcessor> processor(new PokServerProcessor(handler));
 
     std::shared_ptr<ThreadManager> threadManager = ThreadManager::newSimpleThreadManager(threadsAmount_);
