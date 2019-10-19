@@ -24,7 +24,8 @@ services:
       - 3990:3990
     volumes:
       - "../:/usr/src/poke_bat"
-    command: bash -c "./build_all.sh && ./_result/server"
+      - "./team1_poketbat.conf:/root/pokebat.conf"
+    command: bash -c "./build_all.sh && ./_result/server /root/pokebat.conf"
     networks:
       - fhqjuryad_net
 
@@ -50,7 +51,8 @@ services:
       - 3991:3990
     volumes:
       - "../:/usr/src/poke_bat"
-    command: bash -c "./build_all.sh && ./_result/server"
+      - "./team1_poketbat.conf:/root/pokebat.conf"
+    command: bash -c "./build_all.sh && ./_result/server /root/pokebat.conf"
     networks:
       - fhqjuryad_net
 
