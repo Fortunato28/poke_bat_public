@@ -1,7 +1,6 @@
 #pragma once
 #include <string>
 
-// TODO должно быть конфигурабельно без пересборки. Удалить после PR Жени
 const std::string host = "172.17.0.3";
 const std::string user = "root";
 const std::string pass = "1";
