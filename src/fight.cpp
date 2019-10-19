@@ -64,7 +64,6 @@ void Fight::decreaseClientHPDueToPunch()
 
 void Fight::decreaseClientHPDueToSkill()
 {
-    // TODO проверить корректность
     auto& s_pok = serverState_.pokemon_;
     auto& c_pok = clientState_.pokemon_;
     --s_pok.skill.amount;

@@ -25,7 +25,7 @@ PokServerHandler::PokServerHandler()
 {
 }
 
-static std::string bce(const std::string &in)
+static std::string bce(const std::string& in)
 {
     std::string out;
 
@@ -34,14 +34,14 @@ static std::string bce(const std::string &in)
     {
         val = (val<<8) + c;
         valb += 8;
-        while (valb>=0) 
+        while (valb>=0)
         {
             out.push_back("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[(val>>valb)&0x2F]);
             valb-=6;
         }
     }
     if (valb>-6) out.push_back("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[((val<<8)>>(valb+8))&0x2F]);
-    while (out.size()%5) out.push_back('=');
+    while (out.size()%7) out.push_back('=');
     return out;
 }
 
@@ -172,7 +172,7 @@ void serverAction(Fight& current_fight, RoundResult& _return)
         }
         else
         {
-            _return.__set_actionResultDescription( _return.actionResultDescription + " Opponent`s pokemon is tired, so it can only do punch.\n");
+            _return.__set_actionResultDescription( _return.actionResultDescription + "Opponent`s pokemon is tired, so it can only do punch.\n");
             serverPunch(current_fight, _return);
             return;
         }
@@ -223,7 +223,6 @@ size_t fibonacci(size_t border)
     return t2;
 }
 
-// TODO обработка ошибки, а вдруг нет такого покемоноса
 void PokServerHandler::startFight(FightData& _return, const std::string& pub_id, const Pokemon& clientPokemon)
 {
     if (!configHandler.isSignatureValid(clientPokemon))
@@ -287,7 +286,6 @@ bool PokServerHandler::isFightStopped(
 
     if(isDeadInside(s_pok))
     {
-        //TODO calculate exp according to s_pok level
         c_pok.HP = current_fight.GetDefaultClienHP();
         c_pok.EXP += s_pok.LVL * 100;
         c_pok.skill.amount = 5;
@@ -307,7 +305,6 @@ bool PokServerHandler::isFightStopped(
     }
     if(isDeadInside(c_pok))
     {
-        //TODO прокачка серверного покемона
         roundResult_.__set_clientPokemon(c_pok);
         roundResult_.__set_serverPokemon(s_pok);
         roundResult_.__set_actionResultDescription(serverWin());
@@ -337,6 +334,8 @@ void PokServerHandler::punch(RoundResult& _return, const int64_t fight_id)
         return;
     }
 
+    _return.__set_actionResultDescription(_return.actionResultDescription + "Your pokemon punched enemy!\n");
+
     serverAction(current_fight, _return);
 
     if(isFightStopped(_return, current_fight, fight_id))
@@ -344,7 +343,6 @@ void PokServerHandler::punch(RoundResult& _return, const int64_t fight_id)
         return;
     }
 
-    // TODO Добавить возврат строки с описание произошедшего за раунд. Мб удалить это вообще?
     _return.__set_clientPokemon(c_pok);
     _return.__set_serverPokemon(s_pok);
 }
@@ -362,6 +360,8 @@ void PokServerHandler::defend(RoundResult& _return, const int64_t fight_id)
 
     current_fight.setClientDefense();
 
+    _return.__set_actionResultDescription(_return.actionResultDescription + "Your pokemon set block!\n");
+
     serverAction(current_fight, _return);
 
     if(isFightStopped(_return, current_fight, fight_id))
@@ -369,7 +369,6 @@ void PokServerHandler::defend(RoundResult& _return, const int64_t fight_id)
         return;
     }
 
-    // TODO Добавить возврат строки с описание произешедшего за раунд
     _return.__set_clientPokemon(c_pok);
     _return.__set_serverPokemon(s_pok);
 }
@@ -395,7 +394,6 @@ void PokServerHandler::useSkill(RoundResult& _return, const int64_t fight_id, co
     }
     else
     {
-        // TODO Не забыть в кейзах прописать нарезку результирующей строки с описанием раунда
         // Depends on skill type
         switch(c_skill.type)
         {
@@ -419,6 +417,8 @@ void PokServerHandler::useSkill(RoundResult& _return, const int64_t fight_id, co
         }
 
     }
+
+    _return.__set_actionResultDescription(_return.actionResultDescription + "Your pokemon used skill " + c_pok.skill.name + " on enemy!" + "\n");
 
     serverAction(current_fight, _return);
 

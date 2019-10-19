@@ -31,9 +31,6 @@ ServerController::ServerController()
     server_ = std::make_shared<TNonblockingServer>(processor, protocolFactory, serverTransport, threadManager);
 
     server_->run();
-    // TODO зафигачить запуск сервера в отдельный поток
-    // А, собственно, зачем? этот бинарь будет висеть в докере в заблокированном режиме
-    //serverThread_(&TNonblockingServer::run, server_);
 }
 
 ServerController::~ServerController()

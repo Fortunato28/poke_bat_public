@@ -64,7 +64,6 @@ namespace utilities
     std::string get_string_poketype(poke_bat::middleware::PokemonType::type pokemon_type);
     poke_bat::middleware::SkillType::type get_enum_pokeskilltype(std::string skill_type);
     std::string get_string_pokeskilltype(poke_bat::middleware::SkillType::type skill_type);
-    // TODO обработка ошибок!
     poke_bat::middleware::PokemonType::type get_enum_poketype(std::string pokemon_type)
     {
         // Uppercase all words
@@ -73,16 +72,15 @@ namespace utilities
             c = toupper(c);
         }
 
-        return pokeTypes.find(pokemon_type)->second;
+        return pokeTypes.at(pokemon_type);
     }
 
     std::string get_string_poketype(poke_bat::middleware::PokemonType::type pokemon_type)
     {
-        return invertedPokeTypes.find(pokemon_type)->second;
+        return invertedPokeTypes.at(pokemon_type);
     }
 
 
-    // TODO обработка ошибок!
     poke_bat::middleware::SkillType::type get_enum_pokeskilltype(std::string skill_type)
     {
         // Uppercase all words
@@ -91,11 +89,11 @@ namespace utilities
             c = toupper(c);
         }
 
-        return pokeSkillTypes.find(skill_type)->second;
+        return pokeSkillTypes.at(skill_type);
     }
 
     std::string get_string_pokeskilltype(poke_bat::middleware::SkillType::type skill_type)
     {
-        return invertedPokeSkillTypes.find(skill_type)->second;
+        return invertedPokeSkillTypes.at(skill_type);
     }
 }
