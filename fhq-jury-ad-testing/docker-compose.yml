@@ -1,58 +1,53 @@
 version: '3'
 
 services:
-  team1_service2_poke_bat_db:
+  team1_service2_pokebat_db:
     image: mysql:5.7
     restart: always
     volumes:
       - "./tmp_docker_team1_service2_mysql:/var/lib/mysql"
     environment:
-        MYSQL_ROOT_PASSWORD: '1'
-        MYSQL_USER: 'test'
-        MYSQL_PASS: 'pass'
-        MYSQL_DATABASE: 'poke_bat'
+      - MYSQL_ROOT_PASSWORD=nIsWqicYNB
+      - MYSQL_USER=pokebatuser
+      - MYSQL_PASSWORD=pokebatpass
+      - MYSQL_DATABASE=pokebatdb
     networks:
-        - fhqjuryad_net
+      - fhqjuryad_net
 
-  team1_service2_poke_bat_server:
-    build: ../
-    image: sibirctf2019/poke_bat_server:0.0.1
+  team1_service2_pokebat_server:
+    image: sibirctf2019/poke_bat_server:0.0.2
     depends_on:
-      - team1_service2_poke_bat_db
+      - team1_service2_pokebat_db
     restart: always
     ports:
       - 3990:3990
     volumes:
-      - "../:/usr/src/poke_bat"
-      - "./team1_poketbat.conf:/root/pokebat.conf"
-    command: bash -c "./build_all.sh && ./_result/server /root/pokebat.conf"
+      - "./team1_poketbat.conf:/etc/pokebat.conf"
     networks:
       - fhqjuryad_net
 
-  team2_service2_poke_bat_db:
+  team2_service2_pokebat_db:
     image: mysql:5.7
     restart: always
     volumes:
-      - "./tmp_docker_team1_service2_mysql:/var/lib/mysql"
+      - "./tmp_docker_team2_service2_mysql:/var/lib/mysql"
     environment:
-        MYSQL_ROOT_PASSWORD: '1'
-        MYSQL_USER: 'test'
-        MYSQL_PASS: 'pass'
-        MYSQL_DATABASE: 'poke_bat'
+      MYSQL_ROOT_PASSWORD: aCPHKfcGHX
+      MYSQL_USER: pokebatdb2
+      MYSQL_PASS: pokebatuser2
+      MYSQL_DATABASE: pokebatpass2
     networks:
-        - fhqjuryad_net
+      - fhqjuryad_net
 
-  team2_service2_poke_bat_server:
-    image: sibirctf2019/poke_bat_server:0.0.1
+  team2_service2_pokebat_server:
+    image: sibirctf2019/poke_bat_server:0.0.2
     depends_on:
-      - team2_service2_poke_bat_db
+      - team2_service2_pokebat_db
     restart: always
     ports:
       - 3991:3990
     volumes:
-      - "../:/usr/src/poke_bat"
-      - "./team1_poketbat.conf:/root/pokebat.conf"
-    command: bash -c "./build_all.sh && ./_result/server /root/pokebat.conf"
+      - "./team1_poketbat.conf:/etc/pokebat.conf"
     networks:
       - fhqjuryad_net
 
