@@ -3,6 +3,7 @@ import sys
 import glob
 import getpass
 import os.path
+import shutil
 from hashlib import sha256
 import traceback
 
@@ -94,12 +95,15 @@ port = 3990
 command = sys.argv[2]
 f_id = sha256(sys.argv[3].encode('utf-8')).hexdigest()
 flag = sys.argv[4]
+filename = sys.argv[1] + '.cvg'
+if (not os.path.exists(filename)):
+    shutil.copy('result.cvg_temp', filename)
 
 # will be mumble (2) - for test jury
 # while True: time.sleep(10);
 
 def put_flag():
-    global host, port, f_id, flag
+    global host, port, f_id, flag, filename
     # try put
     try:
         # print("try connect " + host + ":" + str(port))
@@ -110,7 +114,7 @@ def put_flag():
         transport.open()
 
         stat_arr = []
-        with open('result.cvg') as f:
+        with open(filename) as f:
             for stat in f.readlines():
                 stat_arr.append(stat)
 
@@ -118,8 +122,10 @@ def put_flag():
         # for line in stat_arr[0:9]:
             # print(line)
 
-        with open('result.cvg', 'w') as f:
+        with open(filename, 'w') as f:
             for line in stat_arr[10:]:
+                f.write(line)
+            for line in stat_arr[0:10]:
                 f.write(line)
 
         pok = parse_pokemon(stat_arr)
@@ -148,7 +154,7 @@ def check_flag():
 
         s = client.getSavedPokByPrivateID(f_id)
         flag2 = s.flag
-        # print(flag2)
+        print(flag2)
 
         transport.close()
     except Exception as e:
