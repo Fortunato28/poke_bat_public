@@ -49,12 +49,22 @@ DBManager::DBManager(const std::string host, const int port, const std::string u
         sql::mysql::MySQL_Driver* driver = sql::mysql::get_driver_instance();
 
         ///* Using the Driver to create a connection */
-        con_ = driver->connect(host_, user_, pass_);
-        if(con_->isValid())
-        {
+        std::string fullHost = "tcp://" + host_ + ":" + std::to_string(port);
+        
+
+        // driver->connect("tcp://127.0.0.1:3306", "root", "root");
+        std::cout << "Try connect to '" + fullHost + "' as user '" + user_ + "' with password '" + pass_ + "' " << std::endl;
+        con_ = driver->connect(fullHost, user_, pass_);
+        
+        if (con_->isValid()) {
             printf("Connected to database succesfully\n");
+        } else {
+            printf("Can't connect to database!\n");
+            // throw::runtime_error("Can't connect to database!");
         }
-        else throw::runtime_error("Cannot connect to database!");
+
+        // con_->setSchema(db_name_);
+        std::cout << "Switch to schema '" + db_name_ + "' " << std::endl;
         con_->setSchema(db_name_);
 
         stmt_ = con_->createStatement();
@@ -64,7 +74,7 @@ DBManager::DBManager(const std::string host, const int port, const std::string u
     catch (sql::SQLException &e)
     {
         cout << "# ERR: SQLException in " << __FILE__;
-        cout << "(" << "EXAMPLE_FUNCTION" << ") on line " << __LINE__ << endl;
+        cout << "(DBManager::DBManager) on line " << __LINE__ << endl;
         cout << "# ERR: " << e.what();
         cout << " (MySQL error code: " << e.getErrorCode();
         cout << ", SQLState: " << e.getSQLState() << " )" << endl;
@@ -233,10 +243,10 @@ Pokemon DBManager::GetPokByPrivateID(const std::string& private_id)
     return gottenPokemon;
 }
 
-void DBManager::CreateTable()
+void DBManager::CreateTable() // TODO: Why create database if function is createTable ????
 {
-    stmt_->execute("CREATE DATABASE IF NOT EXISTS poke_bat;");
-    stmt_->execute("USE poke_bat;");
+    // stmt_->execute("CREATE DATABASE IF NOT EXISTS poke_bat;");
+    stmt_->execute("USE " + db_name_ + ";");
     stmt_->execute("CREATE TABLE IF NOT EXISTS " + table_name + "\
         (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,\
         name VARCHAR(30),\
@@ -272,7 +282,7 @@ void DBManager::CreateTable()
             comment LONGTEXT,\
             private_id LONGTEXT,\
             pub_id LONGTEXT);"
-            );
+    );
 }
 
 string DBManager::SavePokemon(const std::string& private_id,

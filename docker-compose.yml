@@ -1,37 +1,30 @@
 version: "3"
 services:
-    poke_bat_db:
-        container_name: poke_bat_db
+    pokebat_db:
         image: mysql:5.7
         restart: always
         volumes:
-            - my-db:/var/lib/mysql
+            - "./tmp_docker_pokebat_mysql:/var/lib/mysql"
         environment:
-            MYSQL_ROOT_PASSWORD: '1'
-            MYSQL_USER: 'test'
-            MYSQL_PASS: 'pass'
-            MYSQL_DATABASE: 'poke_bat'
-            #MYSQL_HOST: 0.0.0.0
+            - MYSQL_ROOT_PASSWORD=eGSiwphc8E
+            - MYSQL_USER=pokebatuser
+            - MYSQL_PASSWORD=pokebatpass
+            - MYSQL_DATABASE=pokebatdb
         networks:
-            - poke_net
+            - pokebat_net
 
-    poke_bat_server:
-        build: .
-        container_name: poke_bat_server
+    pokebat_server:
+        image: sibirctf2019/poke_bat_server:0.0.2
         depends_on:
-            - poke_bat_db
+            - pokebat_db
         restart: always
-        command: bash -c "./_result/server"
+        volumes:
+            - "./pokebat_dist.conf:/etc/pokebat.conf"
         ports:
             - 3990:3990
-        volumes:
-            - .:/usr/src/poke_bat
         networks:
-            - poke_net
-
-volumes:
-    my-db: {}
+            - pokebat_net
 
 networks:
-    poke_net:
+    pokebat_net:
         driver: bridge
