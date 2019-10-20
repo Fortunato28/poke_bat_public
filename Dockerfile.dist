@@ -1,0 +1,44 @@
+FROM ubuntu:18.04
+
+#requirements installation
+RUN apt-get update
+RUN apt-get install -y automake bison flex g++ git libboost-all-dev libevent-dev libssl-dev libtool make cmake pkg-config
+
+#dependency installation for work with thrift
+RUN git clone https://github.com/apache/thrift.git /usr/src/thrift
+WORKDIR /usr/src/thrift
+RUN git checkout 0.12.0 && \
+    ./bootstrap.sh && \
+    ./configure && \
+    make && \
+    make install
+
+#dependency installation for config handlers
+RUN apt-get install -y libconfig++-dev
+
+#dependency installation for work with DB
+RUN apt-get install -y wget mysql-client libmysqlclient-dev
+ENV LD_LIBRARY_PATH="/usr/local/lib:${LD_LIBRARY_PATH}"
+
+#create a mount point to the source dir
+RUN mkdir -p /usr/src/poke_bat
+
+COPY ./config_generation /usr/src/poke_bat/config_generation
+COPY ./include /usr/src/poke_bat/include
+COPY ./middleware /usr/src/poke_bat/middleware
+COPY ./mysql-connector /usr/src/poke_bat/mysql-connector
+COPY ./pokebat_config_parser /usr/src/poke_bat/pokebat_config_parser
+COPY ./src /usr/src/poke_bat/src
+COPY ./work_with_database /usr/src/poke_bat/work_with_database
+COPY ./build_all.sh /usr/src/poke_bat/
+COPY ./CMakeLists.txt /usr/src/poke_bat/
+COPY ./pokebat.conf /etc/pokebat.conf
+
+WORKDIR /usr/src/poke_bat
+
+RUN ./build_all.sh && cp ./_result/server /usr/bin/pokebat-server
+
+EXPOSE 4613 3990
+
+CMD pokebat-server /etc/pokebat.conf
+

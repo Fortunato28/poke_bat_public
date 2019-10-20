@@ -19,10 +19,10 @@ int main(int argc, char* argv[])
     }
 
 
-    std::string dbhost = cnf.getStringValueFromConfig("mysql.dbhost", "172.17.0.3");
+    std::string dbhost = cnf.getStringValueFromConfig("mysql.dbhost", "127.0.0.1");
     int dbport = cnf.getIntValueFromConfig("mysql.dbport", 3306);
-    std::string dbuser = cnf.getStringValueFromConfig("mysql.dbuser", "root");
-    std::string dbpass = cnf.getStringValueFromConfig("mysql.dbpass", "1");
+    std::string dbuser = cnf.getStringValueFromConfig("mysql.dbuser", "user");
+    std::string dbpass = cnf.getStringValueFromConfig("mysql.dbpass", "pass");
     std::string dbname = cnf.getStringValueFromConfig("mysql.dbname", "poke_bat");
 
     // This object has thrift server inside
