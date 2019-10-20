@@ -4,6 +4,8 @@ import glob
 import getpass
 import os.path
 from hashlib import sha256
+import traceback
+
 
 sys.path.append('gen-py')
 if (os.path.exists('/usr/local/lib/python3.7/dist-packages/')):
@@ -127,7 +129,9 @@ def put_flag():
 
         transport.close()
     except Exception as e:
+        traceback.print_exc()
         print(e)
+        raise e
         service_down()
 
 def check_flag():
