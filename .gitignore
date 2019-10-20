@@ -13,3 +13,4 @@ _*
 *.ycm_extra_conf.py
 *.cfg
 core
+fhq-jury-ad-testing/jury.d/logs/*
