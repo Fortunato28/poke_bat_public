@@ -191,6 +191,7 @@ void show_pok_by_private_id()
     }
 
     printPokemon(gottenPokemon);
+    printf("And some comment about your baby pokemon = %s\n", gottenPokemon.flag.c_str());
 }
 
 void show_current_pok(Pokemon& c_pok)
