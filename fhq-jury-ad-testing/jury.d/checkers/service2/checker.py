@@ -134,10 +134,16 @@ def put_flag():
         print(s)
 
         transport.close()
-    except Exception as e:
-        traceback.print_exc()
+    except Thrift.TException as e:
         print(e)
-        raise e
+        service_corrupt()
+    except Thrift.TApplicationException as e:
+        print(e)
+        service_corrupt()
+    except Exception as e:
+        # traceback.print_exc()
+        print(e)
+        # raise e
         service_down()
 
 def check_flag():
@@ -157,6 +163,12 @@ def check_flag():
         print(flag2)
 
         transport.close()
+    except Thrift.TException as e:
+        print(e)
+        service_corrupt()
+    except Thrift.TApplicationException as e:
+        print(e)
+        service_corrupt()
     except Exception as e:
         print(e)
         service_down()

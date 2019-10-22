@@ -32,10 +32,10 @@ services:
     volumes:
       - "./tmp_docker_team2_service2_mysql:/var/lib/mysql"
     environment:
-      MYSQL_ROOT_PASSWORD: aCPHKfcGHX
-      MYSQL_USER: pokebatdb2
-      MYSQL_PASS: pokebatuser2
-      MYSQL_DATABASE: pokebatpass2
+      - MYSQL_ROOT_PASSWORD=aCPHKfcGHX
+      - MYSQL_USER=pokebatuser2
+      - MYSQL_PASSWORD=pokebatpass2
+      - MYSQL_DATABASE=pokebatdb2
     networks:
       - fhqjuryad_net
 
@@ -47,7 +47,7 @@ services:
     ports:
       - 3991:3990
     volumes:
-      - "./team1_poketbat.conf:/etc/pokebat.conf"
+      - "./team2_poketbat.conf:/etc/pokebat.conf"
     networks:
       - fhqjuryad_net
 

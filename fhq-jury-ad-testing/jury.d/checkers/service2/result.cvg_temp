@@ -3860,26 +3860,13 @@ PsychoBoost_ATTACK_5
 
 Turtwig
 Grass
-550000
-680000
-640000
-450000
-550000
+55000000
+68000000
+64000000
+45000000
+55000000
 31
-YPEhtml>
-<html>
-<head>
-<title>503Backendfetchfailed</title>
-</head>
-<body>
-<h1>Error503Backendfetchfailed</h1>
-<p>Backendfetchfailed</p>
-<h3>GuruMeditation:</h3>
-<p>XID:64652433</p>
-<hr>
-<p>Varnishcacheserver</p>
-</body>
-</html>_BUFF_5
+Error_BUFF_5
 
 Grotle
 Grass
