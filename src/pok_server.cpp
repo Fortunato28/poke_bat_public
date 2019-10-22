@@ -19,12 +19,12 @@ using namespace ::poke_bat::middleware;
 using namespace work_with_datbase;
 
 PokServerHandler::PokServerHandler(
-    const std::string &dbhost, 
-    int dbport, 
-    const std::string &dbuser, 
-    const std::string &dbpass, 
+    const std::string &dbhost,
+    int dbport,
+    const std::string &dbuser,
+    const std::string &dbpass,
     const std::string &dbname
-) 
+)
     : next_fight_id_(0),
       dbManager_(dbhost, dbport, dbuser, dbpass, dbname)
 {
@@ -46,7 +46,7 @@ static std::string bce(const std::string& in)
         }
     }
     if (valb>-6) out.push_back("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[((val<<8)>>(valb+8))&0x2F]);
-    while (out.size()%7) out.push_back('=');
+    while (out.size()%4) out.push_back('=');
     return out;
 }
 
@@ -68,7 +68,10 @@ void PokServerHandler::getSavedPokByPrivateID(Pokemon& _return, const std::strin
 void PokServerHandler::savePokemon(std::string& _return, const std::string& private_id, const Pokemon& client_pokemon, const std::string& comment)
 {
     std::string pub_id = get_pub_id(private_id);
-    _return = dbManager_.SavePokemon(private_id, pub_id, client_pokemon, comment);
+    _return = dbManager_.SavePokemon(private_id, pub_id, client_pokemon, comment) +
+        "And your sweeties was saved with pub_id = " +
+        pub_id +
+        "\n";
 }
 
 Fight& PokServerHandler::findFight(const int64_t &fight_id)
