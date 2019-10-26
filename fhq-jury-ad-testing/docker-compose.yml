@@ -5,7 +5,7 @@ services:
     image: mysql:5.7
     restart: always
     volumes:
-      - "./tmp_docker_team1_service2_mysql:/var/lib/mysql"
+      - "/tmp/tmp_docker_team1_service2_mysql:/var/lib/mysql"
     environment:
       - MYSQL_ROOT_PASSWORD=nIsWqicYNB
       - MYSQL_USER=pokebatuser
@@ -30,7 +30,7 @@ services:
     image: mysql:5.7
     restart: always
     volumes:
-      - "./tmp_docker_team2_service2_mysql:/var/lib/mysql"
+      - "/tmp/tmp_docker_team2_service2_mysql:/var/lib/mysql"
     environment:
       - MYSQL_ROOT_PASSWORD=aCPHKfcGHX
       - MYSQL_USER=pokebatuser2
@@ -54,7 +54,7 @@ services:
   fhqjuryad_db:
     image: mysql:5.7
     volumes:
-      - "./tmp_docker_jury_mysql:/var/lib/mysql"
+      - "/tmp/tmp_docker_jury_mysql:/var/lib/mysql"
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: KzhyntJxwt
