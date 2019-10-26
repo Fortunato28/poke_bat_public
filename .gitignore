@@ -15,3 +15,4 @@ _*
 core
 fhq-jury-ad-testing/jury.d/logs/*
 *.cvg
+*logs*

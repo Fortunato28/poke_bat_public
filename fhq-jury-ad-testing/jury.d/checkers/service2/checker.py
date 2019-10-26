@@ -176,12 +176,66 @@ def check_flag():
     if flag != flag2:
         service_corrupt()
 
+def log_it_mafacka(output):
+    with open("./poke_bat_logs.txt", "a") as f:
+        f.write(output + "\n")
+
+def is_saved_pokemon_exist_in_db():
+    pok = Pokemon(
+        "pikachu",                                          #name
+        PokemonType.NORMAL,                                 #type
+        10,                                                 #HP
+        10,                                                 #attack
+        10,                                                 #defense
+        10,                                                 #sp_atk
+        10,                                                 #sp_def
+        10,                                                 #speed
+        0,                                                  #EXP
+        2,                                                  #LVL
+        PokemonSkill("lightning", SkillType.ATTACK, 3),     #skill
+        '',                                                 #flag
+        '',                                                 #pub_id
+        )
+
+    # Thrifts shit
+    transport = TSocket.TSocket(host, port)
+    transport = TTransport.TFramedTransport(transport)
+    protocol = TBinaryProtocol.TBinaryProtocol(transport)
+    client = Client(protocol)
+    transport.open()
+
+    # Save pokemon and get its pub_id
+    saved_result = client.savePokemon("zhopa", pok, "test_checker")
+    base_for_search = "with pub_id = "
+    index_for_search_pub_id = saved_result.find(base_for_search)
+    saved_pok_pub_id = saved_result[index_for_search_pub_id + len(base_for_search):].replace('\n', '')
+
+    # Get table and pud_id there
+    table = client.getSavedPoksTable()
+    transport.close()
+    pub_id_index_in_table = table.find(" " + saved_pok_pub_id + " ")
+    pub_id_in_table = table[pub_id_index_in_table + 1: pub_id_index_in_table + len(saved_pok_pub_id) + 1]
+
+    pub_id_in_table = "konb"
+
+    # TODO test!
+    if pub_id_in_table != saved_pok_pub_id:
+        log_it_mafacka(pub_id_in_table + " " + saved_pok_pub_id)
+        service_corrupt()
+
+    spliter_index = table.find("|\n", pub_id_index_in_table)
+    row_with_pok = table[pub_id_index_in_table: spliter_index + 1]
+    log_it_mafacka(row_with_pok)
+
 
 if command == "put":
+    ## TODO delete
+    #is_saved_pokemon_exist_in_db()
     put_flag()
     check_flag()
     service_up()
 
 if command == "check":
     check_flag()
+    is_saved_pokemon_exist_in_db()
     service_up()
