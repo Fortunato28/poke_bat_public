@@ -6,6 +6,7 @@ import os.path
 import shutil
 from hashlib import sha256
 import traceback
+import re
 
 
 sys.path.append('gen-py')
@@ -182,7 +183,7 @@ def log_it_mafacka(output):
 
 def is_saved_pokemon_exist_in_db():
     pok = Pokemon(
-        "pikachu",                                          #name
+        "picachu",                                          #name
         PokemonType.NORMAL,                                 #type
         10,                                                 #HP
         11,                                                 #attack
@@ -230,6 +231,7 @@ def is_saved_pokemon_exist_in_db():
     log_it_mafacka(row_with_pok)
 
     # TODO test!
+    # Check correctness of saved in table pokemons
     if row_with_pok.find(pok.name) == -1:
         service_corrupt()
 
@@ -254,6 +256,35 @@ def is_saved_pokemon_exist_in_db():
     if row_with_pok.find(str(pok.LVL)) == -1:
         service_corrupt()
 
+def is_pok_lvl_upped():
+    # Thrifts shit
+    transport = TSocket.TSocket(host, port)
+    transport = TTransport.TFramedTransport(transport)
+    protocol = TBinaryProtocol.TBinaryProtocol(transport)
+    client = Client(protocol)
+    transport.open()
+
+    # Get config with pokemon
+    gotten_conf = client.getConfig()
+    transport.close()
+
+    log_it_mafacka(gotten_conf)
+    #log_it_mafacka(re.findall(r'HP = ([1-9]+)', gotten_conf)[0])
+
+    # TODO завершить скилл
+    pok = Pokemon(
+            re.findall(r'name = "(\w+)"', gotten_conf)[0],
+            PokemonType()._NAMES_TO_VALUES[re.findall(r'type = "([A-Z]+)"', gotten_conf)[0]],
+            int(re.findall(r'HP = ([1-9]+)', gotten_conf)[0]),
+            int(re.findall(r'Attack = ([1-9]+)', gotten_conf)[0]),
+            int(re.findall(r'Defense = ([1-9]+)', gotten_conf)[0]),
+            int(re.findall(r'Sp_Atk = ([1-9]+)', gotten_conf)[0]),
+            int(re.findall(r'Sp_Def = ([1-9]+)', gotten_conf)[0]),
+            int(re.findall(r'Speed = ([1-9]+)', gotten_conf)[0]),
+            int(re.findall(r'EXP = ([1-9]+)', gotten_conf)[0]),
+            int(re.findall(r'LVL = ([1-9]+)', gotten_conf)[0]),
+            )
+
 if command == "put":
     put_flag()
     check_flag()
@@ -261,5 +292,6 @@ if command == "put":
 
 if command == "check":
     check_flag()
-    is_saved_pokemon_exist_in_db()
+    #is_saved_pokemon_exist_in_db()
+    is_pok_lvl_upped()
     service_up()
