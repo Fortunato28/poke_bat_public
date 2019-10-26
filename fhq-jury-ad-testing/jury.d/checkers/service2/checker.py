@@ -47,7 +47,7 @@ def parse_pokemon(stat_arr):
     PS = PokemonSkill(s_name, s_type, s_amount)
 
     pok = Pokemon(
-            stat_arr[0],                #name
+            stat_arr[0].replace('\n', ''),                #name
             PT,                         #type
             int(stat_arr[2]),           #HP
             int(stat_arr[3]),           #attack
