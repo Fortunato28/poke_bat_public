@@ -185,11 +185,11 @@ def is_saved_pokemon_exist_in_db():
         "pikachu",                                          #name
         PokemonType.NORMAL,                                 #type
         10,                                                 #HP
-        10,                                                 #attack
-        10,                                                 #defense
-        10,                                                 #sp_atk
-        10,                                                 #sp_def
-        10,                                                 #speed
+        11,                                                 #attack
+        12,                                                 #defense
+        13,                                                 #sp_atk
+        14,                                                 #sp_def
+        15,                                                 #speed
         0,                                                  #EXP
         2,                                                  #LVL
         PokemonSkill("lightning", SkillType.ATTACK, 3),     #skill
@@ -205,7 +205,7 @@ def is_saved_pokemon_exist_in_db():
     transport.open()
 
     # Save pokemon and get its pub_id
-    saved_result = client.savePokemon("zhopa", pok, "test_checker")
+    saved_result = client.savePokemon("noga", pok, "test_checker")
     base_for_search = "with pub_id = "
     index_for_search_pub_id = saved_result.find(base_for_search)
     saved_pok_pub_id = saved_result[index_for_search_pub_id + len(base_for_search):].replace('\n', '')
@@ -216,21 +216,45 @@ def is_saved_pokemon_exist_in_db():
     pub_id_index_in_table = table.find(" " + saved_pok_pub_id + " ")
     pub_id_in_table = table[pub_id_index_in_table + 1: pub_id_index_in_table + len(saved_pok_pub_id) + 1]
 
+    # TODO test! Strange things
     pub_id_in_table = "konb"
 
-    # TODO test!
     if pub_id_in_table != saved_pok_pub_id:
         log_it_mafacka(pub_id_in_table + " " + saved_pok_pub_id)
         service_corrupt()
 
+    # Get string with certain pokemon
     spliter_index = table.find("|\n", pub_id_index_in_table)
     row_with_pok = table[pub_id_index_in_table: spliter_index + 1]
+
     log_it_mafacka(row_with_pok)
 
+    # TODO test!
+    if row_with_pok.find(pok.name) == -1:
+        service_corrupt()
+
+    if row_with_pok.find(PokemonType()._VALUES_TO_NAMES[pok.type]) == -1:
+        service_corrupt()
+
+    if row_with_pok.find(str(pok.HP)) == -1:
+        service_corrupt()
+
+    if row_with_pok.find(str(pok.attack)) == -1:
+        service_corrupt()
+
+    if row_with_pok.find(str(pok.defense)) == -1:
+        service_corrupt()
+
+    if row_with_pok.find(str(pok.spell_attack)) == -1:
+        service_corrupt()
+
+    if row_with_pok.find(str(pok.spell_defense)) == -1:
+        service_corrupt()
+
+    if row_with_pok.find(str(pok.LVL)) == -1:
+        service_corrupt()
 
 if command == "put":
-    ## TODO delete
-    #is_saved_pokemon_exist_in_db()
     put_flag()
     check_flag()
     service_up()
