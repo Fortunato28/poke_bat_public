@@ -206,7 +206,7 @@ def is_saved_pokemon_exist_in_db():
     transport.open()
 
     # Save pokemon and get its pub_id
-    saved_result = client.savePokemon("noga", pok, "test_checker")
+    saved_result = client.savePokemon("zhupa", pok, "test_checker")
     base_for_search = "with pub_id = "
     index_for_search_pub_id = saved_result.find(base_for_search)
     saved_pok_pub_id = saved_result[index_for_search_pub_id + len(base_for_search):].replace('\n', '')
@@ -218,7 +218,7 @@ def is_saved_pokemon_exist_in_db():
     pub_id_in_table = table[pub_id_index_in_table + 1: pub_id_index_in_table + len(saved_pok_pub_id) + 1]
 
     # TODO test! Strange things
-    pub_id_in_table = "konb"
+    #pub_id_in_table = "konb"
 
     if pub_id_in_table != saved_pok_pub_id:
         log_it_mafacka(pub_id_in_table + " " + saved_pok_pub_id)
@@ -227,8 +227,6 @@ def is_saved_pokemon_exist_in_db():
     # Get string with certain pokemon
     spliter_index = table.find("|\n", pub_id_index_in_table)
     row_with_pok = table[pub_id_index_in_table: spliter_index + 1]
-
-    log_it_mafacka(row_with_pok)
 
     # TODO test!
     # Check correctness of saved in table pokemons
@@ -268,30 +266,44 @@ def is_pok_lvl_upped():
     gotten_conf = client.getConfig()
     transport.close()
 
-    log_it_mafacka(gotten_conf)
-    #log_it_mafacka(re.findall(r'HP = ([1-9]+)', gotten_conf)[0])
+    #log_it_mafacka(gotten_conf)
+    test_skill_name = re.findall(r'skills = \( \("(.+?)",', gotten_conf)[0]
+    test_skill_type = re.findall(r'\",\s*\"([A-Z]+)\",', gotten_conf)[0]
+    test_skill_amount = re.findall(r'skills = .*",(\d)\)\s*\)', gotten_conf)[0]
+    log_it_mafacka(test_skill_amount)
+
+    test_name = re.findall(r'name = "(\w+)"', gotten_conf)[0]
+    test_type = PokemonType()._NAMES_TO_VALUES[re.findall(r'type = "([A-Z]+)"', gotten_conf)[0]]
+    test_HP = re.findall(r'HP = ([1-9]+)', gotten_conf)[0]
+    test_Attack = re.findall(r'Attack = ([1-9]+)', gotten_conf)[0]
+    test_Defense = re.findall(r'Defense = ([1-9]+)', gotten_conf)[0]
+    test_Sp_Atk = re.findall(r'Sp_Atk = ([1-9]+)', gotten_conf)[0]
+    test_Sp_Def = re.findall(r'Sp_Def = ([1-9]+)', gotten_conf)[0]
+    test_Speed = re.findall(r'Speed = ([1-9]+)', gotten_conf)[0]
+    test_EXP = re.findall(r'EXP = (\d+)', gotten_conf)[0]
+    test_LVL = re.findall(r'LVL = (\d+)', gotten_conf)[0]
 
     # TODO завершить скилл
     pok = Pokemon(
-            re.findall(r'name = "(\w+)"', gotten_conf)[0],
-            PokemonType()._NAMES_TO_VALUES[re.findall(r'type = "([A-Z]+)"', gotten_conf)[0]],
-            int(re.findall(r'HP = ([1-9]+)', gotten_conf)[0]),
-            int(re.findall(r'Attack = ([1-9]+)', gotten_conf)[0]),
-            int(re.findall(r'Defense = ([1-9]+)', gotten_conf)[0]),
-            int(re.findall(r'Sp_Atk = ([1-9]+)', gotten_conf)[0]),
-            int(re.findall(r'Sp_Def = ([1-9]+)', gotten_conf)[0]),
-            int(re.findall(r'Speed = ([1-9]+)', gotten_conf)[0]),
-            int(re.findall(r'EXP = ([1-9]+)', gotten_conf)[0]),
-            int(re.findall(r'LVL = ([1-9]+)', gotten_conf)[0]),
+            test_name,
+            test_type,
+            int(test_HP),
+            int(test_Attack),
+            int(test_Defense),
+            int(test_Sp_Atk),
+            int(test_Sp_Def),
+            int(test_Speed),
+            int(test_EXP),
+            int(test_LVL),
             )
 
 if command == "put":
     put_flag()
     check_flag()
+    #is_saved_pokemon_exist_in_db()
+    is_pok_lvl_upped()
     service_up()
 
 if command == "check":
     check_flag()
-    #is_saved_pokemon_exist_in_db()
-    is_pok_lvl_upped()
     service_up()
