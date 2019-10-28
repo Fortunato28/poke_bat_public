@@ -54,8 +54,9 @@ Pokemon getPokemonFromConfig(ClientController& client)
 
 bool isFightStopped(const RoundResult& roundResult_)
 {
-    if (roundResult_.clientPokemon.HP <= 0 ||
-        roundResult_.serverPokemon.HP <= 0)
+    string you_r_loh = "Try harder next time, loser!";
+    if (roundResult_.serverPokemon.HP <= 0 ||
+        roundResult_.actionResultDescription.find(you_r_loh) != std::string::npos)
     {
         return true;
     }
@@ -104,9 +105,6 @@ Pokemon start_fight()
         std::cout << "Press 1 to punch enemy pokemon;\n"
                   << "Press 2 to defend;\n"
                   << "Press 3 to use skill;\n"; 
-        //int action = 228;
-        //std::cin >> action;
-        //std::cout << "=================================\n";
 
         int action;
         string buf;

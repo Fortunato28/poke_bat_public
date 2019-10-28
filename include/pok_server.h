@@ -1,6 +1,8 @@
 #pragma once
 
 #include <map>
+#include <mutex>
+
 #include "fight.h"
 #include "gen-cpp/PokServer.h"
 #include <thrift/protocol/TBinaryProtocol.h>
@@ -19,10 +21,10 @@ class PokServerHandler : virtual public PokServerIf
 {
  public:
   PokServerHandler(
-    const std::string &dbhost, 
-    int dbport, 
-    const std::string &dbuser, 
-    const std::string &dbpass, 
+    const std::string &dbhost,
+    int dbport,
+    const std::string &dbuser,
+    const std::string &dbpass,
     const std::string &dbname
   );
 
@@ -54,4 +56,7 @@ private:
   std::map<uint64_t, Fight> fight_storage_;
   work_with_datbase::DBManager dbManager_;
   serverConfigHandler configHandler;
+
+  std::mutex dbMan_defender_;
+  std::mutex fight_storange_defender_;
 };

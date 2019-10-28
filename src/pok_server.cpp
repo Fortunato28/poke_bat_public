@@ -57,17 +57,21 @@ std::string get_pub_id(const std::string& private_id)
 
 void PokServerHandler::getSavedPoksTable(std::string& _return)
 {
+    std::lock_guard<std::mutex> db_guard(dbMan_defender_);
     _return = dbManager_.GetSavedPoks();
 }
 
 void PokServerHandler::getSavedPokByPrivateID(Pokemon& _return, const std::string& private_id)
 {
+    std::lock_guard<std::mutex> db_guard(dbMan_defender_);
     _return = dbManager_.GetPokByPrivateID(private_id);
 }
 
 void PokServerHandler::savePokemon(std::string& _return, const std::string& private_id, const Pokemon& client_pokemon, const std::string& comment)
 {
     std::string pub_id = get_pub_id(private_id);
+
+    std::lock_guard<std::mutex> db_guard(dbMan_defender_);
     _return = dbManager_.SavePokemon(private_id, pub_id, client_pokemon, comment) +
         "And your sweeties was saved with pub_id = " +
         pub_id +
@@ -77,6 +81,7 @@ void PokServerHandler::savePokemon(std::string& _return, const std::string& priv
 Fight& PokServerHandler::findFight(const int64_t &fight_id)
 {
     //printf("%lu", fight_storage.find(fight_id)->first);
+    std::lock_guard<std::mutex> fight_storage_guard(fight_storange_defender_);
     return fight_storage_.at(fight_id);
 }
 
@@ -239,8 +244,12 @@ void PokServerHandler::startFight(FightData& _return, const std::string& pub_id,
         return;
     }
 
-    _return.pokemon = dbManager_.GetPokemonToFight(pub_id);
+    {
+        std::lock_guard<std::mutex> db_guard(dbMan_defender_);
+        _return.pokemon = dbManager_.GetPokemonToFight(pub_id);
+    }
     Fight fight(clientPokemon, _return.pokemon);
+    std::lock_guard<std::mutex> fight_storage_guard(fight_storange_defender_);
     fight_storage_.emplace(next_fight_id_, fight);
 
     _return.__set_fight_id(next_fight_id_);
@@ -306,17 +315,24 @@ bool PokServerHandler::isFightStopped(
         roundResult_.__set_clientPokemon(c_pok);
 
         roundResult_.__set_serverPokemon(s_pok);
-        roundResult_.__set_actionResultDescription(clientWin() + dbManager_.GetComment(s_pok.pub_id) + "\n");
+        {
+            std::lock_guard<std::mutex> db_guard(dbMan_defender_);
+            roundResult_.__set_actionResultDescription(clientWin() + dbManager_.GetComment(s_pok.pub_id) + "\n");
+        }
         // Drop fight
+        std::lock_guard<std::mutex> fight_storage_guard(fight_storange_defender_);
         fight_storage_.erase(fight_id);
         return true;
     }
     if(isDeadInside(c_pok))
     {
+        c_pok.HP = current_fight.GetDefaultClienHP();
+        c_pok.skill.amount = 5;
         roundResult_.__set_clientPokemon(c_pok);
         roundResult_.__set_serverPokemon(s_pok);
         roundResult_.__set_actionResultDescription(serverWin());
         // Drop fight
+        std::lock_guard<std::mutex> fight_storage_guard(fight_storange_defender_);
         fight_storage_.erase(fight_id);
         return true;
     }

@@ -2,6 +2,8 @@
 
 #include <memory>
 #include <cstddef>
+#include <memory>
+#include <mutex>
 
 #include <cppconn/statement.h>
 
@@ -17,6 +19,8 @@ public:
     DBManager(const std::string host, const int, const std::string user, const std::string pass, const std::string db_name);
     ~DBManager();
 
+    void ConnectToDB();
+    void ReconnectToDB();
     std::string SavePokemon(const std::string& private_id,
                      const std::string& pub_id,
                      const Pokemon& given_pok,
@@ -40,9 +44,12 @@ private:
     const std::string db_name_;
 
     // Держалки коннекта к базе
-    sql::Statement* stmt_;
-    sql::Connection* con_;
+    std::unique_ptr<sql::Statement> stmt_;
+    std::unique_ptr<sql::Connection> con_;
 
     const std::string table_name = "saved_pokemons";
+
+    // Мьютекс для синхронизации доступа к драйверу
+    std::mutex driver_security;
 };
 } // namespace

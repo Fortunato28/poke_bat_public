@@ -46,39 +46,8 @@ DBManager::DBManager(const std::string host, const int port, const std::string u
 {
     try
     {
-        sql::mysql::MySQL_Driver* driver = sql::mysql::get_driver_instance();
-
-        ///* Using the Driver to create a connection */
-        std::string fullHost = "tcp://" + host_ + ":" + std::to_string(port);
-        
-
-        // driver->connect("tcp://127.0.0.1:3306", "root", "root");
-        std::cout << "Try connect to '" + fullHost + "' as user '" + user_ + "' with password '" + pass_ + "' " << std::endl;
-        con_ = driver->connect(fullHost, user_, pass_);
-        
-        if (con_->isValid()) {
-            printf("Connected to database succesfully\n");
-        } else {
-            printf("Can't connect to database!\n");
-            // throw::runtime_error("Can't connect to database!");
-        }
-
-        // con_->setSchema(db_name_);
-        std::cout << "Switch to schema '" + db_name_ + "' " << std::endl;
-        con_->setSchema(db_name_);
-
-        stmt_ = con_->createStatement();
-
+        ConnectToDB();
         CreateTable();
-    }
-    catch (sql::SQLException &e)
-    {
-        cout << "# ERR: SQLException in " << __FILE__;
-        cout << "(DBManager::DBManager) on line " << __LINE__ << endl;
-        cout << "# ERR: " << e.what();
-        cout << " (MySQL error code: " << e.getErrorCode();
-        cout << ", SQLState: " << e.getSQLState() << " )" << endl;
-        throw std::runtime_error("Cannot connect to database!");
     }
     catch (std::exception &e)
     {
@@ -86,16 +55,48 @@ DBManager::DBManager(const std::string host, const int port, const std::string u
     }
 }
 
+void DBManager::ConnectToDB() try
+{
+    sql::mysql::MySQL_Driver* driver;
+    {
+        std::lock_guard<std::mutex> driver_guard(driver_security);
+        driver = sql::mysql::get_driver_instance();
+    }
+
+    ///* Using the Driver to create a connection */
+    std::string fullHost = "tcp://" + host_ + ":" + std::to_string(port_);
+
+    std::cout << "Try connect to '" + fullHost + "' as user '" + user_ + "' with password '" + pass_ + "' " << std::endl;
+    con_.reset(driver->connect(fullHost, user_, pass_));
+
+    if (con_->isValid()) {
+        printf("Connected to database succesfully\n");
+    } else {
+        printf("Can't connect to database!\n");
+        // throw::runtime_error("Can't connect to database!");
+    }
+
+    std::cout << "Switch to schema '" + db_name_ + "' " << std::endl;
+    con_->setSchema(db_name_);
+
+    stmt_.reset(con_->createStatement());
+}
+catch (sql::SQLException &e)
+{
+    cout << "# ERR: SQLException in " << __FILE__;
+    cout << "(DBManager::DBManager) on line " << __LINE__ << endl;
+    cout << "# ERR: " << e.what();
+    cout << " (MySQL error code: " << e.getErrorCode();
+    cout << ", SQLState: " << e.getSQLState() << " )" << endl;
+    throw std::runtime_error("Cannot connect to database!");
+}
+catch (std::exception &e)
+{
+    throw std::runtime_error("Ya blya ne znau shto esche tut mozhno sdelatb");
+}
+
 DBManager::~DBManager()
 {
-    if(con_)
-    {
-        delete con_;
-    }
-    if(stmt_)
-    {
-        delete stmt_;
-    }
 }
 
 // Выровнять конкретный столбец таблицы
@@ -155,7 +156,7 @@ void level_off_table(vector<string>& table)
     }
 }
 
-const std::string DBManager::GetSavedPoks()
+const std::string DBManager::GetSavedPoks() try
 {
     string query = "SELECT pub_id, name, type, HP, attack, defense, spell_attack, spell_defense, LVL FROM " + table_name + ";";
 
@@ -206,8 +207,19 @@ const std::string DBManager::GetSavedPoks()
     delete res;
     return result;
 }
+catch(std::exception& e)
+{
+    auto word_in_mysql_except = "MySQL";
+    string full_exception = e.what();
 
-Pokemon DBManager::GetPokByPrivateID(const std::string& private_id)
+    if (full_exception.find(word_in_mysql_except) != std::string::npos)
+    {
+        ReconnectToDB();
+    }
+    return {};
+}
+
+Pokemon DBManager::GetPokByPrivateID(const std::string& private_id) try
 {
     string query = "SELECT * FROM " + table_name + " WHERE private_id='" + private_id + "';";
 
@@ -241,6 +253,17 @@ Pokemon DBManager::GetPokByPrivateID(const std::string& private_id)
         delete res;
     }
     return gottenPokemon;
+}
+catch(std::exception& e)
+{
+    auto word_in_mysql_except = "MySQL";
+    string full_exception = e.what();
+
+    if (full_exception.find(word_in_mysql_except) != std::string::npos)
+    {
+        ReconnectToDB();
+    }
+    return {};
 }
 
 void DBManager::CreateTable() // TODO: Why create database if function is createTable ????
@@ -288,7 +311,7 @@ void DBManager::CreateTable() // TODO: Why create database if function is create
 string DBManager::SavePokemon(const std::string& private_id,
                             const std::string& pub_id,
                             const Pokemon& pok,
-                            const std::string& comment)
+                            const std::string& comment) try
 {
     Pokemon isPokExists = GetPokByPrivateID(private_id);
     if(isPokExists.EXP != -1)
@@ -319,8 +342,19 @@ string DBManager::SavePokemon(const std::string& private_id,
 
     return {"Your pokemon was successfully saved!\n"};
 }
+catch(std::exception& e)
+{
+    auto word_in_mysql_except = "MySQL";
+    string full_exception = e.what();
 
-const std::string DBManager::GetComment(const string& pub_id)
+    if (full_exception.find(word_in_mysql_except) != std::string::npos)
+    {
+        ReconnectToDB();
+    }
+    return {};
+}
+
+const std::string DBManager::GetComment(const string& pub_id) try
 {
     const string query = "SELECT comment FROM saved_pokemons WHERE pub_id='" + pub_id + "';";
     unique_ptr<sql::ResultSet> res(stmt_->executeQuery(query));
@@ -331,8 +365,19 @@ const std::string DBManager::GetComment(const string& pub_id)
     }
     return {};
 }
+catch(std::exception& e)
+{
+    auto word_in_mysql_except = "MySQL";
+    string full_exception = e.what();
 
-Pokemon DBManager::GetPokemonToFight(const string& pub_id)
+    if (full_exception.find(word_in_mysql_except) != std::string::npos)
+    {
+        ReconnectToDB();
+    }
+    return {};
+}
+
+Pokemon DBManager::GetPokemonToFight(const string& pub_id) try
 {
     const string getPokemonCommand = "SELECT * FROM " + table_name + " WHERE pub_id=" + "'" + pub_id + "'" + ";";
         sql::ResultSet* res(stmt_->executeQuery(getPokemonCommand));
@@ -365,11 +410,38 @@ Pokemon DBManager::GetPokemonToFight(const string& pub_id)
         }
         return gottenPokemon;
 }
+catch(std::exception& e)
+{
+    auto word_in_mysql_except = "MySQL";
+    string full_exception = e.what();
 
-void DBManager::RemovePokemon()
+    if (full_exception.find(word_in_mysql_except) != std::string::npos)
+    {
+        ReconnectToDB();
+    }
+    return {};
+}
+
+void DBManager::RemovePokemon() try
 {
     string deleteCommand = "DELETE FROM " + table_name + " WHERE spell_attack=5;";
     stmt_->execute(deleteCommand);
+}
+catch(std::exception& e)
+{
+    auto word_in_mysql_except = "MySQL";
+    string full_exception = e.what();
+
+    if (full_exception.find(word_in_mysql_except) != std::string::npos)
+    {
+        ReconnectToDB();
+    }
+}
+
+void DBManager::ReconnectToDB()
+{
+    con_->reconnect();
+    printf("Succesfully reconnected!\n");
 }
 
 }

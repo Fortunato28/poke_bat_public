@@ -386,7 +386,7 @@ def is_pok_lvl_upped():
 if command == "put":
     put_flag()
     check_flag()
-    #is_saved_pokemon_exist_in_db()
+    is_saved_pokemon_exist_in_db()
     is_pok_lvl_upped()
     service_up()
 
