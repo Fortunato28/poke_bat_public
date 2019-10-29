@@ -150,7 +150,6 @@ def put_flag():
         transport.open()
 
         log_output = client.savePokemon(f_id, pok, flag)
-        log_it_mafacka(log_output)
 
         transport.close()
     except Thrift.TApplicationException as e:
@@ -293,42 +292,38 @@ def is_pok_lvl_upped():
         gotten_conf = client.getConfig()
         transport.close()
 
-        test_skill_name = re.findall(r'skills = \( \("(.+?)",', gotten_conf)[0]
-        test_skill_type = re.findall(r'\",\s*\"([A-Z]+)\",', gotten_conf)[0]
-        test_skill_amount = re.findall(r'skills = .*",(\d)\)\s*\)', gotten_conf)[0]
-        test_skill = PokemonSkill(test_skill_name,
-                                  SkillType()._NAMES_TO_VALUES[test_skill_type],
-                                  int(test_skill_amount))
+        buf_skill_name = re.findall(r'skills = \( \("(.+?)",', gotten_conf)[0]
+        buf_skill_type = re.findall(r'\",\s*\"([A-Z]+)\",', gotten_conf)[0]
+        buf_skill_amount = re.findall(r'skills = .*",(\d)\)\s*\)', gotten_conf)[0]
+        buf_skill = PokemonSkill(buf_skill_name,
+                                  SkillType()._NAMES_TO_VALUES[buf_skill_type],
+                                  int(buf_skill_amount))
 
-        test_name = re.findall(r'name = "(\w+)"', gotten_conf)[0]
-        test_type = PokemonType()._NAMES_TO_VALUES[re.findall(r'type = "([A-Z]+)"', gotten_conf)[0]]
-        test_HP = re.findall(r'HP = ([1-9]+)', gotten_conf)[0]
-        test_Attack = re.findall(r'Attack = ([1-9]+)', gotten_conf)[0]
-        test_Defense = re.findall(r'Defense = ([1-9]+)', gotten_conf)[0]
-        test_Sp_Atk = re.findall(r'Sp_Atk = ([1-9]+)', gotten_conf)[0]
-        test_Sp_Def = re.findall(r'Sp_Def = ([1-9]+)', gotten_conf)[0]
-        test_Speed = re.findall(r'Speed = ([1-9]+)', gotten_conf)[0]
-        test_EXP = re.findall(r'EXP = (\d+)', gotten_conf)[0]
-        test_LVL = re.findall(r'LVL = (\d+)', gotten_conf)[0]
-        test_flag = re.findall(r'key = \"(\w+)\"', gotten_conf)[0]
-
-        #TODO figure out the reason of our pokemon's verifications trouble
-        # log_it_mafacka(gotten_conf)
-        # log_it_mafacka(test_type)
+        buf_name = re.findall(r'name = "(\w+)"', gotten_conf)[0]
+        buf_type = PokemonType()._NAMES_TO_VALUES[re.findall(r'type = "([A-Z]+)"', gotten_conf)[0]]
+        buf_HP = re.findall(r'HP = ([1-9]+)', gotten_conf)[0]
+        buf_Attack = re.findall(r'Attack = (\d+)', gotten_conf)[0]
+        buf_Defense = re.findall(r'Defense = (\d+)', gotten_conf)[0]
+        buf_Sp_Atk = re.findall(r'Sp_Atk = (\d+)', gotten_conf)[0]
+        buf_Sp_Def = re.findall(r'Sp_Def = (\d+)', gotten_conf)[0]
+        buf_Speed = re.findall(r'Speed = (\d+)', gotten_conf)[0]
+        buf_EXP = re.findall(r'EXP = (\d+)', gotten_conf)[0]
+        buf_LVL = re.findall(r'LVL = (\d+)', gotten_conf)[0]
+        buf_flag = re.findall(r'key = \"(\w+)\"', gotten_conf)[0]
 
         pok = Pokemon(
-                test_name,
-                test_type,
-                int(test_HP),
-                int(test_Attack),
-                int(test_Defense),
-                int(test_Sp_Atk),
-                int(test_Sp_Def),
-                int(test_Speed),
-                int(test_EXP),
-                int(test_LVL),
-                test_skill,
-                test_flag,
+                buf_name,
+                buf_type,
+                int(buf_HP),
+                int(buf_Attack),
+                int(buf_Defense),
+                int(buf_Sp_Atk),
+                int(buf_Sp_Def),
+                int(buf_Speed),
+                int(buf_EXP),
+                int(buf_LVL),
+                buf_skill,
+                buf_flag,
                 ''
                 )
 
@@ -364,7 +359,7 @@ def is_pok_lvl_upped():
 
         # Handle Fucking fight
         answer = client.startFight(saved_pok_pub_id, pok)
-        # log_it_mafacka(answer)
+        log_it_mafacka(answer)
         #TODO get fight_id
         # client.punch(fight_id)
 
