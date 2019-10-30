@@ -178,7 +178,6 @@ def check_flag():
 
         saved_pokemon = client.getSavedPokByPrivateID(f_id)
         gotten_flag = saved_pokemon.flag
-        print(saved_pokemon)
 
         transport.close()
     except Thrift.TApplicationException as e:
@@ -358,12 +357,32 @@ def is_pok_lvl_upped():
         saved_pok_pub_id = saved_result[index_for_search_pub_id + len(base_for_search):].replace('\n', '')
 
         # Handle Fucking fight
-        answer = client.startFight(saved_pok_pub_id, pok)
-        log_it_mafacka(answer)
-        #TODO get fight_id
-        # client.punch(fight_id)
-
+        start_fight_ans = str(client.startFight(saved_pok_pub_id, pok))
+        fight_id = int(re.findall(r'fight_id=(\d+)\)', start_fight_ans)[0])
+        punch_ans = str(client.punch(fight_id))
         transport.close()
+
+        gotten_name = re.findall(r"name='(\w+)'", punch_ans)[0]
+        gotten_HP = re.findall(r'HP=(\d+),', punch_ans)[0]
+        gotten_Attack = re.findall(r'attack=(\d+),', punch_ans)[0]
+        gotten_Defense = re.findall(r'defense=(\d+)', punch_ans)[0]
+        gotten_Sp_Atk = re.findall(r'spell_attack=(\d+),', punch_ans)[0]
+        gotten_Sp_Def = re.findall(r'spell_defense=(\d+),', punch_ans)[0]
+        gotten_EXP = re.findall(r'EXP=(\d+),', punch_ans)[0]
+        gotten_LVL = re.findall(r'LVL=(\d+)', punch_ans)[0]
+
+        # Покемон не прокачался правильно - сервис покоррапчен
+        if (gotten_name != 'picachu' or
+            int(gotten_HP) != 50 or
+            int(gotten_Attack) != 58 or
+            int(gotten_Defense) != 33 or
+            int(gotten_Sp_Atk) != 59 or
+            int(gotten_Sp_Def) != 49 or
+            int(gotten_EXP) != 200 or
+            int(gotten_LVL) != 2
+                ):
+            service_corrupt()
+
     except Thrift.TApplicationException as e:
         log_it_mafacka(e)
         service_corrupt()
